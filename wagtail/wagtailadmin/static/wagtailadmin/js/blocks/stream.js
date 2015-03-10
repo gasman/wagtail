@@ -10,11 +10,21 @@
         */
         var self = {};
         self.container = $('#' + opts.id);
+        self.inner = $('.stream-menu-inner', self.container);
+        self.blocklist = $('ul', self.inner);
+
+        if(self.container.hasClass('stream-menu-closed')){
+            self.inner.css('height',0);
+        }
 
         self.show = function(){
+            self.inner.animate({height: self.blocklist.outerHeight()}, 250, 'swing', function(){
+                $(this).height('auto');
+            });
             self.container.removeClass('stream-menu-closed');
         };
         self.hide = function(){
+            self.inner.animate({height: 0}, 250)
             self.container.addClass('stream-menu-closed');
         };
         self.toggle = function(){
