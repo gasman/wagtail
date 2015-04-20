@@ -1,5 +1,6 @@
 from datetime import timedelta
 import mock
+import unittest
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -433,6 +434,23 @@ class TestPageCreation(TestCase, WagtailTestUtils):
         # Check that a form error was raised
         self.assertFormError(response, 'form', 'title', "Value cannot be entirely whitespace characters")
         self.assertFormError(response, 'form', 'seo_title', "Value cannot be entirely whitespace characters")
+
+    @unittest.expectedFailure
+    def test_long_slug(self):
+        post_data = {
+            'title': "Hello world",
+            'content': "Some content",
+            'slug': 'hello-world-hello-world-hello-world-hello-world-hello-world-hello-world-'
+                    'hello-world-hello-world-hello-world-hello-world-hello-world-hello-world-'
+                    'hello-world-hello-world-hello-world-hello-world-hello-world-hello-world-'
+                    'hello-world-hello-world-hello-world-hello-world-hello-world-hello-world',
+            'action-submit': "Submit",
+        }
+        response = self.client.post(reverse('wagtailadmin_pages_create', args=('tests', 'simplepage', self.root_page.id)), post_data)
+
+        # Check that a form error was raised
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'slug', "Ensure this value has at most 255 characters (it has 287).")
 
 
 class TestPageEdit(TestCase, WagtailTestUtils):
