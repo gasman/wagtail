@@ -94,14 +94,26 @@ WagtailAdminModelForm = WagtailAdminModelFormMetaclass(str('WagtailAdminModelFor
 # the nice form fields defined in FORM_FIELD_OVERRIDES.
 
 
+class PageModelForm(WagtailAdminModelForm):
+    # A special case of WagtailAdminModelForm for use with Page models;
+    # adds a couple of extra validators specific to Page.
+    pass
+
+
 def get_form_for_model(
     model,
     fields=None, exclude=None, formsets=None, exclude_formsets=None, widgets=None
 ):
 
-    # django's modelform_factory with a bit of custom behaviour
-    # (dealing with Treebeard's tree-related fields that really should have
-    # been editable=False)
+    # Given a model class, return a ModelForm suitable for editing that model within
+    # the Wagtail admin backend. Equivalent to django's modelform_factory, with some
+    # customisations:
+    # * WagtailAdminModelForm is used as the base class
+    #   (so that our custom formfield_for_dbfield and extra_form_count is in use)
+    # * it handles django-modelcluster inner formset parameters
+    # * it applies special-case behaviour for Page models -
+    #   adding custom validators and excluding treebeard's internal fields
+
     attrs = {'model': model}
 
     if fields is not None:
@@ -109,8 +121,6 @@ def get_form_for_model(
 
     if exclude is not None:
         attrs['exclude'] = exclude
-    if issubclass(model, Page):
-        attrs['exclude'] = attrs.get('exclude', []) + ['content_type', 'path', 'depth', 'numchild']
 
     if widgets is not None:
         attrs['widgets'] = widgets
@@ -121,13 +131,20 @@ def get_form_for_model(
     if exclude_formsets is not None:
         attrs['exclude_formsets'] = exclude_formsets
 
+    if issubclass(model, Page):
+        attrs['exclude'] = attrs.get('exclude', []) + ['content_type', 'path', 'depth', 'numchild']
+        base_form_class = PageModelForm
+    else:
+        base_form_class = WagtailAdminModelForm
+
     # Give this new form class a reasonable name.
     class_name = model.__name__ + str('Form')
     form_class_attrs = {
         'Meta': type(str('Meta'), (object,), attrs)
     }
 
-    return WagtailAdminModelFormMetaclass(class_name, (WagtailAdminModelForm,), form_class_attrs)
+    # Instantiate type(base_form_class) in order to use the same metaclass as base_form_class
+    return type(base_form_class)(class_name, (base_form_class,), form_class_attrs)
 
 
 def extract_panel_definitions_from_model_class(model, exclude=None):
