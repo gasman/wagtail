@@ -1,4 +1,3 @@
-from itertools import count
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -67,7 +66,8 @@ class TestSetPrivacyView(TestCase, WagtailTestUtils):
 
     def test_get_private(self):
         """
-        This tests that the restriction type and password fields as set correctly when a user opens the set_privacy view on a public page
+        This tests that the restriction type and password fields are set correctly when a user opens the set_privacy view
+        on a page with a password-based permission restriction
         """
         response = self.client.get(reverse('wagtailadmin_pages_set_privacy', args=(self.private_page.id, )))
 
@@ -151,10 +151,10 @@ class TestSetPrivacyView(TestCase, WagtailTestUtils):
         # Check that the page restriction has been deleted
         self.assertFalse(PageViewRestriction.objects.filter(page=self.private_page).exists())
 
-
     def test_get_private_groups(self):
         """
-        This tests that the restriction type and group fields as set correctly when a user opens the set_privacy view on a public page
+        This tests that the restriction type and group fields are set correctly when a user opens the set_privacy view
+        on a page with group-based permission restrictions
         """
         response = self.client.get(reverse('wagtailadmin_pages_set_privacy', args=(self.private_groups_page.id, )))
 
