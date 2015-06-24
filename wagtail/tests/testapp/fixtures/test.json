@@ -622,7 +622,7 @@
 },
 {
     "pk": 7,
-    "model": "tests.customuser",
+    "model": "customuser.customuser",
     "fields": {
         "username": "page_privacy_user_without_group",
         "first_name": "",
@@ -637,7 +637,7 @@
 },
 {
     "pk": 8,
-    "model": "tests.customuser",
+    "model": "customuser.customuser",
     "fields": {
         "username": "page_privacy_user_with_group",
         "first_name": "",
@@ -655,7 +655,7 @@
 },
 {
     "pk": 9,
-    "model": "tests.customuser",
+    "model": "customuser.customuser",
     "fields": {
         "username": "superuser_group_privacy_test",
         "first_name": "",
