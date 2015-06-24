@@ -174,7 +174,7 @@ class PageViewRestrictionForm(forms.Form):
     restriction_type = forms.ChoiceField(label="Visibility", choices=[
         ('none', ugettext_lazy("Public")),
         ('password', ugettext_lazy("Private, accessible with the following password")),
-        ('group', ugettext_lazy("Private, accessible to Users in the following Groups")),
+        ('group', ugettext_lazy("Private, accessible to users in the following groups")),
     ])
     password = forms.CharField(required=False)
     groups = forms.ModelMultipleChoiceField(queryset=Group.objects.order_by('name'),
