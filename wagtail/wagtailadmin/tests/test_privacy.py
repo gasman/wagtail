@@ -221,14 +221,40 @@ class TestSetPrivacyView(TestCase, WagtailTestUtils):
             'password': '',
             'groups': [],
         }
-        response = self.client.post(reverse('wagtailadmin_pages_set_privacy', args=(self.private_page.id, )), post_data)
+        response = self.client.post(reverse('wagtailadmin_pages_set_privacy', args=(self.private_groups_page.id, )), post_data)
 
         # Check response
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "modal.respond('setPermission', true);")
 
         # Check that the page restriction has been deleted
-        self.assertFalse(PageViewRestriction.objects.filter(page=self.private_page).exists())
+        self.assertFalse(PageViewRestriction.objects.filter(page=self.private_groups_page).exists())
+
+    def test_replace_password_restriction_with_group_restriction(self):
+        """
+        Setting a group-based restriction should replace any existing password-based restriction
+        on that section
+        """
+        post_data = {
+            'restriction_type': 'group',
+            'password': '',
+            'groups': [self.group.id, self.group2.id],
+        }
+        response = self.client.post(reverse('wagtailadmin_pages_set_privacy', args=(self.private_page.id, )), post_data)
+
+        # Check response
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "modal.respond('setPermission', false);")
+
+        # Check that exactly one page restriction exists, and it is a group-based one
+        restrictions = PageViewRestriction.objects.filter(page=self.private_page)
+        self.assertEqual(restrictions.count(), 1)
+        self.assertEqual(restrictions.first().password, '')
+
+        expected_groups = sorted([self.group.id, self.group2.id])
+        self.assertQuerysetEqual(
+            restrictions.first().groups.all().order_by('id'), expected_groups,
+            transform=lambda group: group.id)
 
 
 class TestPrivacyIndicators(TestCase, WagtailTestUtils):
