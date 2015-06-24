@@ -8,20 +8,20 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('auth', '0001_initial'),
-        ('wagtailcore', '0010_change_page_owner_to_null_on_delete'),
+        ('wagtailcore', '0001_squashed_0016_change_page_url_path_to_text_field'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='pageviewrestriction',
             name='groups',
-            field=models.ManyToManyField(to='auth.Group'),
+            field=models.ManyToManyField(to='auth.Group', verbose_name='Groups'),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='pageviewrestriction',
             name='password',
-            field=models.CharField(max_length=255, blank=True),
+            field=models.CharField(blank=True, max_length=255, verbose_name='Password'),
             preserve_default=True,
         ),
     ]
