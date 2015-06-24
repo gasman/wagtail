@@ -4,25 +4,25 @@ function(modal) {
         return false;
     });
 
-    var restrictionTypePasswordField = $("#id_restriction_type", modal.body);
+    var restrictionTypeField = $("#id_restriction_type", modal.body);
     var passwordRow = $("li.password-field", modal.body);
     var passwordField = $("#id_password", modal.body);
     var groupFields = $("#id_groups input[name='groups']", modal.body);
     var groupsRow = $("li.groups-field", modal.body);
     function refreshFormFields() {
-        var restrictType = restrictionTypePasswordField.val();
+        var restrictionType = restrictionTypeField.val();
 
-        if (restrictType == "none") {
+        if (restrictionType == "none") {
             passwordField.attr('disabled', true);
             passwordRow.hide();
             groupFields.attr('disabled', true);
             groupsRow.hide();
-        }else if (restrictType == "password"){
+        } else if (restrictionType == "password") {
             passwordField.removeAttr('disabled');
             passwordRow.show();
             groupFields.attr('disabled', true);
             groupsRow.hide();
-        }else if (restrictType == "group"){
+        } else if (restrictionType == "group") {
             passwordField.attr('disabled', true);
             passwordRow.hide();
             groupFields.removeAttr('disabled');
@@ -31,5 +31,5 @@ function(modal) {
     }
     refreshFormFields();
 
-    restrictionTypePasswordField.change(refreshFormFields);
+    restrictionTypeField.change(refreshFormFields);
 }
