@@ -30,3 +30,13 @@ def register_settings_menu():
 @hooks.register('register_permissions')
 def register_permissions():
     return Permission.objects.filter(content_type__app_label='wagtailadmin', codename='access_admin')
+
+
+class CollectionsMenuItem(MenuItem):
+    def is_shown(self, request):
+        return request.user.has_perm('wagtailcore.change_collection')
+
+
+@hooks.register('register_settings_menu_item')
+def register_collections_menu_item():
+    return CollectionsMenuItem(_('Collections'), urlresolvers.reverse('wagtailadmin_collections_index'), classnames='icon icon-collection', order=650)
