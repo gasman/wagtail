@@ -11,3 +11,15 @@ def index(request):
     return render(request, "wagtailadmin/collections/index.html", {
         'collections': collections,
     })
+
+
+def create(request):
+    pass
+
+
+def edit(request):
+    pass
+
+
+def delete(request):
+    pass
