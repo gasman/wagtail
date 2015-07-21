@@ -1,0 +1,43 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+{% block titletag %}{% trans "Collections" %}{% endblock %}
+{% block content %}
+    {% trans "Collections" as collections_str %}
+    {% if perms.wagtailcore.add_collection %}
+        {% trans "Add a collection" as add_a_collection_str %}
+        {% include "wagtailadmin/shared/header.html" with title=collections_str add_link="wagtailadmin_collections:add" add_text=add_a_collection_str icon="collection" %}
+    {% else %}
+        {% include "wagtailadmin/shared/header.html" with title=collections_str icon="collection" %}
+    {% endif %}
+
+    <div class="nice-padding">
+        <div id="collections-list">
+            <table class="listing">
+                <thead>
+                    <tr>
+                        <th class="name">
+                            {% trans "Collection" %}
+                            {% if ordering == "name" %}
+                                <a href="{% url 'wagtailadmin_collections:index' %}" class="icon icon-arrow-down-after teal"></a>
+                            {% else %}
+                                <a href="{% url 'wagtailadmin_collections:index' %}?ordering=name" class="icon icon-arrow-down-after"></a>
+                            {% endif %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for collection in collections %}
+                        <tr>
+                            <td class="name title">
+                                <h2>
+                                    <a href="{% url 'wagtailadmin_collections:edit' collection.id %}">{{ collection.name }}</a>
+                                </h2>
+                            </td>
+                        </li>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}
