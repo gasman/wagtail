@@ -15,6 +15,7 @@ CODE FOR SETTING UP SPECIFIC UI WIDGETS, SUCH AS DELETE BUTTONS OR MENUS, DOES N
 (function($) {
     window.SequenceMember = function(sequence, prefix) {
         var self = {};
+        self.sequence = sequence;
         self.prefix = prefix;
         self.container = $('#' + self.prefix + '-container');
 
@@ -312,6 +313,13 @@ CODE FOR SETTING UP SPECIFIC UI WIDGETS, SUCH AS DELETE BUTTONS OR MENUS, DOES N
                 }
             }
         };
+
+        if (opts.getMemberTemplate) {
+            self.canCloneMembers = true;
+            self.cloneMemberAfter = function(member) {
+                return self.insertMemberAfter(member, opts.getMemberTemplate(member));
+            };
+        }
 
         /* initialize initial list members */
         var count = self.getCount();

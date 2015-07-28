@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from wagtail.wagtailcore.rich_text import RichText
 
 from .base import Block
+from .utils import js_dict
 
 
 class FieldBlock(Block):
@@ -78,10 +79,19 @@ class FieldBlock(Block):
 
 
 class CharBlock(FieldBlock):
+    @property
+    def media(self):
+        return forms.Media(js=['wagtailadmin/js/blocks/char_block.js'])
+
     def __init__(self, required=True, help_text=None, max_length=None, min_length=None, **kwargs):
         # CharField's 'label' and 'initial' parameters are not exposed, as Block handles that functionality natively (via 'label' and 'default')
         self.field = forms.CharField(required=required, help_text=help_text, max_length=max_length, min_length=min_length)
         super(CharBlock, self).__init__(**kwargs)
+
+    def js_initializer(self):
+        opts = {'definitionPrefix': "'%s'" % self.definition_prefix}
+
+        return "CharBlock(%s)" % js_dict(opts)
 
     def get_searchable_content(self, value):
         return [force_text(value)]

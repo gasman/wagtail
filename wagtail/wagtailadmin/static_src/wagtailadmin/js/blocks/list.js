@@ -12,7 +12,10 @@
                 onInitializeMember: function(sequenceMember) {
                     /* initialize child block's JS behaviour */
                     if (opts.childInitializer) {
-                        opts.childInitializer(sequenceMember.prefix + '-value');
+                        opts.childInitializer(
+                            sequenceMember.prefix + '-value',
+                            {'sequenceMember': sequenceMember, 'sequence': sequenceMember.sequence}
+                        );
                     }
 
                     /* initialise delete button */
@@ -44,6 +47,13 @@
 
                 onDisableMoveDown: function(sequenceMember) {
                     $('#' + sequenceMember.prefix + '-movedown').addClass('disabled');
+                },
+
+                getMemberTemplate: function(sequenceMember) {
+                    /* Given a sequenceMember, return a template that can be used to
+                    clone it */
+                    // for ListBlock, all members use the same template, so this is trivial...
+                    return listMemberTemplate;
                 }
             });
 

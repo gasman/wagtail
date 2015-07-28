@@ -77,7 +77,10 @@
                     var blockOpts = childBlocksByName[blockTypeName];
                     if (blockOpts.initializer) {
                         /* the child block's own elements have the prefix '{list member prefix}-value' */
-                        blockOpts.initializer(sequenceMember.prefix + '-value');
+                        blockOpts.initializer(
+                            sequenceMember.prefix + '-value',
+                            {'sequenceMember': sequenceMember, 'sequence': sequenceMember.sequence}
+                        );
                     }
 
                     /* initialize delete button */
