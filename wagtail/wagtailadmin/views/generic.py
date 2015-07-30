@@ -6,7 +6,19 @@ from django.views.generic.base import View
 from wagtail.wagtailadmin import messages
 
 
-class IndexView(View):
+class PermissionCheckedView(View):
+    permission_name = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.permission_name is not None:
+            if not request.user.has_perm(self.permission_name):
+                messages.error(request, _('Sorry, you do not have permission to access this area.'))
+                return redirect('wagtailadmin_home')
+
+        return super(PermissionCheckedView, self).dispatch(request, *args, **kwargs)
+
+
+class IndexView(PermissionCheckedView):
     def get(self, request):
         object_list = self.get_queryset()
 
@@ -15,7 +27,7 @@ class IndexView(View):
         })
 
 
-class CreateView(View):
+class CreateView(PermissionCheckedView):
     def get(self, request):
         self.form = self.form_class()
         return self.render_to_response()
@@ -38,7 +50,7 @@ class CreateView(View):
         })
 
 
-class EditView(View):
+class EditView(PermissionCheckedView):
     def get(self, request, instance_id):
         self.instance = get_object_or_404(self.model, id=instance_id)
         self.form = self.form_class(instance=self.instance)
@@ -65,7 +77,7 @@ class EditView(View):
         })
 
 
-class DeleteView(View):
+class DeleteView(PermissionCheckedView):
     def get(self, request, instance_id):
         instance = get_object_or_404(self.model, id=instance_id)
         return render(request, self.template, {
