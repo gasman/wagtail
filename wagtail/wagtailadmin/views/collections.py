@@ -60,5 +60,15 @@ def edit(request, collection_id):
     })
 
 
-def delete(request):
-    pass
+@permission_required('wagtailcore.delete_collection')
+def delete(request, collection_id):
+    collection = get_object_or_404(Collection, id=collection_id)
+
+    if request.POST:
+        collection.delete()
+        messages.success(request, _("Collection '{0}' deleted.").format(collection))
+        return redirect('wagtailadmin_collections:index')
+
+    return render(request, "wagtailadmin/collections/confirm_delete.html", {
+        'collection': collection,
+    })
