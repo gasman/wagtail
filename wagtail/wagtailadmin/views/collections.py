@@ -17,6 +17,7 @@ def index(request):
     })
 
 
+@permission_required('wagtailcore.add_collection')
 def create(request):
     if request.method == 'POST':
         form = CollectionForm(request.POST)
@@ -27,7 +28,7 @@ def create(request):
             ])
             return redirect('wagtailadmin_collections:index')
         else:
-            messages.error(request, _("The site could not be created due to errors."))
+            messages.error(request, _("The collection could not be created due to errors."))
     else:
         form = CollectionForm()
 
@@ -36,8 +37,27 @@ def create(request):
     })
 
 
-def edit(request):
-    pass
+@permission_required('wagtailcore.change_collection')
+def edit(request, collection_id):
+    collection = get_object_or_404(Collection, id=collection_id)
+
+    if request.POST:
+        form = CollectionForm(request.POST, instance=collection)
+        if form.is_valid():
+            collection = form.save()
+            messages.success(request, _("Collection '{0}' updated.").format(collection), buttons=[
+                messages.button(reverse('wagtailadmin_collections:edit', args=(collection.id,)), _('Edit'))
+            ])
+            return redirect('wagtailadmin_collections:index')
+        else:
+            messages.error(request, _("The collection could not be saved due to errors."))
+    else:
+        form = CollectionForm(instance=collection)
+
+    return render(request, 'wagtailadmin/collections/edit.html', {
+        'collection': collection,
+        'form': form,
+    })
 
 
 def delete(request):

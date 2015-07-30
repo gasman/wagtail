@@ -1,0 +1,31 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+
+{% block titletag %}{% trans "Editing" %} {{ collection }}{% endblock %}
+{% block bodyclass %}menu-collections{% endblock %}
+
+{% block content %}
+
+    {% trans "Editing" as editing_str %}
+    {% include "wagtailadmin/shared/header.html" with title=editing_str subtitle=collection icon="site" %}
+
+    <div class="nice-padding">
+        <form action="{% url 'wagtailadmin_collections:edit' collection.id %}" method="POST">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+
+            <ul class="fields">
+                {% for field in form.visible_fields %}
+                    {% include "wagtailadmin/shared/field_as_li.html" %}
+                {% endfor %}
+                
+                <li>
+                    <input type="submit" value="{% trans 'Save' %}" />
+                    {% if perms.wagtailcore.delete_collection %}
+                        <a href="{% url 'wagtailadmin_collections:delete' collection.id %}" class="button button-secondary no">{% trans "Delete collection" %}</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </form>
+    </div>
+{% endblock %}

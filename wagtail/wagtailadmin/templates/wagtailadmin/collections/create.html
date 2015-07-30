@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block titletag %}{% trans "Add collection" %} {{ site.hostname }}{% endblock %}
-{% block bodyclass %}menu-sites{% endblock %}
+{% block bodyclass %}menu-collections{% endblock %}
 
 {% block content %}
 
@@ -11,6 +11,7 @@
 
     <form action="{% url 'wagtailadmin_collections:add' %}" method="POST">
         {% csrf_token %}
+        {% for field in form.hidden_fields %}{{ field }}{% endfor %}
         <div class="nice-padding">
             <ul class="fields">
                 {% for field in form.visible_fields %}
