@@ -1,91 +1,81 @@
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import permission_required
-from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-from django.views.generic.base import View
 
 from wagtail.wagtailadmin.forms import CollectionForm
-from wagtail.wagtailadmin import messages
+from wagtail.wagtailadmin.views.generic import IndexView, CreateView, EditView, DeleteView
 from wagtail.wagtailcore.models import Collection
 
 
-class Index(View):
+class Index(IndexView):
+    template = 'wagtailadmin/collections/index.html'
+    context_object_name = 'collections'
+
+    def get_queryset(self):
+        return Collection.objects.order_by('name')
+
     @method_decorator(permission_required('wagtailcore.change_collection'))
     def get(self, request):
-        collections = Collection.objects.order_by('name')
-
-        return render(request, "wagtailadmin/collections/index.html", {
-            'collections': collections,
-        })
+        return super(Index, self).get(request)
 
 
-class Create(View):
+class Create(CreateView):
+    template = 'wagtailadmin/collections/create.html'
+    form_class = CollectionForm
+    edit_url_name = 'wagtailadmin_collections:edit'
+    index_url_name = 'wagtailadmin_collections:index'
+
+    def get_success_message(self, instance):
+        return _("Collection '{0}' created.").format(instance)
+
+    def get_error_message(self):
+        return _("The collection could not be created due to errors.")
+
     @method_decorator(permission_required('wagtailcore.add_collection'))
     def get(self, request):
-        self.form = CollectionForm()
-        return self.render_to_response()
+        return super(Create, self).get(request)
 
     @method_decorator(permission_required('wagtailcore.add_collection'))
     def post(self, request):
-        self.form = CollectionForm(request.POST)
-        if self.form.is_valid():
-            collection = self.form.save()
-            messages.success(request, _("Collection '{0}' created.").format(collection), buttons=[
-                messages.button(reverse('wagtailadmin_collections:edit', args=(collection.id,)), _('Edit'))
-            ])
-            return redirect('wagtailadmin_collections:index')
-        else:
-            messages.error(request, _("The collection could not be created due to errors."))
-            return self.render_to_response()
-
-    def render_to_response(self):
-        return render(self.request, 'wagtailadmin/collections/create.html', {
-            'form': self.form,
-        })
+        return super(Create, self).post(request)
 
 
-class Edit(View):
-    @method_decorator(permission_required('wagtailcore.change_collection'))
-    def get(self, request, collection_id):
-        self.collection = get_object_or_404(Collection, id=collection_id)
-        self.form = CollectionForm(instance=self.collection)
-        return self.render_to_response()
+class Edit(EditView):
+    model = Collection
+    context_object_name = 'collection'
+    template = 'wagtailadmin/collections/edit.html'
+    form_class = CollectionForm
+    edit_url_name = 'wagtailadmin_collections:edit'
+    index_url_name = 'wagtailadmin_collections:index'
+
+    def get_success_message(self, instance):
+        return _("Collection '{0}' updated.").format(instance)
+
+    def get_error_message(self):
+        return _("The collection could not be saved due to errors.")
 
     @method_decorator(permission_required('wagtailcore.change_collection'))
-    def post(self, request, collection_id):
-        self.collection = get_object_or_404(Collection, id=collection_id)
+    def get(self, request, instance_id):
+        return super(Edit, self).get(request, instance_id)
 
-        self.form = CollectionForm(request.POST, instance=self.collection)
-        if self.form.is_valid():
-            self.form.save()
-            messages.success(request, _("Collection '{0}' updated.").format(self.collection), buttons=[
-                messages.button(reverse('wagtailadmin_collections:edit', args=(self.collection.id,)), _('Edit'))
-            ])
-            return redirect('wagtailadmin_collections:index')
-        else:
-            messages.error(request, _("The collection could not be saved due to errors."))
-            return self.render_to_response()
-
-    def render_to_response(self):
-        return render(self.request, 'wagtailadmin/collections/edit.html', {
-            'collection': self.collection,
-            'form': self.form,
-        })
+    @method_decorator(permission_required('wagtailcore.change_collection'))
+    def post(self, request, instance_id):
+        return super(Edit, self).post(request, instance_id)
 
 
-class Delete(View):
-    @method_decorator(permission_required('wagtailcore.delete_collection'))
-    def get(self, request, collection_id):
-        collection = get_object_or_404(Collection, id=collection_id)
-        return render(request, "wagtailadmin/collections/confirm_delete.html", {
-            'collection': collection,
-        })
+class Delete(DeleteView):
+    model = Collection
+    context_object_name = 'collection'
+    template = 'wagtailadmin/collections/confirm_delete.html'
+    index_url_name = 'wagtailadmin_collections:index'
+
+    def get_success_message(self, instance):
+        return _("Collection '{0}' deleted.").format(instance)
 
     @method_decorator(permission_required('wagtailcore.delete_collection'))
-    def post(self, request, collection_id):
-        collection = get_object_or_404(Collection, id=collection_id)
+    def get(self, request, instance_id):
+        return super(Delete, self).get(request, instance_id)
 
-        collection.delete()
-        messages.success(request, _("Collection '{0}' deleted.").format(collection))
-        return redirect('wagtailadmin_collections:index')
+    @method_decorator(permission_required('wagtailcore.delete_collection'))
+    def post(self, request, instance_id):
+        return super(Delete, self).post(request, instance_id)
