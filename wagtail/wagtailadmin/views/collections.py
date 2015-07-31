@@ -6,13 +6,15 @@ from wagtail.wagtailcore.models import Collection
 
 
 class CollectionsModelAdmin(ModelAdmin):
+    model = Collection
+    url_namespace = 'wagtailadmin_collections'
+    form_class = CollectionForm
+    header_icon = 'collection'
+
     class Index:
-        model = Collection
         default_order = 'name'
         template = 'wagtailadmin/collections/index.html'
         context_object_name = 'collections'
-        url_namespace = 'wagtailadmin_collections'
-        header_icon = 'collection'
 
         page_title = _("Collections")
         add_item_label = _("Add a collection")
@@ -22,31 +24,19 @@ class CollectionsModelAdmin(ModelAdmin):
         ]
 
     class Create:
-        model = Collection
-        form_class = CollectionForm
-        url_namespace = 'wagtailadmin_collections'
-        header_icon = 'collection'
-
         page_title = _("Add collection")
         success_message = _("Collection '{0}' created.")
         error_message = _("The collection could not be created due to errors.")
 
     class Edit:
-        model = Collection
         context_object_name = 'collection'
-        form_class = CollectionForm
-        url_namespace = 'wagtailadmin_collections'
-        header_icon = 'collection'
 
         success_message = _("Collection '{0}' updated.")
         error_message = _("The collection could not be saved due to errors.")
         delete_item_label = _("Delete collection")
 
     class Delete:
-        model = Collection
         context_object_name = 'collection'
-        url_namespace = 'wagtailadmin_collections'
-        header_icon = 'collection'
 
         page_title = _("Delete collection")
         confirmation_message = _("Are you sure you want to delete this collection?")

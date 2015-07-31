@@ -256,22 +256,31 @@ class ModelAdminMetaclass(type):
                 ('Delete', DeleteView)
             ]
 
+            # Attributes defined on the ModelAdmin subclass which are to be merged in to
+            # the attributes of each CBV
+            common_option_names = [
+                'model', 'url_namespace', 'form_class', 'header_icon'
+            ]
+            base_attrs = {}
+            for name in common_option_names:
+                try:
+                    base_attrs[name] = attrs[name]
+                except KeyError:
+                    pass
+
             for (attr_name, base_cbv) in attrs_to_convert:
                 options_class = attrs.get(attr_name)
                 if hasattr(options_class, 'as_view'):
                     # Class is a CBV already
                     pass
                 else:
-                    if options_class is None:
-                        cbv_attributes = {}
-                    else:
-                        cbv_attributes = options_class.__dict__.copy()
-                        # Ignore any private attributes that Wagtail doesn't care about.
-                        # NOTE: We can't modify a dictionary's contents while looping
-                        # over it, so we loop over the *original* dictionary instead.
+                    cbv_attributes = base_attrs.copy()
+                    if options_class is not None:
                         for name in options_class.__dict__:
-                            if name.startswith('_'):
-                                del cbv_attributes[name]
+                            # Update cbv_attributes with attributes found in options_class,
+                            # ignoring any private attributes that Wagtail doesn't care about.
+                            if not name.startswith('_'):
+                                cbv_attributes[name] = options_class.__dict__[name]
 
                     cbv_metaclass = type(base_cbv)
                     attrs[attr_name] = cbv_metaclass(attr_name, (base_cbv,), cbv_attributes)
