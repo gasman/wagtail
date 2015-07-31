@@ -1,41 +1,15 @@
-{% extends "wagtailadmin/base.html" %}
-{% load i18n %}
-{% block titletag %}{{ view.page_title }}{% endblock %}
-{% block content %}
-    {% if can_add %}
-        {% include "wagtailadmin/shared/header.html" with title=view.page_title add_link=view.add_url_name add_text=view.add_item_label icon=view.header_icon %}
-    {% else %}
-        {% include "wagtailadmin/shared/header.html" with title=view.page_title icon=view.header_icon %}
-    {% endif %}
+{% extends "wagtailadmin/generic/index.html" %}
 
-    <div class="nice-padding">
-        <div id="collections-list">
-            <table class="listing">
-                <thead>
-                    <tr>
-                        <th class="name">
-                            {% trans "Collection" %}
-                            {% if ordering == "name" %}
-                                <a href="{% url 'wagtailadmin_collections:index' %}" class="icon icon-arrow-down-after teal"></a>
-                            {% else %}
-                                <a href="{% url 'wagtailadmin_collections:index' %}?ordering=name" class="icon icon-arrow-down-after"></a>
-                            {% endif %}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for collection in collections %}
-                        <tr>
-                            <td class="name title">
-                                <h2>
-                                    <a href="{% url 'wagtailadmin_collections:edit' collection.id %}">{{ collection.name }}</a>
-                                </h2>
-                            </td>
-                        </li>
-                    {% endfor %}
-                </tbody>
-            </table>
+{% block listing_attrs %}id="collections-list"{% endblock %}
 
-        </div>
-    </div>
+{% block listing %}
+    {% for collection in collections %}
+        <tr>
+            <td class="name title">
+                <h2>
+                    <a href="{% url 'wagtailadmin_collections:edit' collection.id %}">{{ collection.name }}</a>
+                </h2>
+            </td>
+        </li>
+    {% endfor %}
 {% endblock %}
