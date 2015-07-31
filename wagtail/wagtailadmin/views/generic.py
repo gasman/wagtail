@@ -3,6 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy, ugettext as _
 from django.views.generic.base import View
 
+# Must be imported from Django so we get the new implementation of with_metaclass
+from django.utils import six
+
 from wagtail.wagtailadmin import messages
 
 
@@ -18,7 +21,28 @@ class PermissionCheckedView(View):
         return super(PermissionCheckedView, self).dispatch(request, *args, **kwargs)
 
 
-class IndexView(PermissionCheckedView):
+class ModelPermissionMetaclass(type):
+    """
+    Populates the attributes 'add_permission_name', 'change_permission_name' and 'delete_permission_name'
+    with sensible defaults based on the 'model' attribute (if one is defined).
+    """
+    def __new__(mcs, name, bases, attrs):
+        new_class = (super(ModelPermissionMetaclass, mcs).__new__(mcs, name, bases, attrs))
+        if hasattr(new_class, 'model'):
+            app_label = new_class.model._meta.app_label
+            model_name = new_class.model._meta.model_name
+
+            if not hasattr(new_class, 'add_permission_name'):
+                new_class.add_permission_name = "%s.add_%s" % (app_label, model_name)
+            if not hasattr(new_class, 'change_permission_name'):
+                new_class.change_permission_name = "%s.change_%s" % (app_label, model_name)
+            if not hasattr(new_class, 'delete_permission_name'):
+                new_class.delete_permission_name = "%s.delete_%s" % (app_label, model_name)
+
+        return new_class
+
+
+class IndexView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
     def get_queryset(self):
         self.ordering = self.request.GET.get('ordering', self.default_order)
         return self.model.objects.order_by(self.ordering)
@@ -34,7 +58,7 @@ class IndexView(PermissionCheckedView):
         })
 
 
-class CreateView(PermissionCheckedView):
+class CreateView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
     template = 'wagtailadmin/generic/create.html'
     form_template = 'wagtailadmin/generic/_form.html'
 
@@ -67,7 +91,7 @@ class CreateView(PermissionCheckedView):
         })
 
 
-class EditView(PermissionCheckedView):
+class EditView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
     template = 'wagtailadmin/generic/edit.html'
     form_template = 'wagtailadmin/generic/_form.html'
 
@@ -116,7 +140,7 @@ class EditView(PermissionCheckedView):
         })
 
 
-class DeleteView(PermissionCheckedView):
+class DeleteView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
     template = 'wagtailadmin/generic/confirm_delete.html'
 
     def get_page_subtitle(self):
