@@ -234,7 +234,52 @@ class DeleteView(six.with_metaclass(DeleteViewMetaclass, PermissionCheckedView))
         return redirect(self.index_url_name)
 
 
-class ModelAdmin(object):
+class ModelAdminMetaclass(type):
+    def __new__(mcs, name, bases, attrs):
+        if not bases:
+            # we are defining ModelAdmin itself
+            return super(ModelAdminMetaclass, mcs).__new__(mcs, name, bases, attrs)
+        else:
+            # we are defining a subclass of ModelAdmin.
+            # This subclass will define zero or more of the attributes
+            # 'Index', 'Create', 'Edit', 'Delete'.
+            # These attributes are classes corresponding to the class-based views that
+            # make up the ModelAdmin, but in the most common setup they will
+            # not be CBVs themselves. Instead, they are simple bundles of attributes,
+            # much like the Meta class on Django models and forms. Here, we recreate them
+            # as real class-based views descending from IndexView, CreateView etc.
+
+            attrs_to_convert = [
+                ('Index', IndexView),
+                ('Create', CreateView),
+                ('Edit', EditView),
+                ('Delete', DeleteView)
+            ]
+
+            for (attr_name, base_cbv) in attrs_to_convert:
+                options_class = attrs.get(attr_name)
+                if hasattr(options_class, 'as_view'):
+                    # Class is a CBV already
+                    pass
+                else:
+                    if options_class is None:
+                        cbv_attributes = {}
+                    else:
+                        cbv_attributes = options_class.__dict__.copy()
+                        # Ignore any private attributes that Wagtail doesn't care about.
+                        # NOTE: We can't modify a dictionary's contents while looping
+                        # over it, so we loop over the *original* dictionary instead.
+                        for name in options_class.__dict__:
+                            if name.startswith('_'):
+                                del cbv_attributes[name]
+
+                    cbv_metaclass = type(base_cbv)
+                    attrs[attr_name] = cbv_metaclass(attr_name, (base_cbv,), cbv_attributes)
+
+            return super(ModelAdminMetaclass, mcs).__new__(mcs, name, bases, attrs)
+
+
+class ModelAdmin(six.with_metaclass(ModelAdminMetaclass)):
     @classmethod
     def get_urlconf(cls):
         return [
