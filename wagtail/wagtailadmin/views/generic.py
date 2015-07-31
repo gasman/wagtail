@@ -40,7 +40,27 @@ class ModelPermissionMetaclass(type):
         return new_class
 
 
-class IndexViewMetaclass(ModelPermissionMetaclass):
+class ModelAdminUrlMetaclass(type):
+    """
+    Populates the attributes 'index_url_name', 'add_url_name', 'edit_url_name' and 'delete_url_name'
+    with sensible defaults based on the 'url_namespace' attribute (if one is defined).
+    """
+    def __new__(mcs, name, bases, attrs):
+        new_class = (super(ModelAdminUrlMetaclass, mcs).__new__(mcs, name, bases, attrs))
+        if hasattr(new_class, 'url_namespace'):
+            if not hasattr(new_class, 'index_url_name'):
+                new_class.index_url_name = "%s:index" % new_class.url_namespace
+            if not hasattr(new_class, 'add_url_name'):
+                new_class.add_url_name = "%s:add" % new_class.url_namespace
+            if not hasattr(new_class, 'edit_url_name'):
+                new_class.edit_url_name = "%s:edit" % new_class.url_namespace
+            if not hasattr(new_class, 'delete_url_name'):
+                new_class.delete_url_name = "%s:delete" % new_class.url_namespace
+
+        return new_class
+
+
+class IndexViewMetaclass(ModelPermissionMetaclass, ModelAdminUrlMetaclass):
     def __new__(mcs, name, bases, attrs):
         new_class = (super(IndexViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
 
@@ -68,7 +88,7 @@ class IndexView(six.with_metaclass(IndexViewMetaclass, PermissionCheckedView)):
         })
 
 
-class CreateViewMetaclass(ModelPermissionMetaclass):
+class CreateViewMetaclass(ModelPermissionMetaclass, ModelAdminUrlMetaclass):
     def __new__(mcs, name, bases, attrs):
         new_class = (super(CreateViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
 
@@ -113,7 +133,7 @@ class CreateView(six.with_metaclass(CreateViewMetaclass, PermissionCheckedView))
         })
 
 
-class EditViewMetaclass(ModelPermissionMetaclass):
+class EditViewMetaclass(ModelPermissionMetaclass, ModelAdminUrlMetaclass):
     def __new__(mcs, name, bases, attrs):
         new_class = (super(EditViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
 
@@ -174,7 +194,7 @@ class EditView(six.with_metaclass(EditViewMetaclass, PermissionCheckedView)):
         })
 
 
-class DeleteViewMetaclass(ModelPermissionMetaclass):
+class DeleteViewMetaclass(ModelPermissionMetaclass, ModelAdminUrlMetaclass):
     def __new__(mcs, name, bases, attrs):
         new_class = (super(DeleteViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
 
