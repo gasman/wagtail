@@ -14,7 +14,7 @@
             {% for field in form.hidden_fields %}{{ field }}{% endfor %}
 
             <ul class="fields">
-                {% include "wagtailadmin/collections/_form.html" %}
+                {% include "wagtailadmin/generic/_form.html" %}
                 <li>
                     <input type="submit" value="{% trans 'Save' %}" />
                     {% if perms.wagtailcore.delete_collection %}

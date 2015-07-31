@@ -25,12 +25,14 @@ class Index(IndexView):
 
 
 class Create(CreateView):
-    template = 'wagtailadmin/collections/create.html'
     form_class = CollectionForm
+    add_url_name = 'wagtailadmin_collections:add'
     edit_url_name = 'wagtailadmin_collections:edit'
     index_url_name = 'wagtailadmin_collections:index'
     permission_name = 'wagtailcore.add_collection'
+    header_icon = 'collection'
 
+    page_title = _("Add collection")
     success_message = _("Collection '{0}' created.")
     error_message = _("The collection could not be created due to errors.")
 
