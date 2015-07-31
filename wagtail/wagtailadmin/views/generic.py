@@ -7,11 +7,11 @@ from wagtail.wagtailadmin import messages
 
 
 class PermissionCheckedView(View):
-    permission_name = None
+    permission_required = None
 
     def dispatch(self, request, *args, **kwargs):
-        if self.permission_name is not None:
-            if not request.user.has_perm(self.permission_name):
+        if self.permission_required is not None:
+            if not request.user.has_perm(self.permission_required):
                 messages.error(request, _('Sorry, you do not have permission to access this area.'))
                 return redirect('wagtailadmin_home')
 
