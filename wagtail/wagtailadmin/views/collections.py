@@ -11,7 +11,6 @@ class Index(IndexView):
     template = 'wagtailadmin/collections/index.html'
     context_object_name = 'collections'
     permission_required = 'wagtailcore.change_collection'
-    add_permission_name = 'wagtailcore.add_collection'
     add_url_name = 'wagtailadmin_collections:add'
     index_url_name = 'wagtailadmin_collections:index'
     header_icon = 'collection'
@@ -25,6 +24,7 @@ class Index(IndexView):
 
 
 class Create(CreateView):
+    model = Collection
     form_class = CollectionForm
     add_url_name = 'wagtailadmin_collections:add'
     edit_url_name = 'wagtailadmin_collections:edit'
@@ -45,7 +45,6 @@ class Edit(EditView):
     index_url_name = 'wagtailadmin_collections:index'
     delete_url_name = 'wagtailadmin_collections:delete'
     permission_required = 'wagtailcore.change_collection'
-    delete_permission_name = 'wagtailcore.delete_collection'
     header_icon = 'collection'
 
     success_message = _("Collection '{0}' updated.")
