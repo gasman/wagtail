@@ -40,14 +40,17 @@ class Create(CreateView):
 class Edit(EditView):
     model = Collection
     context_object_name = 'collection'
-    template = 'wagtailadmin/collections/edit.html'
     form_class = CollectionForm
     edit_url_name = 'wagtailadmin_collections:edit'
     index_url_name = 'wagtailadmin_collections:index'
+    delete_url_name = 'wagtailadmin_collections:delete'
     permission_name = 'wagtailcore.change_collection'
+    delete_permission_name = 'wagtailcore.delete_collection'
+    header_icon = 'collection'
 
     success_message = _("Collection '{0}' updated.")
     error_message = _("The collection could not be saved due to errors.")
+    delete_item_label = _("Delete collection")
 
 
 class Delete(DeleteView):
