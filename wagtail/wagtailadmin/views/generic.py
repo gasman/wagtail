@@ -35,6 +35,9 @@ class IndexView(PermissionCheckedView):
 
 
 class CreateView(PermissionCheckedView):
+    template = 'wagtailadmin/generic/create.html'
+    form_template = 'wagtailadmin/generic/_form.html'
+
     def get_success_message(self, instance):
         return self.success_message.format(instance)
 
@@ -59,6 +62,7 @@ class CreateView(PermissionCheckedView):
 
     def render_to_response(self):
         return render(self.request, self.template, {
+            'view': self,
             'form': self.form,
         })
 
