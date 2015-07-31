@@ -11,6 +11,12 @@ class Index(IndexView):
     template = 'wagtailadmin/collections/index.html'
     context_object_name = 'collections'
     permission_name = 'wagtailcore.change_collection'
+    add_permission_name = 'wagtailcore.add_collection'
+    add_url_name = 'wagtailadmin_collections:add'
+    header_icon = 'collection'
+
+    page_title = _("Collections")
+    add_item_label = _("Add a collection")
 
 
 class Create(CreateView):

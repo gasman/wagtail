@@ -1,13 +1,11 @@
 {% extends "wagtailadmin/base.html" %}
 {% load i18n %}
-{% block titletag %}{% trans "Collections" %}{% endblock %}
+{% block titletag %}{{ view.page_title }}{% endblock %}
 {% block content %}
-    {% trans "Collections" as collections_str %}
-    {% if perms.wagtailcore.add_collection %}
-        {% trans "Add a collection" as add_a_collection_str %}
-        {% include "wagtailadmin/shared/header.html" with title=collections_str add_link="wagtailadmin_collections:add" add_text=add_a_collection_str icon="collection" %}
+    {% if can_add %}
+        {% include "wagtailadmin/shared/header.html" with title=view.page_title add_link=view.add_url_name add_text=view.add_item_label icon=view.header_icon %}
     {% else %}
-        {% include "wagtailadmin/shared/header.html" with title=collections_str icon="collection" %}
+        {% include "wagtailadmin/shared/header.html" with title=view.page_title icon=view.header_icon %}
     {% endif %}
 
     <div class="nice-padding">
