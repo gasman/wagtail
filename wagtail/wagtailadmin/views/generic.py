@@ -20,7 +20,8 @@ class PermissionCheckedView(View):
 
 class IndexView(PermissionCheckedView):
     def get_queryset(self):
-        return self.model.objects.order_by(self.default_order)
+        self.ordering = self.request.GET.get('ordering', self.default_order)
+        return self.model.objects.order_by(self.ordering)
 
     def get(self, request):
         object_list = self.get_queryset()
@@ -28,6 +29,7 @@ class IndexView(PermissionCheckedView):
         return render(request, self.template, {
             'view': self,
             'can_add': request.user.has_perm(self.add_permission_name),
+            'ordering': self.ordering,
             self.context_object_name: object_list,
         })
 
