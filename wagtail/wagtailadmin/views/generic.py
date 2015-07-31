@@ -26,6 +26,8 @@ class IndexView(PermissionCheckedView):
         object_list = self.get_queryset()
 
         return render(request, self.template, {
+            'view': self,
+            'can_add': request.user.has_perm(self.add_permission_name),
             self.context_object_name: object_list,
         })
 
