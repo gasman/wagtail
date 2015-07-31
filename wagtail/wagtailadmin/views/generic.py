@@ -117,18 +117,27 @@ class EditView(PermissionCheckedView):
 
 
 class DeleteView(PermissionCheckedView):
+    template = 'wagtailadmin/generic/confirm_delete.html'
+
+    def get_page_subtitle(self):
+        return str(self.instance)
+
     def get_success_message(self, instance):
         return self.success_message.format(instance)
 
+    def get_delete_url(self):
+        return reverse(self.delete_url_name, args=(self.instance.id,))
+
     def get(self, request, instance_id):
-        instance = get_object_or_404(self.model, id=instance_id)
+        self.instance = get_object_or_404(self.model, id=instance_id)
         return render(request, self.template, {
-            self.context_object_name: instance,
+            'view': self,
+            self.context_object_name: self.instance,
         })
 
     def post(self, request, instance_id):
-        instance = get_object_or_404(self.model, id=instance_id)
+        self.instance = get_object_or_404(self.model, id=instance_id)
 
-        instance.delete()
-        messages.success(request, self.get_success_message(instance))
+        self.instance.delete()
+        messages.success(request, self.get_success_message(self.instance))
         return redirect(self.index_url_name)
