@@ -10,7 +10,6 @@ class Index(IndexView):
     default_order = 'name'
     template = 'wagtailadmin/collections/index.html'
     context_object_name = 'collections'
-    permission_required = 'wagtailcore.change_collection'
     add_url_name = 'wagtailadmin_collections:add'
     index_url_name = 'wagtailadmin_collections:index'
     header_icon = 'collection'
@@ -29,7 +28,6 @@ class Create(CreateView):
     add_url_name = 'wagtailadmin_collections:add'
     edit_url_name = 'wagtailadmin_collections:edit'
     index_url_name = 'wagtailadmin_collections:index'
-    permission_required = 'wagtailcore.add_collection'
     header_icon = 'collection'
 
     page_title = _("Add collection")
@@ -44,7 +42,6 @@ class Edit(EditView):
     edit_url_name = 'wagtailadmin_collections:edit'
     index_url_name = 'wagtailadmin_collections:index'
     delete_url_name = 'wagtailadmin_collections:delete'
-    permission_required = 'wagtailcore.change_collection'
     header_icon = 'collection'
 
     success_message = _("Collection '{0}' updated.")
@@ -57,7 +54,6 @@ class Delete(DeleteView):
     context_object_name = 'collection'
     index_url_name = 'wagtailadmin_collections:index'
     delete_url_name = 'wagtailadmin_collections:delete'
-    permission_required = 'wagtailcore.delete_collection'
     header_icon = 'collection'
 
     page_title = _("Delete collection")

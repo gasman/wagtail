@@ -10,10 +10,8 @@ from wagtail.wagtailadmin import messages
 
 
 class PermissionCheckedView(View):
-    permission_required = None
-
     def dispatch(self, request, *args, **kwargs):
-        if self.permission_required is not None:
+        if getattr(self, 'permission_required', None) is not None:
             if not request.user.has_perm(self.permission_required):
                 messages.error(request, _('Sorry, you do not have permission to access this area.'))
                 return redirect('wagtailadmin_home')
@@ -42,7 +40,19 @@ class ModelPermissionMetaclass(type):
         return new_class
 
 
-class IndexView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
+class IndexViewMetaclass(ModelPermissionMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        new_class = (super(IndexViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
+
+        # if a subclass of IndexView does not specify its own 'permission_required' attribute,
+        # set it to the same as change_permission_name
+        if not hasattr(new_class, 'permission_required') and hasattr(new_class, 'change_permission_name'):
+            new_class.permission_required = new_class.change_permission_name
+
+        return new_class
+
+
+class IndexView(six.with_metaclass(IndexViewMetaclass, PermissionCheckedView)):
     def get_queryset(self):
         self.ordering = self.request.GET.get('ordering', self.default_order)
         return self.model.objects.order_by(self.ordering)
@@ -58,7 +68,19 @@ class IndexView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedVi
         })
 
 
-class CreateView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
+class CreateViewMetaclass(ModelPermissionMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        new_class = (super(CreateViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
+
+        # if a subclass of CreateView does not specify its own 'permission_required' attribute,
+        # set it to the same as add_permission_name
+        if not hasattr(new_class, 'permission_required') and hasattr(new_class, 'add_permission_name'):
+            new_class.permission_required = new_class.add_permission_name
+
+        return new_class
+
+
+class CreateView(six.with_metaclass(CreateViewMetaclass, PermissionCheckedView)):
     template = 'wagtailadmin/generic/create.html'
     form_template = 'wagtailadmin/generic/_form.html'
 
@@ -91,7 +113,19 @@ class CreateView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedV
         })
 
 
-class EditView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
+class EditViewMetaclass(ModelPermissionMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        new_class = (super(EditViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
+
+        # if a subclass of EditView does not specify its own 'permission_required' attribute,
+        # set it to the same as change_permission_name
+        if not hasattr(new_class, 'permission_required') and hasattr(new_class, 'change_permission_name'):
+            new_class.permission_required = new_class.change_permission_name
+
+        return new_class
+
+
+class EditView(six.with_metaclass(EditViewMetaclass, PermissionCheckedView)):
     template = 'wagtailadmin/generic/edit.html'
     form_template = 'wagtailadmin/generic/_form.html'
 
@@ -140,7 +174,19 @@ class EditView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedVie
         })
 
 
-class DeleteView(six.with_metaclass(ModelPermissionMetaclass, PermissionCheckedView)):
+class DeleteViewMetaclass(ModelPermissionMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        new_class = (super(DeleteViewMetaclass, mcs).__new__(mcs, name, bases, attrs))
+
+        # if a subclass of DeleteView does not specify its own 'permission_required' attribute,
+        # set it to the same as delete_permission_name
+        if not hasattr(new_class, 'permission_required') and hasattr(new_class, 'delete_permission_name'):
+            new_class.permission_required = new_class.delete_permission_name
+
+        return new_class
+
+
+class DeleteView(six.with_metaclass(DeleteViewMetaclass, PermissionCheckedView)):
     template = 'wagtailadmin/generic/confirm_delete.html'
 
     def get_page_subtitle(self):
