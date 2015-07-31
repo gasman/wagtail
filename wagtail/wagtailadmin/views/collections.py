@@ -56,8 +56,11 @@ class Edit(EditView):
 class Delete(DeleteView):
     model = Collection
     context_object_name = 'collection'
-    template = 'wagtailadmin/collections/confirm_delete.html'
     index_url_name = 'wagtailadmin_collections:index'
+    delete_url_name = 'wagtailadmin_collections:delete'
     permission_name = 'wagtailcore.delete_collection'
+    header_icon = 'collection'
 
+    page_title = _("Delete collection")
+    confirmation_message = _("Are you sure you want to delete this collection?")
     success_message = _("Collection '{0}' deleted.")
