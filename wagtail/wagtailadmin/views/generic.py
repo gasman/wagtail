@@ -1,3 +1,4 @@
+from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy, ugettext as _
@@ -231,3 +232,14 @@ class DeleteView(six.with_metaclass(DeleteViewMetaclass, PermissionCheckedView))
         self.instance.delete()
         messages.success(request, self.get_success_message(self.instance))
         return redirect(self.index_url_name)
+
+
+class ModelAdmin(object):
+    @classmethod
+    def get_urlconf(cls):
+        return [
+            url(r'^$', cls.Index.as_view(), name='index'),
+            url(r'^add/$', cls.Create.as_view(), name='add'),
+            url(r'^(\d+)/$', cls.Edit.as_view(), name='edit'),
+            url(r'^(\d+)/delete/$', cls.Delete.as_view(), name='delete'),
+        ]

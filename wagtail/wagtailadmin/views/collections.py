@@ -1,12 +1,11 @@
-from django.conf.urls import url
 from django.utils.translation import ugettext_lazy as _
 
 from wagtail.wagtailadmin.forms import CollectionForm
-from wagtail.wagtailadmin.views.generic import IndexView, CreateView, EditView, DeleteView
+from wagtail.wagtailadmin.views.generic import IndexView, CreateView, EditView, DeleteView, ModelAdmin
 from wagtail.wagtailcore.models import Collection
 
 
-class CollectionsModelAdmin(object):
+class CollectionsModelAdmin(ModelAdmin):
     class Index(IndexView):
         model = Collection
         default_order = 'name'
@@ -52,10 +51,3 @@ class CollectionsModelAdmin(object):
         page_title = _("Delete collection")
         confirmation_message = _("Are you sure you want to delete this collection?")
         success_message = _("Collection '{0}' deleted.")
-
-    urlpatterns = [
-        url(r'^$', Index.as_view(), name='index'),
-        url(r'^add/$', Create.as_view(), name='add'),
-        url(r'^(\d+)/$', Edit.as_view(), name='edit'),
-        url(r'^(\d+)/delete/$', Delete.as_view(), name='delete'),
-    ]
