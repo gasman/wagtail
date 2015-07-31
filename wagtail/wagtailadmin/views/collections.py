@@ -1,6 +1,4 @@
-from django.contrib.auth.decorators import permission_required
-from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from wagtail.wagtailadmin.forms import CollectionForm
 from wagtail.wagtailadmin.views.generic import IndexView, CreateView, EditView, DeleteView
@@ -8,12 +6,11 @@ from wagtail.wagtailcore.models import Collection
 
 
 class Index(IndexView):
+    model = Collection
+    default_order = 'name'
     template = 'wagtailadmin/collections/index.html'
     context_object_name = 'collections'
     permission_name = 'wagtailcore.change_collection'
-
-    def get_queryset(self):
-        return Collection.objects.order_by('name')
 
 
 class Create(CreateView):
@@ -23,11 +20,8 @@ class Create(CreateView):
     index_url_name = 'wagtailadmin_collections:index'
     permission_name = 'wagtailcore.add_collection'
 
-    def get_success_message(self, instance):
-        return _("Collection '{0}' created.").format(instance)
-
-    def get_error_message(self):
-        return _("The collection could not be created due to errors.")
+    success_message = _("Collection '{0}' created.")
+    error_message = _("The collection could not be created due to errors.")
 
 
 class Edit(EditView):
@@ -39,11 +33,8 @@ class Edit(EditView):
     index_url_name = 'wagtailadmin_collections:index'
     permission_name = 'wagtailcore.change_collection'
 
-    def get_success_message(self, instance):
-        return _("Collection '{0}' updated.").format(instance)
-
-    def get_error_message(self):
-        return _("The collection could not be saved due to errors.")
+    success_message = _("Collection '{0}' updated.")
+    error_message = _("The collection could not be saved due to errors.")
 
 
 class Delete(DeleteView):
@@ -53,5 +44,4 @@ class Delete(DeleteView):
     index_url_name = 'wagtailadmin_collections:index'
     permission_name = 'wagtailcore.delete_collection'
 
-    def get_success_message(self, instance):
-        return _("Collection '{0}' deleted.").format(instance)
+    success_message = _("Collection '{0}' deleted.")
