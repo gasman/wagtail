@@ -19,6 +19,9 @@ class PermissionCheckedView(View):
 
 
 class IndexView(PermissionCheckedView):
+    def get_queryset(self):
+        return self.model.objects.order_by(self.default_order)
+
     def get(self, request):
         object_list = self.get_queryset()
 
@@ -28,6 +31,12 @@ class IndexView(PermissionCheckedView):
 
 
 class CreateView(PermissionCheckedView):
+    def get_success_message(self, instance):
+        return self.success_message.format(instance)
+
+    def get_error_message(self):
+        return self.error_message
+
     def get(self, request):
         self.form = self.form_class()
         return self.render_to_response()
@@ -51,6 +60,12 @@ class CreateView(PermissionCheckedView):
 
 
 class EditView(PermissionCheckedView):
+    def get_success_message(self, instance):
+        return self.success_message.format(instance)
+
+    def get_error_message(self):
+        return self.error_message
+
     def get(self, request, instance_id):
         self.instance = get_object_or_404(self.model, id=instance_id)
         self.form = self.form_class(instance=self.instance)
@@ -78,6 +93,9 @@ class EditView(PermissionCheckedView):
 
 
 class DeleteView(PermissionCheckedView):
+    def get_success_message(self, instance):
+        return self.success_message.format(instance)
+
     def get(self, request, instance_id):
         instance = get_object_or_404(self.model, id=instance_id)
         return render(request, self.template, {
