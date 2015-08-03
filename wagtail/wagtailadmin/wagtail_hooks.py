@@ -1,5 +1,6 @@
 from django.core import urlresolvers
 from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from wagtail.wagtailcore import hooks
@@ -40,3 +41,10 @@ class CollectionsMenuItem(MenuItem):
 @hooks.register('register_settings_menu_item')
 def register_collections_menu_item():
     return CollectionsMenuItem(_('Collections'), urlresolvers.reverse('wagtailadmin_collections:index'), classnames='icon icon-collection', order=650)
+
+
+@hooks.register('register_permissions')
+def register_collection_permissions():
+    collection_content_type = ContentType.objects.get(app_label='wagtailcore', model='collection')
+    collection_permissions = Permission.objects.filter(content_type=collection_content_type)
+    return collection_permissions
