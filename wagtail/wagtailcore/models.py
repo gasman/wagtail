@@ -1429,10 +1429,10 @@ class Collection(models.Model):
     """
     A location in which resources such as images and documents can be grouped
     """
-    name = models.CharField(max_length=255, verbose_name=_('Name'))
+    name = models.CharField(max_length=255, verbose_name=_('name'))
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = _('Collection')
+        verbose_name = _('collection')

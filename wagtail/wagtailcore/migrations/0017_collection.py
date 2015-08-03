@@ -15,10 +15,10 @@ class Migration(migrations.Migration):
             name='Collection',
             fields=[
                 ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('name', models.CharField(max_length=255, verbose_name='Name')),
+                ('name', models.CharField(max_length=255, verbose_name='name')),
             ],
             options={
-                'verbose_name': 'Collection',
+                'verbose_name': 'collection',
             },
             bases=(models.Model,),
         ),
