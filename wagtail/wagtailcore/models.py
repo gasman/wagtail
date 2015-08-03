@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import logging
 import json
+import warnings
 
 from modelcluster.models import ClusterableModel, get_all_child_relations
 
@@ -1436,3 +1437,34 @@ class Collection(models.Model):
 
     class Meta:
         verbose_name = _('collection')
+
+
+class CollectionMember(models.Model):
+    collection = models.ForeignKey(Collection, verbose_name=_('collection'), related_name='+')
+
+    def save(self, *args, **kwargs):
+
+        # CollectionMember models such as Image and Document will often have legacy code from
+        # before they were made into CollectionMembers, which fails to set a collection prior
+        # to saving.
+        # Rather than having this fail outright, we raise a DeprecationWarning and assign it
+        # to the first collection we find. If the site implementer has not changed the
+        # collections setup from the default, this will assign it to the 'Default' collection;
+        # if they *have* changed it, behaviour is undefined (and if it does anything weird,
+        # it's their own fault for running non-collection-aware code on a collection-aware
+        # site...)
+        # Since the pattern of adding CollectionMember to an existing model is one that's
+        # likely to recur (not just for Wagtail's own Image / Document models but for
+        # arbitrary user-defined ones), this DeprecationWarning is unversioned and not
+        # scheduled for removal.
+
+        if self.collection_id is None:
+            warnings.warn(
+                "Saving a '%s' model without specifying a collection is deprecated" % type(self),
+                DeprecationWarning)
+            self.collection = Collection.objects.first()
+
+        return super(CollectionMember, self).save(*args, **kwargs)
+
+    class Meta:
+        abstract = True

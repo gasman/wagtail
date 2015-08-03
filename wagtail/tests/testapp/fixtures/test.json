@@ -357,6 +357,14 @@
 },
 
 {
+    "pk": 1,
+    "model": "wagtailcore.collection",
+    "fields": {
+        "name": "Default"
+    }
+},
+
+{
     "pk": 3,
     "model": "auth.group",
     "fields": {
@@ -617,7 +625,8 @@
     "fields": {
         "title": "test document",
         "created_at": "2014-01-01T12:00:00.000Z",
-        "file": "documents/test.pdf"
+        "file": "documents/test.pdf",
+        "collection": 1
     }
 },
 {
