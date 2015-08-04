@@ -11,6 +11,10 @@ def add_documents_to_default_collection(apps, schema_editor):
     Document.objects.update(collection=default_collection)
 
 
+def noop(apps, schema_editor):
+    pass  # no action required to reverse add_documents_to_default_collection
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -25,7 +29,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(verbose_name='collection', related_name='+', to='wagtailcore.Collection', null=True),
             preserve_default=False,
         ),
-        migrations.RunPython(add_documents_to_default_collection),
+        migrations.RunPython(add_documents_to_default_collection, noop),
         migrations.AlterField(
             model_name='document',
             name='collection',
