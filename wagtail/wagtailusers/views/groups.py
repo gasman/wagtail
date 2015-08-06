@@ -110,6 +110,7 @@ def edit(request, group_id):
         if form.is_valid() and page_permission_formset.is_valid() and collection_permission_formset.is_valid():
             group = form.save()
             page_permission_formset.save()
+            collection_permission_formset.save()
             messages.success(request, _("Group '{0}' updated.").format(group), buttons=[
                 messages.button(reverse('wagtailusers_groups:edit', args=(group.id,)), _('Edit'))
             ])

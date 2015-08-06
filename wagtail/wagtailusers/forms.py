@@ -264,7 +264,14 @@ GroupPagePermissionFormSet = inlineformset_factory(
 )
 
 
+class PermissionChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+
 class GroupCollectionPermissionForm(forms.ModelForm):
+    permission = PermissionChoiceField(queryset=Permission.objects.none())
+
     def __init__(self, *args, **kwargs):
         super(GroupCollectionPermissionForm, self).__init__(*args, **kwargs)
 
@@ -279,10 +286,24 @@ class GroupCollectionPermissionForm(forms.ModelForm):
         fields = ('collection', 'permission')
 
 
+class BaseGroupCollectionPermissionFormSet(forms.models.BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(BaseGroupCollectionPermissionFormSet, self).__init__(*args, **kwargs)
+        for form in self.forms:
+            form.fields['DELETE'].widget = forms.HiddenInput()
+
+    @property
+    def empty_form(self):
+        empty_form = super(BaseGroupCollectionPermissionFormSet, self).empty_form
+        empty_form.fields['DELETE'].widget = forms.HiddenInput()
+        return empty_form
+
+
 GroupCollectionPermissionFormSet = inlineformset_factory(
     Group,
     GroupCollectionPermission,
     form=GroupCollectionPermissionForm,
+    formset=BaseGroupCollectionPermissionFormSet,
     extra=0,
     fields=('collection', 'permission'),
 )

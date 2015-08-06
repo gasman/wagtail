@@ -49,5 +49,19 @@
 
     <script>
         {% include "wagtailusers/groups/includes/page_permissions_formset.js" with formset=page_permission_formset only %}
+
+        $(function() {
+            buildExpandingFormset('id_collection_permissions', {
+                'onInit': function(index) {
+                    var deleteInputId = 'id_collection_permissions-' + index + '-DELETE';
+                    var childId = 'id_collection_permissions-' + index + '-tr';
+                    $('#' + deleteInputId + '-button').click(function() {
+                        /* set 'deleted' form field to true */
+                        $('#' + deleteInputId).val('1');
+                        $('#' + childId).fadeOut();
+                    });
+                }
+            });
+        });
     </script>
 {% endblock %}
