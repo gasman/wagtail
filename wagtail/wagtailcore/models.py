@@ -1470,6 +1470,7 @@ class CollectionMember(models.Model):
         abstract = True
 
 
+@python_2_unicode_compatible
 class GroupCollectionPermission(models.Model):
     """
     A rule indicating that a group has permission for some action (e.g. "create document")
@@ -1478,6 +1479,19 @@ class GroupCollectionPermission(models.Model):
     group = models.ForeignKey(Group, verbose_name=_('group'), related_name='collection_permissions')
     collection = models.ForeignKey(Collection, verbose_name=_('collection'), related_name='group_permissions')
     permission = models.ForeignKey(Permission, verbose_name=_('permission'))
+
+    def __str__(self):
+        try:
+            permission_name = self.permission.name
+        except Permission.DoesNotExist:
+            permission_name = '(no permission)'
+
+        try:
+            collection_name = self.collection.name
+        except Collection.DoesNotExist:
+            collection_name = '(no collection)'
+
+        return "%s on %s" % (permission_name, collection_name)
 
     class Meta:
         unique_together = ('group', 'collection', 'permission')

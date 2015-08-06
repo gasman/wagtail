@@ -51,8 +51,8 @@ def editor_js():
     )
 
 
-@hooks.register('register_permissions')
-def register_permissions():
+@hooks.register('register_collection_permissions')
+def register_collection_permissions():
     document_content_type = ContentType.objects.get(app_label='wagtaildocs', model='document')
     document_permissions = Permission.objects.filter(content_type=document_content_type)
     return document_permissions

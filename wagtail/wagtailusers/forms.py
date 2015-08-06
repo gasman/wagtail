@@ -1,13 +1,16 @@
+from itertools import groupby
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group, Permission
+from django.forms.formsets import formset_factory, BaseFormSet
 from django.forms.models import inlineformset_factory
 
 from wagtail.wagtailcore import hooks
 from wagtail.wagtailadmin.widgets import AdminPageChooser
 from wagtail.wagtailusers.models import UserProfile
-from wagtail.wagtailcore.models import UserPagePermissionsProxy, GroupPagePermission
+from wagtail.wagtailcore.models import UserPagePermissionsProxy, GroupPagePermission, GroupCollectionPermission, Collection
 
 
 User = get_user_model()
@@ -258,6 +261,30 @@ GroupPagePermissionFormSet = inlineformset_factory(
     formset=BaseGroupPagePermissionFormSet,
     extra=0,
     fields=('page', 'permission_type'),
+)
+
+
+class GroupCollectionPermissionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(GroupCollectionPermissionForm, self).__init__(*args, **kwargs)
+
+        self.registered_permissions = Permission.objects.none()
+        for fn in hooks.get_hooks('register_collection_permissions'):
+            self.registered_permissions = self.registered_permissions | fn()
+
+        self.fields['permission'].queryset = self.registered_permissions
+
+    class Meta:
+        model = GroupCollectionPermission
+        fields = ('collection', 'permission')
+
+
+GroupCollectionPermissionFormSet = inlineformset_factory(
+    Group,
+    GroupCollectionPermission,
+    form=GroupCollectionPermissionForm,
+    extra=0,
+    fields=('collection', 'permission'),
 )
 
 
