@@ -3,12 +3,11 @@ from django.conf.urls import include, url
 from django.core import urlresolvers
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 
 from wagtail.wagtailcore import hooks
 from wagtail.wagtailadmin.menu import MenuItem
 from wagtail.wagtailadmin.site_summary import SummaryItem
+from wagtail.wagtailadmin.utils import get_permissions_by_model_name
 
 from wagtail.wagtailimages import admin_urls, image_operations
 from wagtail.wagtailimages.models import get_image_model
@@ -53,9 +52,7 @@ def editor_js():
 
 @hooks.register('register_permissions')
 def register_permissions():
-    image_content_type = ContentType.objects.get(app_label='wagtailimages', model='image')
-    image_permissions = Permission.objects.filter(content_type=image_content_type)
-    return image_permissions
+    return get_permissions_by_model_name('wagtailimages', 'image')
 
 
 @hooks.register('register_image_operations')

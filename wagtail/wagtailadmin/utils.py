@@ -2,6 +2,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail as django_send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from modelcluster.fields import ParentalKey
@@ -44,6 +46,12 @@ def get_object_usage(obj):
                     )
 
     return pages
+
+
+def get_permissions_by_model_name(app_label, model_name):
+    "Return a recordset of permissions that exist for the given model"
+    content_type = ContentType.objects.get(app_label=app_label, model=model_name)
+    return Permission.objects.filter(content_type=content_type)
 
 
 def users_with_page_permission(page, permission_type, include_superusers=True):

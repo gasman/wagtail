@@ -3,12 +3,11 @@ from django.conf.urls import include, url
 from django.core import urlresolvers
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission
 
 from wagtail.wagtailcore import hooks
 from wagtail.wagtailadmin.menu import MenuItem
 from wagtail.wagtailadmin.site_summary import SummaryItem
+from wagtail.wagtailadmin.utils import get_permissions_by_model_name
 
 from wagtail.wagtaildocs import admin_urls
 from wagtail.wagtaildocs.models import Document
@@ -53,9 +52,7 @@ def editor_js():
 
 @hooks.register('register_collection_permissions')
 def register_collection_permissions():
-    document_content_type = ContentType.objects.get(app_label='wagtaildocs', model='document')
-    document_permissions = Permission.objects.filter(content_type=document_content_type)
-    return document_permissions
+    return get_permissions_by_model_name('wagtaildocs', 'document')
 
 
 @hooks.register('register_rich_text_link_handler')
