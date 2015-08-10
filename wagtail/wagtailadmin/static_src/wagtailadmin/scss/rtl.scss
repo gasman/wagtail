@@ -94,7 +94,7 @@ li.submenu-active .nav-submenu {
 
     a:before {
         margin-right: -1.5em;
-        margin-left: 0;
+        margin-left: 0.5em;
     }
 }
 
@@ -175,10 +175,6 @@ input[type=checkbox], input[type=radio] {
     float: right;
 }
 
-.object fieldset {
-    float: right;
-}
-
 .field-col {
     float: right;
 }
@@ -195,9 +191,16 @@ input[type=checkbox], input[type=radio] {
         padding-right: 0;
     }
 
-    &.home a:after {
-      left: -0.3em;
-      right: auto;
+    &.home {
+
+      a {
+        padding-left: 0;
+      }
+
+      a:after {
+        left: -0.3em;
+        right: auto;
+      }
     }
 
     a:after, .breadcrumb li span:after {
@@ -229,9 +232,106 @@ header.nice-padding {
 input[type=submit].bicolor:before, input[type=reset].bicolor:before, input[type=button].bicolor:before, .button.bicolor:before, button.bicolor:before {
     right: 0;
     left: auto;
+    padding-right: 6px;
+    width: 1.5em;
 }
 
 input[type=submit].bicolor, input[type=reset].bicolor, input[type=button].bicolor, .button.bicolor, button.bicolor {
     padding-right: 3.7em;
     padding-left: 1em;
+}
+
+a.button.button-small {
+    line-height: 1.65em;
+}
+
+.tab-nav li.settings a::before {
+    margin-left: 0.5em;
+    margin-right: auto;
+}
+
+.dropdown .dropdown-toggle {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    border-left-width: 0;
+    left: 0px;
+    right: auto;
+}
+
+.dropdown input[type="submit"], .dropdown input[type="reset"], .dropdown input[type="button"], .dropdown button, .dropdown .button {
+    padding: 0 1em 0 0;
+    text-align: right;
+    float: left;
+}
+
+.dropdown ul a.shortcut {
+    padding-left: 7em;
+    padding-right: 0;
+}
+
+.hallotoolbar{
+    position:absolute;
+    z-index:5;
+    margin-top:4em;
+    margin-left:1.2em;
+
+    &.affixed{
+        position:fixed;
+        margin-top:0;
+    }
+
+}
+
+.hallotoolbar.full{
+    margin-right:$mobile-nice-padding;
+    margin-left: 0;
+}
+
+@media screen and (min-width: $breakpoint-mobile){
+    .hallotoolbar.full{
+        margin-right:$desktop-nice-padding;
+        margin-left: 0;
+    }
+}
+
+ul.tagit li {
+    float: right;
+    margin: 2px 0 2px 5px;
+}
+
+ul.tagit li.tagit-choice-editable {
+    padding: 0px 0px 0px 23px !important;
+}
+
+.tag::before {
+    padding-right: 0;
+    padding-left: 0.5em;
+}
+
+ul.tagit li.tagit-choice .tagit-close {
+    left: 0.1em;
+    right: auto;
+}
+
+.tagit-close .ui-icon-close {
+    margin-right: 1em;
+    margin-left: auto;
+}
+
+.filter-options li {
+    float: right;
+}
+
+.filter-title {
+    float: right;
+}
+
+
+.nav-main .account .avatar {
+    margin: 0px 0px 0px 0.7em;
+    float: right;
+}
+
+.nav-main .account {
+    padding-left: 0px;
+    padding-right: 15px;
 }
