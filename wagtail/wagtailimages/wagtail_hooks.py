@@ -7,10 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 from wagtail.wagtailcore import hooks
 from wagtail.wagtailadmin.menu import MenuItem
 from wagtail.wagtailadmin.site_summary import SummaryItem
-from wagtail.wagtailadmin.utils import get_permissions_by_model_name
+from wagtail.wagtailadmin.utils import get_permissions_by_model_name, user_has_permission_for_model
 
 from wagtail.wagtailimages import admin_urls, image_operations
-from wagtail.wagtailimages.models import get_image_model
+from wagtail.wagtailimages.models import get_image_model, Image
 from wagtail.wagtailimages.rich_text import ImageEmbedHandler
 
 
@@ -23,7 +23,10 @@ def register_admin_urls():
 
 class ImagesMenuItem(MenuItem):
     def is_shown(self, request):
-        return request.user.has_perm('wagtailimages.add_image')
+        # Permission tests refer to the wagtailimages.Image model, even if a custom image
+        # model is in use
+        return user_has_permission_for_model(request.user, Image)
+
 
 @hooks.register('register_admin_menu_item')
 def register_images_menu_item():

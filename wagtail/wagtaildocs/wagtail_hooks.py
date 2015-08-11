@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from wagtail.wagtailcore import hooks
 from wagtail.wagtailadmin.menu import MenuItem
 from wagtail.wagtailadmin.site_summary import SummaryItem
-from wagtail.wagtailadmin.utils import get_permissions_by_model_name
+from wagtail.wagtailadmin.utils import get_permissions_by_model_name, user_has_permission_for_model
 
 from wagtail.wagtaildocs import admin_urls
 from wagtail.wagtaildocs.models import Document
@@ -23,7 +23,8 @@ def register_admin_urls():
 
 class DocumentsMenuItem(MenuItem):
     def is_shown(self, request):
-        return request.user.has_perm('wagtaildocs.add_document')
+        return user_has_permission_for_model(request.user, Document)
+
 
 @hooks.register('register_admin_menu_item')
 def register_documents_menu_item():

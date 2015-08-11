@@ -54,6 +54,25 @@ def get_permissions_by_model_name(app_label, model_name):
     return Permission.objects.filter(content_type=content_type)
 
 
+def user_has_permission_for_model(user, model):
+    "Return whether the given user has any permission over the given model"
+    # if the model provides a user_has_permission_for_model method, call that
+    # in preference to checking the standard Django permission model
+    if hasattr(model, 'user_has_permission_for_model'):
+        return model.user_has_permission_for_model(user)
+
+    # superusers always have permission
+    if user.is_superuser:
+        return True
+
+    content_type = ContentType.objects.get_for_model(model)
+    for permission in Permission.objects.filter(content_type=content_type):
+        if user.has_perm("%s.%s" % (content_type.app_label, permission.codename)):
+            return True
+
+    return False
+
+
 def users_with_page_permission(page, permission_type, include_superusers=True):
     # Get user model
     User = get_user_model()
