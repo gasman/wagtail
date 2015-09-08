@@ -40,3 +40,17 @@ def register_pages_search_area():
         name='pages',
         classnames='icon icon-folder-open-inverse',
         order=100)
+
+
+class CollectionsMenuItem(MenuItem):
+    def is_shown(self, request):
+        return (
+            request.user.has_perm('wagtailcore.add_collection')
+            or request.user.has_perm('wagtailcore.change_collection')
+            or request.user.has_perm('wagtailcore.delete_collection')
+        )
+
+
+@hooks.register('register_settings_menu_item')
+def register_collections_menu_item():
+    return CollectionsMenuItem(_('Collections'), urlresolvers.reverse('wagtailadmin_collections:index'), classnames='icon icon-collection', order=700)
