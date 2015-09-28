@@ -35,7 +35,7 @@ class Document(CollectionMember, TagSearchable):
 
     objects = DocumentQuerySet.as_manager()
 
-    search_fields = TagSearchable.search_fields + (
+    search_fields = TagSearchable.search_fields + CollectionMember.search_fields + (
         index.FilterField('uploaded_by_user'),
     )
 
