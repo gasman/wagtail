@@ -48,9 +48,20 @@ class PageLinkHandler(object):
             return "<a>"
 
 
+class ExternalLinkHandler(object):
+    @staticmethod
+    def get_db_attributes(tag):
+        return {'href': tag['href']}
+
+    @staticmethod
+    def expand_db_attributes(attrs, for_editor):
+        return '<a href="%s">' % attrs['href']
+
+
 EMBED_HANDLERS = {}
 LINK_HANDLERS = {
     'page': PageLinkHandler,
+    'external': ExternalLinkHandler,
 }
 
 has_loaded_embed_handlers = False
