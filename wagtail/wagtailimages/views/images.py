@@ -8,15 +8,16 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.http import HttpResponse, JsonResponse
 
 from wagtail.utils.pagination import paginate
-from wagtail.wagtailcore.models import Site
+from wagtail.wagtailcore.models import Site, Collection
 from wagtail.wagtailadmin.forms import SearchForm
 from wagtail.wagtailadmin import messages
-from wagtail.wagtailsearch.backends import get_search_backends, get_search_backend
+from wagtail.wagtailsearch.backends import get_search_backends
 
 from wagtail.wagtailimages.models import get_image_model, Filter
 from wagtail.wagtailimages.forms import get_image_form, URLGeneratorForm
 from wagtail.wagtailimages.permissions import \
-    image_permission_required, any_image_permission_required, user_can_edit_image, user_has_image_permission, images_editable_by_user
+    image_permission_required, any_image_permission_required, user_can_edit_image, \
+    user_has_image_permission, images_editable_by_user, collections_with_permission_for_user
 from wagtail.wagtailimages.utils import generate_signature
 from wagtail.wagtailimages.exceptions import InvalidFilterSpecError
 
@@ -34,14 +35,27 @@ def index(request):
     if 'q' in request.GET:
         form = SearchForm(request.GET, placeholder=_("Search images"))
         if form.is_valid():
-            s = get_search_backend()
             query_string = form.cleaned_data['q']
 
             images = images.search(query_string)
     else:
         form = SearchForm(placeholder=_("Search images"))
 
+    # Filter by collection
+    current_collection = None
+    collection_id = request.GET.get('collection_id')
+    if collection_id:
+        try:
+            current_collection = Collection.objects.get(id=request.GET['collection_id'])
+            images = images.filter(collection=current_collection)
+        except (ValueError, Collection.DoesNotExist):
+            pass
+
     paginator, images = paginate(request, images)
+
+    collections = collections_with_permission_for_user(request.user, ['wagtailimages.add_image', 'wagtailimages.change_image'])
+    if len(collections) < 2:
+        collections = None
 
     # Create response
     if request.is_ajax():
@@ -59,6 +73,8 @@ def index(request):
             'can_add_image': user_has_image_permission(request.user, 'wagtailimages.add_image'),
             'search_form': form,
             'popular_tags': Image.popular_tags(),
+            'collections': collections,
+            'current_collection': current_collection,
         })
 
 
