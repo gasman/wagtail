@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from wagtail.utils.pagination import paginate
 from wagtail.wagtailadmin.modal_workflow import render_modal_workflow
 from wagtail.wagtailadmin.forms import SearchForm
+from wagtail.wagtailcore.models import Collection
 from wagtail.wagtailsearch.backends import get_search_backends
 
 from wagtail.wagtailimages.models import get_image_model
@@ -43,15 +44,21 @@ def chooser(request):
         uploadform = None
 
     q = None
-    if 'q' in request.GET or 'p' in request.GET:
+    if 'q' in request.GET or 'p' in request.GET or 'collection_id' in request.GET:
+        images = Image.objects.all()
+
+        collection_id = request.GET.get('collection_id')
+        if collection_id:
+            images = images.filter(collection=collection_id)
+
         searchform = SearchForm(request.GET)
         if searchform.is_valid():
             q = searchform.cleaned_data['q']
 
-            images = Image.objects.search(q)
+            images = images.search(q)
             is_searching = True
         else:
-            images = Image.objects.order_by('-created_at')
+            images = images.order_by('-created_at')
             is_searching = False
 
         # Pagination
@@ -66,6 +73,10 @@ def chooser(request):
     else:
         searchform = SearchForm()
 
+        collections = Collection.objects.all()
+        if len(collections) < 2:
+            collections = None
+
         images = Image.objects.order_by('-created_at')
         paginator, images = paginate(request, images, per_page=12)
 
@@ -77,6 +88,7 @@ def chooser(request):
         'query_string': q,
         'will_select_format': request.GET.get('select_format'),
         'popular_tags': Image.popular_tags(),
+        'collections': collections,
     })
 
 

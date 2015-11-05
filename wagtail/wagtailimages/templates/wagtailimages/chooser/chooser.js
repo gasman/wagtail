@@ -17,7 +17,10 @@ function(modal) {
     function search() {
         $.ajax({
             url: searchUrl,
-            data: {q: $('#id_q').val()},
+            data: {
+                q: $('#id_q').val(),
+                collection_id: $('#collection_chooser_collection_id').val()
+            },
             success: function(data, status) {
                 $('#image-results').html(data);
                 ajaxifyLinks($('#image-results'));
@@ -71,6 +74,7 @@ function(modal) {
         var wait = setTimeout(search, 200);
         $(this).data('timer', wait);
     });
+    $('#collection_chooser_collection_id').change(search);
     $('a.suggested-tag').click(function() {
         $('#id_q').val($(this).text());
         search();
