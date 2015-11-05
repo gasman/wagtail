@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from wagtail.utils.pagination import paginate
 from wagtail.wagtailadmin.modal_workflow import render_modal_workflow
 from wagtail.wagtailadmin.forms import SearchForm
+from wagtail.wagtailcore.models import Collection
 from wagtail.wagtailsearch.backends import get_search_backends
 
 from wagtail.wagtailimages.models import get_image_model
@@ -45,9 +46,15 @@ def chooser(request):
     images = Image.objects.order_by('-created_at')
 
     q = None
-    if 'q' in request.GET or 'p' in request.GET or 'tag' in request.GET:
+    if (
+        'q' in request.GET or 'p' in request.GET or 'tag' in request.GET
+        or 'collection_id' in request.GET
+    ):
         # this request is triggered from search, pagination or 'popular tags';
         # we will just render the results.html fragment
+        collection_id = request.GET.get('collection_id')
+        if collection_id:
+            images = images.filter(collection=collection_id)
 
         searchform = SearchForm(request.GET)
         if searchform.is_valid():
@@ -74,6 +81,10 @@ def chooser(request):
     else:
         searchform = SearchForm()
 
+        collections = Collection.objects.all()
+        if len(collections) < 2:
+            collections = None
+
         paginator, images = paginate(request, images, per_page=12)
 
     return render_modal_workflow(request, 'wagtailimages/chooser/chooser.html', 'wagtailimages/chooser/chooser.js', {
@@ -84,6 +95,7 @@ def chooser(request):
         'query_string': q,
         'will_select_format': request.GET.get('select_format'),
         'popular_tags': Image.popular_tags(),
+        'collections': collections,
     })
 
 
