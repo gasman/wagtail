@@ -3,6 +3,7 @@
 # depending on whether the image model is configured to use collections.
 
 from django.db.models import Q
+from django.utils.six import string_types
 
 from wagtail.wagtailadmin.utils import user_passes_test
 from wagtail.wagtailcore.models import Collection, CollectionMember, GroupCollectionPermission
@@ -95,21 +96,35 @@ def user_can_edit_image(user, image):
         return False
 
 
-def collections_with_permission_for_user(user, permission_name):
+def collections_with_permission_for_user(user, permission_name_or_names):
     """
-    Return a queryset of collections that this user has the specified permission over,
+    Return a queryset of collections that this user has the specified permission over
+    (or if a list of permissions is passed, at least one of those permissions),
     taking permission propagation into child selections into account
     """
     if is_using_collections:
         if user.is_superuser:
             return Collection.objects.all()
         else:
-            app_label, codename = permission_name.split('.')
-            base_paths = Collection.objects.filter(
-                group_permissions__group__in=user.groups.all(),
-                group_permissions__permission__content_type__app_label=app_label,
-                group_permissions__permission__codename=codename
-            ).values_list('path', flat=True)
+
+            if isinstance(permission_name_or_names, string_types):
+                permission_names = [permission_name_or_names]
+
+            permission_filter_rules = []
+            for permission_name in permission_names:
+                app_label, codename = permission_name.split('.')
+
+                permission_filter_rules.append(Q(
+                    group_permissions__group__in=user.groups.all(),
+                    group_permissions__permission__content_type__app_label=app_label,
+                    group_permissions__permission__codename=codename
+                ))
+
+            overall_permission_filter = permission_filter_rules[0]
+            for rule in permission_filter_rules[1:]:
+                overall_permission_filter = overall_permission_filter | rule
+
+            base_paths = Collection.objects.filter(overall_permission_filter).values_list('path', flat=True)
 
             if base_paths:
                 filters = Q(path__startswith=base_paths[0])
