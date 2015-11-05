@@ -6,11 +6,14 @@ from django.core.urlresolvers import reverse
 
 from wagtail.utils.pagination import paginate
 from wagtail.wagtailadmin.forms import SearchForm
-from wagtail.wagtailsearch.backends import get_search_backend, get_search_backends
+from wagtail.wagtailsearch.backends import get_search_backends
 from wagtail.wagtailadmin import messages
+from wagtail.wagtailcore.models import Collection
 
 from wagtail.wagtaildocs.models import Document
-from wagtail.wagtaildocs.permissions import document_permission_required, any_document_permission_required, user_can_edit_document, user_has_document_permission, documents_editable_by_user
+from wagtail.wagtaildocs.permissions import document_permission_required, any_document_permission_required, \
+    user_can_edit_document, user_has_document_permission, documents_editable_by_user, \
+    collections_with_permission_for_user
 from wagtail.wagtaildocs.forms import DocumentForm
 
 
@@ -27,19 +30,32 @@ def index(request):
         ordering = '-created_at'
     documents = documents.order_by(ordering)
 
+    # Filter by collection
+    current_collection = None
+    collection_id = request.GET.get('collection_id')
+    if collection_id:
+        try:
+            current_collection = Collection.objects.get(id=request.GET['collection_id'])
+            documents = documents.filter(collection=current_collection)
+        except (ValueError, Collection.DoesNotExist):
+            pass
+
     # Search
     query_string = None
     if 'q' in request.GET:
         form = SearchForm(request.GET, placeholder=_("Search documents"))
         if form.is_valid():
-            s = get_search_backend()
             query_string = form.cleaned_data['q']
-            documents = s.search(query_string, documents)
+            documents = documents.search(query_string)
     else:
         form = SearchForm(placeholder=_("Search documents"))
 
     # Pagination
     paginator, documents = paginate(request, documents)
+
+    collections = collections_with_permission_for_user(request.user, ['wagtailimages.add_image', 'wagtailimages.change_image'])
+    if len(collections) < 2:
+        collections = None
 
     # Create response
     if request.is_ajax():
@@ -59,6 +75,8 @@ def index(request):
             'can_add_document': user_has_document_permission(request.user, 'wagtaildocs.add_document'),
             'search_form': form,
             'popular_tags': Document.popular_tags(),
+            'collections': collections,
+            'current_collection': current_collection,
         })
 
 
