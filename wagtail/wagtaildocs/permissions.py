@@ -108,6 +108,8 @@ def collections_with_permission_for_user(user, permission_name_or_names):
 
             if isinstance(permission_name_or_names, string_types):
                 permission_names = [permission_name_or_names]
+            else:
+                permission_names = permission_name_or_names
 
             permission_filter_rules = []
             for permission_name in permission_names:
