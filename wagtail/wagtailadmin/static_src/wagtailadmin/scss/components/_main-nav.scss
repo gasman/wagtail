@@ -369,6 +369,10 @@ body.explorer-open {
             &:hover {
                 background-color: transparent;
             }
+
+            &.submenu-trigger:after{
+                content:"z";
+            }
         }
 
         .nav-submenu {
