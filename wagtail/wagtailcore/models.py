@@ -754,13 +754,11 @@ class Page(six.with_metaclass(PageBase, MP_Node, ClusterableModel, index.Indexed
     def can_exist_under(cls, parent):
         """
         Checks if this page type can exist as a subpage under a parent page
-        instance by checking the :attr:`~Page.parent_page_types` of this class,
-        and the :attr:`~Page.subpage_types` of the parent.
+        instance.
 
         See also: :func:`Page.can_create_at` and :func:`Page.can_move_to`
         """
-        return cls in parent.allowed_subpage_models() \
-            and parent.specific_class in cls.allowed_parent_page_models()
+        return cls in parent.specific_class.allowed_subpage_models()
 
     @classmethod
     def can_create_at(cls, parent):
