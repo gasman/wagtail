@@ -718,7 +718,7 @@ class Page(six.with_metaclass(PageBase, MP_Node, ClusterableModel, index.Indexed
     @classmethod
     def allowed_subpage_models(cls):
         """
-        Returns the list of page types that this page type can be a parent of,
+        Returns the list of page types that this page type can have as subpages,
         as a list of model classes
         """
         return [
