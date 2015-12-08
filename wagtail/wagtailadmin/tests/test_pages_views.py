@@ -656,7 +656,6 @@ class TestPageCreation(TestCase, WagtailTestUtils):
     def test_whitespace_titles_with_tab_in_seo_title(self):
         post_data = {
             'title': "Hello",
-            'slug': "hello",
             'content': "Some content",
             'slug': 'hello-world',
             'action-submit': "Submit",
