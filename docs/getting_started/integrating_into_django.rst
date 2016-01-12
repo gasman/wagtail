@@ -82,7 +82,7 @@ The URL paths here can be altered as necessary to fit your project's URL scheme.
 
 In this case, this should be placed at the end of the ``urlpatterns`` list, so that it does not override more specific URL patterns.
 
-Finally, your project needs to be set up to serve user-uploaded files from ``MEDIA_ROOT``. Your Django project may already have this in place, but if not, add the following snippet to urls.py:
+Finally, your project needs to be set up to serve user-uploaded files from ``MEDIA_ROOT``. Your Django project may already have this in place, but if not, add the following snippet to ``urls.py``:
 
 .. code-block:: python
 
