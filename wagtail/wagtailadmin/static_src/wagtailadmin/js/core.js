@@ -54,7 +54,9 @@ function initTagField(id, autocompleteUrl) {
 */
 function enableDirtyFormCheck(formSelector, options) {
     var $form = $(formSelector);
-    var $ignoredButtons = $form.find(options.ignoredButtonsSelector || 'input[type="submit"]');
+    var $ignoredButtons = $form.find(
+        options.ignoredButtonsSelector || 'input[type="submit"],button[type="submit"]'
+    );
     var confirmationMessage = options.confirmationMessage || ' ';
     var alwaysDirty = options.alwaysDirty || false;
     var initialData = $form.serialize();
