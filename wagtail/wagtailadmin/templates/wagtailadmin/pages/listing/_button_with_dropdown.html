@@ -1,0 +1,9 @@
+<div class="dropdown dropdown-button">
+    <input type="button" value="{{label}}" class="button">
+    <div class="dropdown-toggle icon icon-arrow-down"></div>
+    <ul role="menu">
+    {% for button in buttons %}
+        <li>{{ button|safe }}</li>
+      {% endfor %}
+    </ul>
+</div>
