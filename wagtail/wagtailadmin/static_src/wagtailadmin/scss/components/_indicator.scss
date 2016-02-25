@@ -47,5 +47,18 @@ $color-state-live-draft: #43B1B0;
 
 // This is hipster. But it works.
 .is-live\+draft .c-indicator {
-    background: $color-state-live-draft;
+    background: $color-state-draft;
+    position: relative;
+
+    &:before {
+        content: '';
+        width: $c-indicator-size/2;
+        height: $c-indicator-size;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-bottom-left-radius: 50rem;
+        border-top-left-radius: 50rem;
+        background: $color-state-live;
+    }
 }
