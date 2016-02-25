@@ -60,5 +60,7 @@ $color-state-live-draft: #43B1B0;
         border-bottom-left-radius: 50rem;
         border-top-left-radius: 50rem;
         background: $color-state-live;
+        transform: rotate(45deg);
+        transform-origin: 100% 50%;
     }
 }
