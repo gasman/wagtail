@@ -235,7 +235,21 @@ class PageListingButton(Button):
         super(PageListingButton, self).__init__(label, url, classes=classes, **kwargs)
 
 
-class ButtonWithDropdownFromHook(Button):
+class BaseDropdownMenuButton(Button):
+    def __init__(self, *args, **kwargs):
+        super(BaseDropdownMenuButton, self).__init__(*args, url=None, **kwargs)
+
+    def get_buttons_in_dropdown(self):
+        raise NotImplementedError
+
+    def render(self):
+        return render_to_string(self.template_name, {
+            'buttons': self.get_buttons_in_dropdown(),
+            'label': self.label,
+            'is_parent': self.is_parent})
+
+
+class ButtonWithDropdownFromHook(BaseDropdownMenuButton):
     template_name = 'wagtailadmin/pages/listing/_button_with_dropdown.html'
 
     def __init__(self, label, hook_name, page, page_perms, is_parent, **kwargs):
@@ -251,8 +265,3 @@ class ButtonWithDropdownFromHook(Button):
         return sorted(itertools.chain.from_iterable(
             hook(self.page, self.page_perms, self.is_parent)
             for hook in button_hooks))
-
-    def render(self):
-        return render_to_string(self.template_name, {
-            'buttons': self.get_buttons_in_dropdown(),
-            'label': self.label})

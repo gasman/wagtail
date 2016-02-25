@@ -10,7 +10,9 @@ ul.listing {
     font-size: 0.95em;
 
     ul {
-        @include unlist();
+        list-style-type: none;
+        padding-left: 0;
+        // @include unlist();
     }
 
     > li {
@@ -203,7 +205,7 @@ ul.listing {
             text-decoration: none;
         }
 
-        li {
+        > li {
             float: left;
             padding: 0 0.5em 0 0;
             margin: 0 0 0.5em;
