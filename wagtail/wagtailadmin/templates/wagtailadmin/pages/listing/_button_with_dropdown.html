@@ -153,7 +153,7 @@
 }
 </style>
 
-<div class="c-dropdown  {% if is_parent %}t-inverted{% else %}t-default{% endif %}" data-dropdown>
+<div {{ self.attrs }} class="c-dropdown  {% if is_parent %}t-inverted{% else %}t-default{% endif %}" data-dropdown>
     <a class="c-dropdown__button  u-btn-current">
         {{ label }}
         <div data-dropdown-toggle class="o-icon  c-dropdown__toggle  [ icon icon-arrow-down ]"></div>
@@ -162,7 +162,7 @@
         <ul role="menu" class="c-dropdown__menu  u-toggle  u-arrow u-arrow--tl u-background">
         {% for button in buttons %}
             <li class="c-dropdown__item ">
-                <a href="{{ button.href }}" class="u-link">
+                <a href="{{ button.url }}" class="u-link">
                     {{ button.label }}
                 </a>
             </li>
