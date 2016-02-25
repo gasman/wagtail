@@ -275,7 +275,15 @@
 
 .c-dropdown__item {
     margin-bottom: .75rem;
+
+    &:hover {
+        .c-dropdown__indicator {
+            opacity: .6;
+        }
+    }
 }
+
+
 
 .c-dropdown__item:last-child {
     margin-bottom: 0;
