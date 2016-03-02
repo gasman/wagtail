@@ -153,6 +153,7 @@ $(function() {
         }
 
         function open(e) {
+            e.stopPropagation();
             el.setAttribute('aria-hidden', false);
             toggle.classList.remove(ICON_DOWN);
             toggle.classList.add(ICON_UP);
