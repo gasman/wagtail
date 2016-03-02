@@ -1,4 +1,4 @@
-.dropdown {
+.c-dropdown__button.dropdown {
     @include clearfix();
     position: relative;
 
@@ -249,7 +249,8 @@
     box-sizing: border-box;
     padding-left: 0.5rem;
     padding-right: 0.25rem;
-    line-height: 1.8;
+    // Make this the same as the other buttons
+    line-height: 1.85;
     border: solid 1px transparent;
     border-radius: 2px;
     font-size: 11px;
@@ -339,6 +340,18 @@
     border-color: rgba(0, 0, 0, 0.25);
     color: #fff;
 }
+
+.t-inverted .u-btn-current:hover {
+    background-color: $color-teal-darker;
+    border-color: $color-teal-darker;
+}
+
+.t-inverted .u-btn-current:active {
+    border-color: rgba(0, 0, 0, 0.25);
+    background: #333;
+    color: #fff;
+}
+
 
 // =============================================================================
 // Dark theme

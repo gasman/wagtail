@@ -354,8 +354,8 @@ button {
         }
 
         &.button-small.bicolor {
-            line-height: 2.2em;
-            padding-left: 3.2em;
+            // line-height: 2.2em;
+            padding-left: 3em;
 
             &:before {
                 width: 1.8em;
@@ -491,7 +491,7 @@ button {
 
         &:before {
             width: 2em;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.65em;
         }
     }
@@ -1066,7 +1066,7 @@ input[type=reset],
 input[type=button],
 .button,
 button {
-    @include transition(background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease);
+    // @include transition(background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease);
 }
 
 .help {
