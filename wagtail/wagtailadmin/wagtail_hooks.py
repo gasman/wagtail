@@ -87,10 +87,10 @@ def page_listing_buttons(page, page_perms, is_parent=False):
 @hooks.register('register_page_listing_more_buttons')
 def page_listing_more_buttons(page, page_perms, is_parent=False):
     if page_perms.can_move():
-        yield PageListingButton(_('Move'), reverse('wagtailadmin_pages:move', args=[page.id]), priority=10)
+        yield Button(_('Move'), reverse('wagtailadmin_pages:move', args=[page.id]), priority=10)
     if not page.is_root():
-        yield PageListingButton(_('Copy'), reverse('wagtailadmin_pages:copy', args=[page.id]), priority=20)
+        yield Button(_('Copy'), reverse('wagtailadmin_pages:copy', args=[page.id]), priority=20)
     if page_perms.can_delete():
-        yield PageListingButton(_('Delete'), reverse('wagtailadmin_pages:delete', args=[page.id]), priority=30)
+        yield Button(_('Delete'), reverse('wagtailadmin_pages:delete', args=[page.id]), priority=30)
     if page_perms.can_unpublish():
-        yield PageListingButton(_('Unpublish'), reverse('wagtailadmin_pages:unpublish', args=[page.id]), priority=40)
+        yield Button(_('Unpublish'), reverse('wagtailadmin_pages:unpublish', args=[page.id]), priority=40)
