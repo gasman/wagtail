@@ -105,3 +105,10 @@
         transform: rotate(360deg);
     }
 }
+
+
+
+.icon-spinner:after {
+    display: inline-block;
+    line-height: 1;
+}
