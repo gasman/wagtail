@@ -1521,6 +1521,7 @@ PAGE_PERMISSION_TYPES = [
     ('edit', _("Edit"), _("Edit any page")),
     ('publish', _("Publish"), _("Publish any page")),
     ('lock', _("Lock"), _("Lock/unlock any page")),
+    ('choose', _("Choose"), _("Select any page in a chooser")),
 ]
 
 PAGE_PERMISSION_TYPE_CHOICES = [
@@ -1628,6 +1629,26 @@ class UserPagePermissionsProxy(object):
     def can_publish_pages(self):
         """Return True if the user has permission to publish any pages"""
         return self.publishable_pages().exists()
+
+    def choosable_pages(self):
+        """Return a queryset of the pages that this user has permission to choose"""
+        # Deal with the trivial cases first...
+        if not self.user.is_active:
+            return Page.objects.none()
+        if self.user.is_superuser:
+            return Page.objects.all()
+
+        choosable_pages = Page.objects.none()
+
+        for perm in self.permissions.filter(permission_type='choose'):
+            # user has choose permission on any subpage of perm.page (including perm.page itself)
+            choosable_pages |= Page.objects.descendant_of(perm.page, inclusive=True)
+
+        return choosable_pages
+
+    def can_choose_pages(self):
+        """Return True if the user has permission to Choose any pages"""
+        return self.choosable_pages().exists()
 
 
 class PagePermissionTester(object):
@@ -1772,6 +1793,23 @@ class PagePermissionTester(object):
         else:
             # no publishing required, so the already-tested 'add' permission is sufficient
             return True
+
+    def can_choose(self):
+        if not self.user.is_active:
+            return False
+        if self.page_is_root:
+            return False
+
+        return self.user.is_superuser or ('choose' in self.permissions)
+
+    def can_view_in_admin(self):
+        if not self.user.is_active:
+            return False
+
+        return (
+            self.can_add_subpage() or self.can_edit() or self.can_delete()
+            or self.can_unpublish() or self.can_publish() or self.can_lock()
+        )
 
 
 class PageViewRestriction(models.Model):
