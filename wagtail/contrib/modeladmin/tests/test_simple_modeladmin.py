@@ -118,10 +118,7 @@ class TestCreateView(TestCase, WagtailTestUtils):
         self.assertEqual(initial_book_count, final_book_count)
 
         # Check that a form error was raised
-        if django.VERSION >= (1, 9):
-            self.assertFormError(response, 'form', 'title', "This field is required.")
-        else:
-            self.assertFormError(response, 'form', 'title', "This field cannot be blank.")
+        self.assertFormError(response, 'form', 'title', "This field is required.")
 
 
 class TestInspectView(TestCase, WagtailTestUtils):
@@ -229,10 +226,7 @@ class TestEditView(TestCase, WagtailTestUtils):
         self.assertEqual(Book.objects.get(id=1).title, 'The Lord of the Rings')
 
         # Check that a form error was raised
-        if django.VERSION >= (1, 9):
-            self.assertFormError(response, 'form', 'title', "This field is required.")
-        else:
-            self.assertFormError(response, 'form', 'title', "This field cannot be blank.")
+        self.assertFormError(response, 'form', 'title', "This field is required.")
 
 
 class TestPageSpecificViews(TestCase, WagtailTestUtils):
