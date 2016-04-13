@@ -67,6 +67,14 @@ class TestIndexView(TestCase, WagtailTestUtils):
         # There are four books in the test data
         self.assertEqual(response.context['result_count'], 4)
 
+        # Should raise a ValueError that gets caught during initialisation
+        response = self.get(p='notaninteger')
+
+        self.assertEqual(response.status_code, 200)
+
+        # There are four books in the test data
+        self.assertEqual(response.context['result_count'], 4)
+
 
 class TestCreateView(TestCase, WagtailTestUtils):
     fixtures = ['modeladmintest_test.json']
