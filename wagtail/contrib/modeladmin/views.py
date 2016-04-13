@@ -254,20 +254,9 @@ class IndexView(WMABaseView):
         Returns a tuple containing a queryset to implement the search,
         and a boolean indicating if the results may contain duplicates.
         """
-        # Apply keyword searches.
-        def construct_search(field_name):
-            if field_name.startswith('^'):
-                return "%s__istartswith" % field_name[1:]
-            elif field_name.startswith('='):
-                return "%s__iexact" % field_name[1:]
-            elif field_name.startswith('@'):
-                return "%s__search" % field_name[1:]
-            else:
-                return "%s__icontains" % field_name
-
         use_distinct = False
         if self.search_fields and search_term:
-            orm_lookups = [construct_search(str(search_field))
+            orm_lookups = ['%s__icontains' % str(search_field)
                            for search_field in self.search_fields]
             for bit in search_term.split():
                 or_queries = [models.Q(**{orm_lookup: bit})
