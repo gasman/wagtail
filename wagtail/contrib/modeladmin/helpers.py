@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib.admin.utils import quote
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -169,20 +170,24 @@ class PagePermissionHelper(PermissionHelper):
         correct type of page, then checking permissions on those individual
         pages to make sure we have permission to add a subpage to it.
         """
-        # Start with empty qs
-        parents_qs = Page.objects.none()
+        # Get queryset of pages where this page type can be added
+        allowed_parent_page_content_types = list(ContentType.objects.get_for_models(*self.model.allowed_parent_page_models()).values())
+        allowed_parent_pages = Page.objects.filter(content_type__in=allowed_parent_page_content_types)
 
-        # Add pages of the correct type
-        for pt in self.model.allowed_parent_page_models():
-            pt_items = Page.objects.type(pt)
-            parents_qs = parents_qs | pt_items
+        # Get queryset of pages where the user has permission to add subpages
+        if user.is_superuser:
+            pages_where_user_can_add = Page.objects.all()
+        else:
+            pages_where_user_can_add = Page.objects.none()
+            user_perms = UserPagePermissionsProxy(user)
 
-        # Exclude pages that we can't add subpages to
-        for page in parents_qs.all():
-            if not page.permissions_for_user(user).can_add_subpage():
-                parents_qs = parents_qs.exclude(pk=page.pk)
+            for perm in user_perms.permissions.filter(permission_type='publish'):
+                # user has add permission on any subpage of perm.page
+                # (including perm.page itself)
+                pages_where_user_can_add |= Page.objects.descendant_of(perm.page, inclusive=True)
 
-        return parents_qs
+        # Combine them
+        return allowed_parent_pages & pages_where_user_can_add
 
     def user_can_list(self, user):
         """
