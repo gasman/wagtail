@@ -1,6 +1,5 @@
 from django.contrib.auth.models import Permission
 from django.conf.urls import url
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
 from django.forms.widgets import flatatt

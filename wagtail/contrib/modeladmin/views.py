@@ -9,7 +9,6 @@ from django.db.models.fields.related import ForeignObjectRel
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.sql.constants import QUERY_TERMS
 from django.shortcuts import get_object_or_404, redirect, render
-from django.core.urlresolvers import reverse
 from django.template.defaultfilters import filesizeformat
 
 from django.core.exceptions import (
@@ -32,7 +31,7 @@ from django.utils import six
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
-from django.utils.http import urlencode, urlquote
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.functional import cached_property
 from django.views.generic import TemplateView

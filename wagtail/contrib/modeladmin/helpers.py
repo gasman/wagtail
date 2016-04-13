@@ -1,5 +1,4 @@
 from django.contrib.auth import get_permission_codename
-from django.conf.urls import url
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext as _
 from django.utils.functional import cached_property
