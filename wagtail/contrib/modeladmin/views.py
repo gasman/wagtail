@@ -140,7 +140,8 @@ class ModelFormView(WMABaseView, FormView):
             'view': self,
             'model_admin': self.model_admin,
             'is_multipart': form.is_multipart(),
-            'edit_handler': edit_handler_class(instance=instance, form=form)
+            'edit_handler': edit_handler_class(instance=instance, form=form),
+            'form': form,
         })
         return context
 
