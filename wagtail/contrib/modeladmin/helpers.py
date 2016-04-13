@@ -181,7 +181,7 @@ class PagePermissionHelper(PermissionHelper):
             pages_where_user_can_add = Page.objects.none()
             user_perms = UserPagePermissionsProxy(user)
 
-            for perm in user_perms.permissions.filter(permission_type='publish'):
+            for perm in user_perms.permissions.filter(permission_type='add'):
                 # user has add permission on any subpage of perm.page
                 # (including perm.page itself)
                 pages_where_user_can_add |= Page.objects.descendant_of(perm.page, inclusive=True)
