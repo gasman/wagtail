@@ -17,7 +17,7 @@ class PageChoiceField(forms.ModelChoiceField):
 
 class ParentChooserForm(forms.Form):
     parent_page = PageChoiceField(
-        label=_('parent page'),
+        label=_('Parent page'),
         required=True,
         empty_label=None,
         queryset=Page.objects.none(),

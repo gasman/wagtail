@@ -232,7 +232,7 @@ class ButtonHelper(object):
         self.request = request
         self.model = view.model
         self.opts = view.model._meta
-        self.verbose_name = force_text(self.opts.verbose_name).lower()
+        self.verbose_name = force_text(self.opts.verbose_name)
         self.verbose_name_plural = force_text(self.opts.verbose_name_plural)
         self.permission_helper = view.permission_helper
         self.url_helper = view.url_helper

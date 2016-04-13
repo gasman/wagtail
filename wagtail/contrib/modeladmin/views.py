@@ -156,7 +156,7 @@ class ModelFormView(WMABaseView, FormView):
         ]
 
     def get_error_message(self):
-        model_name = self.verbose_name.lower()
+        model_name = self.verbose_name
         return _("The %s could not be created due to errors.") % model_name
 
     def form_valid(self, form):
@@ -669,7 +669,7 @@ class CreateView(ModelFormView):
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def get_meta_title(self):
-        return _('Create new %s') % self.verbose_name.lower()
+        return _('Create new %s') % self.verbose_name
 
     def get_page_subtitle(self):
         return capfirst(self.verbose_name)
@@ -693,7 +693,7 @@ class EditView(ModelFormView, InstanceSpecificView):
         return super(EditView, self).dispatch(request, *args, **kwargs)
 
     def get_meta_title(self):
-        return _('Editing %s') % self.verbose_name.lower()
+        return _('Editing %s') % self.verbose_name
 
     def get_success_message(self, instance):
         return _("{model_name} '{instance}' updated.").format(
@@ -705,7 +705,7 @@ class EditView(ModelFormView, InstanceSpecificView):
         return super(EditView, self).get_context_data(**kwargs)
 
     def get_error_message(self):
-        name = self.verbose_name.lower()
+        name = self.verbose_name
         return _("The %s could not be saved due to errors.") % name
 
     def get_template_names(self):
@@ -761,13 +761,13 @@ class DeleteView(InstanceSpecificView):
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
     def get_meta_title(self):
-        return _('Confirm deletion of %s') % self.verbose_name.lower()
+        return _('Confirm deletion of %s') % self.verbose_name
 
     def confirmation_message(self):
         return _(
             "Are you sure you want to delete this %s? If other things in your "
             "site are related to it, they may also be affected."
-        ) % self.verbose_name.lower()
+        ) % self.verbose_name
 
     def get(self, request, *args, **kwargs):
         context = {'view': self, 'instance': self.instance}
@@ -819,7 +819,7 @@ class InspectView(InstanceSpecificView):
         )
 
     def get_meta_title(self):
-        return _('Inspecting %s') % self.verbose_name.lower()
+        return _('Inspecting %s') % self.verbose_name
 
     def get_field_label(self, field_name, field=None):
         """ Return a label to display for a field """
