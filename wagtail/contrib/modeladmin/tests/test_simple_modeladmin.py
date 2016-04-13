@@ -76,10 +76,24 @@ class TestCreateView(TestCase, WagtailTestUtils):
     def get(self):
         return self.client.get('/admin/modeladmintest/book/create/')
 
+    def post(self, post_data):
+        return self.client.post('/admin/modeladmintest/book/create/', post_data)
+
     def test_simple(self):
         response = self.get()
 
         self.assertEqual(response.status_code, 200)
+
+    def test_create(self):
+        response = self.post({
+            'title': "George's Marvellous Medicine",
+            'author': 2,
+        })
+        # Should redirect back to index
+        self.assertRedirects(response, '/admin/modeladmintest/book/')
+
+        # Check that the book was created
+        self.assertEqual(Book.objects.filter(title="George's Marvellous Medicine").count(), 1)
 
 
 class TestInspectView(TestCase, WagtailTestUtils):
@@ -149,15 +163,31 @@ class TestEditView(TestCase, WagtailTestUtils):
     def get(self, book_id):
         return self.client.get('/admin/modeladmintest/book/edit/%d/' % book_id)
 
+    def post(self, book_id, post_data):
+        return self.client.post('/admin/modeladmintest/book/edit/%d/' % book_id, post_data)
+
     def test_simple(self):
         response = self.get(1)
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'The Lord of the Rings')
 
     def test_non_existent(self):
         response = self.get(100)
 
         self.assertEqual(response.status_code, 404)
+
+    def test_edit(self):
+        response = self.post(1, {
+            'title': 'The Lady of the Rings',
+            'author': 1,
+        })
+
+        # Should redirect back to index
+        self.assertRedirects(response, '/admin/modeladmintest/book/')
+
+        # Check that the book was updated
+        self.assertEqual(Book.objects.get(id=1).title, 'The Lady of the Rings')
 
 
 class TestPageSpecificViews(TestCase, WagtailTestUtils):
