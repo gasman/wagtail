@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
+import django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TestCase
@@ -95,6 +96,25 @@ class TestCreateView(TestCase, WagtailTestUtils):
         # Check that the book was created
         self.assertEqual(Book.objects.filter(title="George's Marvellous Medicine").count(), 1)
 
+    def test_post_invalid(self):
+        initial_book_count = Book.objects.count()
+
+        response = self.post({
+            'title': '',
+            'author': 2,
+        })
+        final_book_count = Book.objects.count()
+
+        self.assertEqual(response.status_code, 200)
+        # Check that the book was not created
+        self.assertEqual(initial_book_count, final_book_count)
+
+        # Check that a form error was raised
+        if django.VERSION >= (1, 9):
+            self.assertFormError(response, 'form', 'title', "This field is required.")
+        else:
+            self.assertFormError(response, 'form', 'title', "This field cannot be blank.")
+
 
 class TestInspectView(TestCase, WagtailTestUtils):
     fixtures = ['modeladmintest_test.json']
@@ -188,6 +208,23 @@ class TestEditView(TestCase, WagtailTestUtils):
 
         # Check that the book was updated
         self.assertEqual(Book.objects.get(id=1).title, 'The Lady of the Rings')
+
+    def test_post_invalid(self):
+        response = self.post(1, {
+            'title': '',
+            'author': 1,
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+        # Check that the title was not updated
+        self.assertEqual(Book.objects.get(id=1).title, 'The Lord of the Rings')
+
+        # Check that a form error was raised
+        if django.VERSION >= (1, 9):
+            self.assertFormError(response, 'form', 'title', "This field is required.")
+        else:
+            self.assertFormError(response, 'form', 'title', "This field cannot be blank.")
 
 
 class TestPageSpecificViews(TestCase, WagtailTestUtils):
