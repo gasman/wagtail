@@ -50,10 +50,24 @@ class TestCreateView(TestCase, WagtailTestUtils):
     def get(self):
         return self.client.get('/admin/modeladmintest/book/create/')
 
+    def post(self, post_data):
+        return self.client.post('/admin/modeladmintest/book/create/', post_data)
+
     def test_simple(self):
         response = self.get()
 
         self.assertEqual(response.status_code, 200)
+
+    def test_create(self):
+        response = self.post({
+            'title': "George's Marvellous Medicine",
+            'author': 2,
+        })
+        # Should redirect back to index
+        self.assertRedirects(response, '/admin/modeladmintest/book/')
+
+        # Check that the book was created
+        self.assertEqual(Book.objects.filter(title="George's Marvellous Medicine").count(), 1)
 
 
 class TestInspectView(TestCase, WagtailTestUtils):
