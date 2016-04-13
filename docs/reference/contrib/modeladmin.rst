@@ -48,10 +48,10 @@ A full list of features
 
 .. _modeladmin_usage:
 
-How to use
-----------
+Installation
+------------
 
-1. Add ``wagtail.contrib.modeladmin`` to your ``INSTALLED_APPS``:
+Add ``wagtail.contrib.modeladmin`` to your ``INSTALLED_APPS``:
 
 .. code-block:: python
 
@@ -60,17 +60,8 @@ How to use
        'wagtail.contrib.modeladmin',
     ]
 
-2. Add ``wagtail.contrib.modeladmin.middleware.ModelAdminMiddleware`` to your ``MIDDLEWARE_CLASSES`` (at the end should be fine)
-
-.. code-block:: python
-
-	MIDDLEWARE_CLASSES = [
-       ...
-       'wagtail.contrib.modeladmin.middleware.ModelAdminMiddleware',
-    ]
-
-3. Add a ``wagtail_hooks.py`` file to your app's folder and extend the `ModelAdmin`, and `ModelAdminGroup` classes to produce the desired effect.
-
+How to use
+----------
 
 .. _modeladmin_example_simple:
 
