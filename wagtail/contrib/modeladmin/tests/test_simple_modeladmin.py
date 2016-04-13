@@ -40,6 +40,32 @@ class TestIndexView(TestCase, WagtailTestUtils):
         for book in response.context['object_list']:
             self.assertEqual(book.author_id, 1)
 
+    def test_search(self):
+        response = self.get(q='of')
+
+        self.assertEqual(response.status_code, 200)
+
+        # There are two books where the title contains 'of'
+        self.assertEqual(response.context['result_count'], 2)
+
+    def test_ordering(self):
+        response = self.get(o='0.1')
+
+        self.assertEqual(response.status_code, 200)
+
+        # There are four books in the test data
+        self.assertEqual(response.context['result_count'], 4)
+
+    def test_paging(self):
+        # should be corrected to just the first page, as there aren't enough
+        # objects to make up more than one page
+        response = self.get(p=9)
+
+        self.assertEqual(response.status_code, 200)
+
+        # There are four books in the test data
+        self.assertEqual(response.context['result_count'], 4)
+
 
 class TestCreateView(TestCase, WagtailTestUtils):
     fixtures = ['modeladmintest_test.json']

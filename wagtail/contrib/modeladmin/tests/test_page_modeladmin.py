@@ -39,6 +39,22 @@ class TestIndexView(TestCase, WagtailTestUtils):
         for eventpage in response.context['object_list']:
             self.assertEqual(eventpage.audience, 'public')
 
+    def test_search(self):
+        response = self.get(q='Someone')
+
+        self.assertEqual(response.status_code, 200)
+
+        # There are two eventpage's where the title contains 'Someone'
+        self.assertEqual(response.context['result_count'], 1)
+
+    def test_ordering(self):
+        response = self.get(o='0.1')
+
+        self.assertEqual(response.status_code, 200)
+
+        # There should still be four results
+        self.assertEqual(response.context['result_count'], 4)
+
 
 class TestCreateView(TestCase, WagtailTestUtils):
     fixtures = ['test_specific.json']
