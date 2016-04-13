@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from wagtail.wagtailadmin.menu import Menu, MenuItem, SubmenuMenuItem
 
 

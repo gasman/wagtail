@@ -1,48 +1,42 @@
-import sys
+from __future__ import absolute_import, unicode_literals
+
 import operator
+import sys
 from collections import OrderedDict
 from functools import reduce
 
 from django import forms
+from django.contrib.admin import FieldListFilter, widgets
+from django.contrib.admin.exceptions import DisallowedModelAdminLookup
+from django.contrib.admin.options import IncorrectLookupParameters
+from django.contrib.admin.utils import (
+    get_fields_from_path, lookup_needs_distinct, prepare_lookup_value, quote, unquote)
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied, SuspiciousOperation
+from django.core.paginator import InvalidPage, Paginator
 from django.db import models
-from django.db.models.fields.related import ForeignObjectRel
 from django.db.models.constants import LOOKUP_SEP
+from django.db.models.fields import FieldDoesNotExist
+from django.db.models.fields.related import ForeignObjectRel
 from django.db.models.sql.constants import QUERY_TERMS
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import filesizeformat
-
-from django.core.exceptions import (
-    ImproperlyConfigured, SuspiciousOperation, PermissionDenied)
-from django.db.models.fields import FieldDoesNotExist
-
-from django.core.paginator import Paginator, InvalidPage
-
-from django.contrib.admin import FieldListFilter, widgets
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-
-from django.contrib.admin.options import IncorrectLookupParameters
-from django.contrib.admin.exceptions import DisallowedModelAdminLookup
-from django.contrib.admin.utils import (
-    get_fields_from_path, lookup_needs_distinct, prepare_lookup_value, quote,
-    unquote)
-
 from django.utils import six
-from django.utils.translation import ugettext as _
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.utils.text import capfirst
+from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
-from django.utils.functional import cached_property
+from django.utils.text import capfirst
+from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
-
-from wagtail.wagtailimages.models import get_image_model, Filter
-from wagtail.wagtaildocs.models import get_document_model
 
 from wagtail.wagtailadmin import messages
 from wagtail.wagtailadmin.edit_handlers import (
     ObjectList, extract_panel_definitions_from_model_class)
+from wagtail.wagtaildocs.models import get_document_model
+from wagtail.wagtailimages.models import Filter, get_image_model
 
 from .forms import ParentChooserForm
 

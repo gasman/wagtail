@@ -1,12 +1,14 @@
+from __future__ import absolute_import, unicode_literals
+
+from django.contrib.admin.utils import quote
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission
-from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.http import urlquote
-from django.utils.encoding import force_text
-from django.contrib.admin.utils import quote
+from django.utils.translation import ugettext as _
 
-from django.core.urlresolvers import reverse
 from wagtail.wagtailcore.models import Page
 
 

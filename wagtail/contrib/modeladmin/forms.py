@@ -1,7 +1,10 @@
+from __future__ import absolute_import, unicode_literals
+
 from django import forms
-from django.utils.translation import ugettext as _
-from wagtail.wagtailcore.models import Page
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
+
+from wagtail.wagtailcore.models import Page
 
 
 class PageChoiceField(forms.ModelChoiceField):

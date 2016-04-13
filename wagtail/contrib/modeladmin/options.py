@@ -1,23 +1,22 @@
-from django.contrib.auth.models import Permission
+from __future__ import absolute_import, unicode_literals
+
 from django.conf.urls import url
+from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
 from django.forms.widgets import flatatt
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
+from wagtail.wagtailcore import hooks
 from wagtail.wagtailcore.models import Page
 from wagtail.wagtailimages.models import Filter
-from wagtail.wagtailcore import hooks
 
-from .menus import ModelAdminMenuItem, GroupMenuItem, SubMenu
 from .helpers import (
-    AdminURLHelper, PageAdminURLHelper,
-    PermissionHelper, PagePermissionHelper,
-    ButtonHelper, PageButtonHelper)
-from .views import (
-    IndexView, InspectView, CreateView, ChooseParentView, EditView,
-    DeleteView)
+    AdminURLHelper, ButtonHelper, PageAdminURLHelper, PageButtonHelper, PagePermissionHelper,
+    PermissionHelper)
+from .menus import GroupMenuItem, ModelAdminMenuItem, SubMenu
+from .views import ChooseParentView, CreateView, DeleteView, EditView, IndexView, InspectView
 
 
 class WagtailRegisterable(object):

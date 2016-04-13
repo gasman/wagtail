@@ -1,9 +1,11 @@
-from django.test import TestCase
-from django.contrib.auth.models import Group
-from django.contrib.auth import get_user_model
+from __future__ import absolute_import, unicode_literals
 
-from wagtail.tests.utils import WagtailTestUtils
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.test import TestCase
+
 from wagtail.tests.modeladmintest.models import Book
+from wagtail.tests.utils import WagtailTestUtils
 
 
 class TestIndexView(TestCase, WagtailTestUtils):
