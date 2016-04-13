@@ -31,7 +31,7 @@ from wagtail.wagtailcore.models import Page, PageRevision, get_navigation_menu_i
 
 def get_valid_next_url_from_request(request):
     next_url = request.POST.get('next') or request.GET.get('next')
-    if not url or not is_safe_url(url=next_url, host=request.get_host()):
+    if not next_url or not is_safe_url(url=next_url, host=request.get_host()):
         return ''
     return next_url
 
@@ -478,7 +478,7 @@ def delete(request, page_id):
         raise PermissionDenied
 
     next_url = get_valid_next_url_from_request(request)
-    
+
     if request.method == 'POST':
         parent_id = page.get_parent().id
         page.delete()
@@ -758,7 +758,7 @@ def copy(request, page_id):
 
     # Create the form
     form = CopyForm(request.POST or None, page=page, can_publish=can_publish)
-    
+
     next_url = get_valid_next_url_from_request(request)
 
     # Check if user is submitting
@@ -771,7 +771,7 @@ def copy(request, page_id):
             # Receive the parent page (this should never be empty)
             if form.cleaned_data['new_parent_page']:
                 parent_page = form.cleaned_data['new_parent_page']
-            
+
             # Make sure this user has permission to add subpages on the parent
             if not parent_page.permissions_for_user(request.user).can_add_subpage():
                 raise PermissionDenied
