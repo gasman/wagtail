@@ -31,7 +31,7 @@ class AdminURLHelper(object):
         if action in ('create', 'choose_parent', 'index'):
             return self._get_action_url_pattern(action)
         return self._get_object_specific_action_url_pattern(action)
-    
+
     def get_action_url_name(self, action):
         return '%s_%s_modeladmin_%s' % (
             self.opts.app_label, self.opts.model_name, action)
@@ -64,7 +64,7 @@ class PageAdminURLHelper(AdminURLHelper):
 
 class PermissionHelper(object):
     """
-    Provides permission-related helper functions to help determine what a 
+    Provides permission-related helper functions to help determine what a
     user can do with a 'typical' model (where permissions are granted
     model-wide), and to a specific instance of that model.
     """
@@ -90,7 +90,7 @@ class PermissionHelper(object):
 
     def user_has_specific_permission(self, user, perm_codename):
         """
-        Combine `perm_codename` with `self.opts.app_label` to call the provided 
+        Combine `perm_codename` with `self.opts.app_label` to call the provided
         Django user's built-in `has_perm` method.
         """
 
@@ -98,7 +98,7 @@ class PermissionHelper(object):
 
     def user_has_any_permissions(self, user):
         """
-        Return a boolean to indicate whether `user` has any model-wide 
+        Return a boolean to indicate whether `user` has any model-wide
         permissions
         """
         for perm in self.get_all_model_permissions().values('codename'):
@@ -154,10 +154,10 @@ class PermissionHelper(object):
 
 class PagePermissionHelper(PermissionHelper):
     """
-    Provides permission-related helper functions to help determine what 
+    Provides permission-related helper functions to help determine what
     a user can do with a model extending Wagtail's Page model. It differs
     from `PermissionHelper`, because model-wide permissions aren't really
-    relevant. We generally need to determine permissions on an 
+    relevant. We generally need to determine permissions on an
     object-specific basis.
     """
 
