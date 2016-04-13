@@ -75,23 +75,24 @@ can get to it.
 ``wagtail_hooks.py`` in your app directory would look something like this:
 
 .. code-block:: python
-	from wagtail.contrib.modeladmin.options import (
-		ModelAdmin, modeladmin_register)
-	from .models import MyPageModel
+
+    from wagtail.contrib.modeladmin.options import (
+        ModelAdmin, modeladmin_register)
+    from .models import MyPageModel
 
 
-	class MyPageModelAdmin(ModelAdmin):
-	    model = MyPageModel
-	    menu_label = 'Page Model' # ditch this to use verbose_name_plural from model
-	    menu_icon = 'date' # change as required
-	    menu_order = 200 # will put in 3rd place (000 being 1st, 100 2nd)
-	    add_to_settings_menu = False # or True to add your model to the Settings sub-menu
-	    list_display = ('title', 'example_field2', 'example_field3', 'live')
-	    list_filter = ('live', 'example_field2', 'example_field3')
-	    search_fields = ('title',)
+    class MyPageModelAdmin(ModelAdmin):
+        model = MyPageModel
+        menu_label = 'Page Model' # ditch this to use verbose_name_plural from model
+        menu_icon = 'date' # change as required
+        menu_order = 200 # will put in 3rd place (000 being 1st, 100 2nd)
+        add_to_settings_menu = False # or True to add your model to the Settings sub-menu
+        list_display = ('title', 'example_field2', 'example_field3', 'live')
+        list_filter = ('live', 'example_field2', 'example_field3')
+        search_fields = ('title',)
     
-	# Now you just need to register your customised ModelAdmin class with Wagtail
-	modeladmin_register(MyPageModelAdmin)
+    # Now you just need to register your customised ModelAdmin class with Wagtail
+    modeladmin_register(MyPageModelAdmin)
 
 
 .. _modeladmin_example_complex:
@@ -108,57 +109,57 @@ ModelAdminGroup allows you to group them all together nicely.
 
 .. code-block:: python
 
-	from wagtail.contrib.modeladmin.options import (
-    	ModelAdmin, ModelAdminGroup, modeladmin_register)
-	from .models import (
-	    MyPageModel, MyOtherPageModel, MySnippetModel, SomeOtherModel)
+    from wagtail.contrib.modeladmin.options import (
+        ModelAdmin, ModelAdminGroup, modeladmin_register)
+    from .models import (
+        MyPageModel, MyOtherPageModel, MySnippetModel, SomeOtherModel)
 
 
-	class MyPageModelAdmin(ModelAdmin):
-	    model = MyPageModel
-	    menu_label = 'Page Model' # ditch this to use verbose_name_plural from model
-	    menu_icon = 'doc-full-inverse' # change as required
-	    list_display = ('title', 'example_field2', 'example_field3', 'live')
-	    list_filter = ('live', 'example_field2', 'example_field3')
-	    search_fields = ('title',)
+    class MyPageModelAdmin(ModelAdmin):
+        model = MyPageModel
+        menu_label = 'Page Model' # ditch this to use verbose_name_plural from model
+        menu_icon = 'doc-full-inverse' # change as required
+        list_display = ('title', 'example_field2', 'example_field3', 'live')
+        list_filter = ('live', 'example_field2', 'example_field3')
+        search_fields = ('title',)
 
 
-	class MyOtherPageModelAdmin(ModelAdmin):
-	    model = MyOtherPageModel
-	    menu_label = 'Other Page Model' # ditch this to use verbose_name_plural from model
-	    menu_icon = 'doc-full-inverse' # change as required
-	    list_display = ('title', 'example_field2', 'example_field3', 'live')
-	    list_filter = ('live', 'example_field2', 'example_field3')
-	    search_fields = ('title',)
+    class MyOtherPageModelAdmin(ModelAdmin):
+        model = MyOtherPageModel
+        menu_label = 'Other Page Model' # ditch this to use verbose_name_plural from model
+        menu_icon = 'doc-full-inverse' # change as required
+        list_display = ('title', 'example_field2', 'example_field3', 'live')
+        list_filter = ('live', 'example_field2', 'example_field3')
+        search_fields = ('title',)
 
 
-	class MySnippetModelAdmin(ModelAdmin):
-	    model = MySnippetModel
-	    menu_label = 'Snippet Model' # ditch this to use verbose_name_plural from model
-	    menu_icon = 'snippet' # change as required
-	    list_display = ('title', 'example_field2', 'example_field3')
-	    list_filter = (example_field2', 'example_field3')
-	    search_fields = ('title',)
+    class MySnippetModelAdmin(ModelAdmin):
+        model = MySnippetModel
+        menu_label = 'Snippet Model' # ditch this to use verbose_name_plural from model
+        menu_icon = 'snippet' # change as required
+        list_display = ('title', 'example_field2', 'example_field3')
+        list_filter = (example_field2', 'example_field3')
+        search_fields = ('title',)
 
 
-	class SomeOtherModelAdmin(ModelAdmin):
-	    model = SomeOtherModel
-	    menu_label = 'Some other model' # ditch this to use verbose_name_plural from model
-	    menu_icon = 'snippet' # change as required
-	    list_display = ('title', 'example_field2', 'example_field3')
-	    list_filter = (example_field2', 'example_field3')
-	    search_fields = ('title',)
+    class SomeOtherModelAdmin(ModelAdmin):
+        model = SomeOtherModel
+        menu_label = 'Some other model' # ditch this to use verbose_name_plural from model
+        menu_icon = 'snippet' # change as required
+        list_display = ('title', 'example_field2', 'example_field3')
+        list_filter = (example_field2', 'example_field3')
+        search_fields = ('title',)
 
 
-	class MyModelAdminGroup(ModelAdminGroup):
-	    menu_label = 'My App'
-	    menu_icon = 'folder-open-inverse' # change as required
-	    menu_order = 200 # will put in 3rd place (000 being 1st, 100 2nd)
-	    items = (MyPageModelAdmin, MyOtherPageModelAdmin, MySnippetModelAdmin, SomeOtherModelAdmin)
+    class MyModelAdminGroup(ModelAdminGroup):
+        menu_label = 'My App'
+        menu_icon = 'folder-open-inverse' # change as required
+        menu_order = 200 # will put in 3rd place (000 being 1st, 100 2nd)
+        items = (MyPageModelAdmin, MyOtherPageModelAdmin, MySnippetModelAdmin, SomeOtherModelAdmin)
 
-	# When using a ModelAdminGroup class to group several ModelAdmin classes together,
-	# you only need to register the ModelAdminGroup class with Wagtail:
-	modeladmin_register(MyModelAdminGroup)
+    # When using a ModelAdminGroup class to group several ModelAdmin classes together,
+    # you only need to register the ModelAdminGroup class with Wagtail:
+    modeladmin_register(MyModelAdminGroup)
 
 
 .. _modeladmin_multi_registeration:
@@ -173,29 +174,29 @@ that's possible. Just register each of your ModelAdmin classes using
 
 .. code-block:: python
 
-	class MyPageModelAdmin(ModelAdmin):
-		model = MyPageModel
-		...
+    class MyPageModelAdmin(ModelAdmin):
+        model = MyPageModel
+        ...
 
-	class MyOtherPageModelAdmin(ModelAdmin):
-		model = MyOtherPageModel
-		...
+    class MyOtherPageModelAdmin(ModelAdmin):
+        model = MyOtherPageModel
+        ...
 
-	class MyModelAdminGroup(ModelAdminGroup):
-		label = _("Group 1")
-		items = (ModelAdmin1, ModelAdmin2)
-		...
+    class MyModelAdminGroup(ModelAdminGroup):
+        label = _("Group 1")
+        items = (ModelAdmin1, ModelAdmin2)
+        ...
 
-	class MyOtherModelAdminGroup(ModelAdminGroup):
-		label = _("Group 2")
-		items = (ModelAdmin3, ModelAdmin4)
-		...
-	
-	modeladmin_register(MyPageModelAdmin)
-	modeladmin_register(MyOtherPageModelAdmin)
-	modeladmin_register(MyModelAdminGroup)
-	modeladmin_register(MyOtherModelAdminGroup)
-	
+    class MyOtherModelAdminGroup(ModelAdminGroup):
+        label = _("Group 2")
+        items = (ModelAdmin3, ModelAdmin4)
+        ...
+
+    modeladmin_register(MyPageModelAdmin)
+    modeladmin_register(MyOtherPageModelAdmin)
+    modeladmin_register(MyModelAdminGroup)
+    modeladmin_register(MyOtherModelAdminGroup)
+
 
 Supported list options
 -----------------------

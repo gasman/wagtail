@@ -61,7 +61,7 @@ A module for adding a read only, JSON based web API to your Wagtail site
 
 
 :doc:`modeladmin`
-----------------
+-----------------
 
 A module allowing for more customisable representation and management of custom models in Wagtail's admin area.  
 
