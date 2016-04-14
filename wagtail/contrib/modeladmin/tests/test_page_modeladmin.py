@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
+from wagtail.wagtailcore.models import Page
+from wagtail.tests.testapp.models import BusinessIndex
 from wagtail.tests.utils import WagtailTestUtils
 
 
@@ -62,12 +64,23 @@ class TestCreateView(TestCase, WagtailTestUtils):
     def setUp(self):
         self.login()
 
-    def get(self):
-        return self.client.get('/admin/tests/eventpage/create/')
+    def test_redirect_to_choose_parent(self):
+        # When more than one possible parent page exists, redirect to choose_parent
+        response = self.client.get('/admin/tests/eventpage/create/')
+        self.assertRedirects(response, '/admin/tests/eventpage/choose_parent/')
 
-    def test_simple(self):
-        response = self.get()
-        self.assertEqual(response.status_code, 302)
+    def test_one_parent_exists(self):
+        # Create a BusinessIndex page that BusinessChild can exist under
+        homepage = Page.objects.get(url_path='/home/')
+        business_index = BusinessIndex(title='Business Index')
+        homepage.add_child(instance=business_index)
+
+        # When one possible parent page exists, redirect straight to the page create view
+        response = self.client.get('/admin/tests/businesschild/create/')
+
+        expected_path = '/admin/pages/add/tests/businesschild/%d/' % business_index.pk
+        expected_next_path = '/admin/tests/businesschild/'
+        self.assertRedirects(response, '%s?next=%s' % (expected_path, expected_next_path))
 
 
 class TestInspectView(TestCase, WagtailTestUtils):
@@ -129,13 +142,15 @@ class TestChooseParentView(TestCase, WagtailTestUtils):
     def setUp(self):
         self.login()
 
-    def get(self):
-        return self.client.get('/admin/tests/eventpage/choose_parent/')
-
     def test_simple(self):
-        response = self.get()
+        response = self.client.get('/admin/tests/eventpage/choose_parent/')
 
         self.assertEqual(response.status_code, 200)
+
+    def test_no_parent_exists(self):
+        response = self.client.get('/admin/tests/businesschild/choose_parent/')
+
+        self.assertEqual(response.status_code, 403)
 
 
 class TestEditorAccess(TestCase):

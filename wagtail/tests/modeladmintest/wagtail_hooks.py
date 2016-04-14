@@ -1,7 +1,9 @@
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin, ModelAdminGroup, modeladmin_register)
 from .models import Author, Book
-from wagtail.tests.testapp.models import EventPage, SingleEventPage
+from wagtail.tests.testapp.models import (
+    EventPage, SingleEventPage, BusinessChild
+)
 
 
 class AuthorModelAdmin(ModelAdmin):
@@ -43,6 +45,11 @@ class EventsAdminGroup(ModelAdminGroup):
     menu_order = 500
 
 
+class BusinessChildAdmin(ModelAdmin):
+    model = BusinessChild
+
+
 modeladmin_register(AuthorModelAdmin)
 modeladmin_register(BookModelAdmin)
 modeladmin_register(EventsAdminGroup)
+modeladmin_register(BusinessChildAdmin)
