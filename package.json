@@ -19,6 +19,8 @@
     "chai": "^3.5.0",
     "eslint": "^2.2.0",
     "eslint-config-airbnb": "^6.0.2",
+    "eslint-plugin-import": "^1.6.0",
+    "eslint-plugin-jsx-a11y": "^1.0.3",
     "eslint-plugin-react": "^4.1.0",
     "glob": "^7.0.0",
     "gulp": "~3.8.11",
