@@ -408,13 +408,44 @@ class TestChoiceBlock(unittest.TestCase):
         from django.db.models.fields import BLANK_CHOICE_DASH
         self.blank_choice_dash_label = BLANK_CHOICE_DASH[0][1]
 
-    def test_render_required_choice_block(self):
+    def test_render_empty_required_choice_block(self):
+        block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')])
+        html = block.render_form(None, prefix='beverage')
+        self.assertIn('<select id="beverage" name="beverage" placeholder="">', html)
+        # blank option should still be rendered for use as the initial value
+        self.assertIn('<option value="" selected="selected">%s</option>' % self.blank_choice_dash_label, html)
+        self.assertIn('<option value="tea">Tea</option>', html)
+        self.assertIn('<option value="coffee">Coffee</option>', html)
+
+    def test_unrecognised_choice_should_render_as_blank_option(self):
+        # if the block is rendered with an initial value, but that value is not one of the
+        # recognised options, we should add a blank option and select that
+        block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')])
+        html = block.render_form('whisky', prefix='beverage')
+        self.assertIn('<select id="beverage" name="beverage" placeholder="">', html)
+        # blank option should still be rendered for use as the initial value
+        self.assertIn('<option value="" selected="selected">%s</option>' % self.blank_choice_dash_label, html)
+        self.assertIn('<option value="tea">Tea</option>', html)
+        self.assertIn('<option value="coffee">Coffee</option>', html)
+
+    def test_omit_blank_option_on_empty_required_field_if_one_already_exists(self):
+        block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee'), ('', 'No thanks')])
+        html = block.render_form(None, prefix='beverage')
+        self.assertNotIn(self.blank_choice_dash_label, html)
+        self.assertIn('<option value="" selected="selected">No thanks</option>', html)
+
+        # same if the value is None rather than ''
+        block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee'), (None, 'No thanks')])
+        html = block.render_form(None, prefix='beverage')
+        self.assertNotIn(self.blank_choice_dash_label, html)
+        self.assertIn('<option value="" selected="selected">No thanks</option>', html)
+
+    def test_render_filled_required_choice_block(self):
         block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')])
         html = block.render_form('coffee', prefix='beverage')
         self.assertIn('<select id="beverage" name="beverage" placeholder="">', html)
-        # blank option should still be rendered for required fields
-        # (we may want it as an initial value)
-        self.assertIn('<option value="">%s</option>' % self.blank_choice_dash_label, html)
+        # blank option should NOT be rendered for a populated required field
+        self.assertNotIn('<option value=""', html)
         self.assertIn('<option value="tea">Tea</option>', html)
         self.assertIn('<option value="coffee" selected="selected">Coffee</option>', html)
 
@@ -431,13 +462,65 @@ class TestChoiceBlock(unittest.TestCase):
         with self.assertRaises(ValidationError):
             block.clean(None)
 
-    def test_render_non_required_choice_block(self):
+    def test_render_empty_non_required_choice_block(self):
+        block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')], required=False)
+        html = block.render_form(None, prefix='beverage')
+        self.assertIn('<select id="beverage" name="beverage" placeholder="">', html)
+        self.assertIn('<option value="" selected="selected">%s</option>' % self.blank_choice_dash_label, html)
+        self.assertIn('<option value="tea">Tea</option>', html)
+        self.assertIn('<option value="coffee">Coffee</option>', html)
+
+    def test_omit_blank_option_on_empty_non_required_field_if_one_already_exists(self):
+        block = blocks.ChoiceBlock(
+            choices=[('tea', 'Tea'), ('coffee', 'Coffee'), ('', 'No thanks')],
+            required=False
+        )
+        html = block.render_form(None, prefix='beverage')
+        self.assertNotIn(self.blank_choice_dash_label, html)
+        self.assertIn('<option value="" selected="selected">No thanks</option>', html)
+
+        # same if the value is None rather than ''
+        block = blocks.ChoiceBlock(
+            choices=[('tea', 'Tea'), ('coffee', 'Coffee'), (None, 'No thanks')],
+            required=False
+        )
+        html = block.render_form(None, prefix='beverage')
+        self.assertNotIn(self.blank_choice_dash_label, html)
+        self.assertIn('<option value="" selected="selected">No thanks</option>', html)
+
+    def test_render_filled_non_required_choice_block(self):
         block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')], required=False)
         html = block.render_form('coffee', prefix='beverage')
         self.assertIn('<select id="beverage" name="beverage" placeholder="">', html)
         self.assertIn('<option value="">%s</option>' % self.blank_choice_dash_label, html)
         self.assertIn('<option value="tea">Tea</option>', html)
         self.assertIn('<option value="coffee" selected="selected">Coffee</option>', html)
+
+    def test_render_filled_non_required_choice_block_with_invalid_choice(self):
+        block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')], required=False)
+        html = block.render_form('whisky', prefix='beverage')
+        self.assertIn('<select id="beverage" name="beverage" placeholder="">', html)
+        self.assertIn('<option value="" selected="selected">%s</option>' % self.blank_choice_dash_label, html)
+        self.assertIn('<option value="tea">Tea</option>', html)
+        self.assertIn('<option value="coffee">Coffee</option>', html)
+
+    def test_omit_blank_option_on_filled_non_required_field_if_one_already_exists(self):
+        block = blocks.ChoiceBlock(
+            choices=[('tea', 'Tea'), ('coffee', 'Coffee'), ('', 'No thanks')],
+            required=False
+        )
+        html = block.render_form('coffee', prefix='beverage')
+        self.assertNotIn(self.blank_choice_dash_label, html)
+        self.assertIn('<option value="">No thanks</option>', html)
+
+        # same if the value is None rather than ''
+        block = blocks.ChoiceBlock(
+            choices=[('tea', 'Tea'), ('coffee', 'Coffee'), (None, 'No thanks')],
+            required=False
+        )
+        html = block.render_form('coffee', prefix='beverage')
+        self.assertNotIn(self.blank_choice_dash_label, html)
+        self.assertIn('<option value="">No thanks</option>', html)
 
     def test_validate_non_required_choice_block(self):
         block = blocks.ChoiceBlock(choices=[('tea', 'Tea'), ('coffee', 'Coffee')], required=False)
