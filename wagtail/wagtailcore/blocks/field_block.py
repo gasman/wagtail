@@ -321,34 +321,44 @@ class ChoiceBlock(FieldBlock):
         if choices is None:
             # no choices specified, so pick up the choice defined at the class level
             choices = self.choices
-        elif callable(choices):
-            # Support of callable choices
+
+        if callable(choices):
+            # Support of callable choices. Wrap the callable in an iterator so that we can
+            # handle this consistently with ordinary choice lists;
+            # however, the `choices` constructor kwarg as reported by deconstruct() should
+            # remain as the callable
+            choices_for_constructor = choices
             choices = CallableChoiceIterator(choices)
         else:
-            # Cast as a list, even if we got CallableChoiceIterator object
-            choices = list(choices)
+            # Cast as a list
+            choices_for_constructor = choices = list(choices)
 
         # keep a copy of all kwargs (including our normalised choices list) for deconstruct()
         self._constructor_kwargs = kwargs.copy()
-        self._constructor_kwargs['choices'] = choices
+        self._constructor_kwargs['choices'] = choices_for_constructor
         if required is not True:
             self._constructor_kwargs['required'] = required
         if help_text is not None:
             self._constructor_kwargs['help_text'] = help_text
 
-        choices = self.get_callable_choices(choices)
-        self.field = forms.ChoiceField(choices=choices, required=required, help_text=help_text)
+        # We will need to modify the choices list to insert a blank option, if there isn't
+        # one already. We have to do this at render time in the case of callable choices - so rather
+        # than having separate code paths for static vs dynamic lists, we'll _always_ pass a callable
+        # to ChoiceField to perform this step at render time.
+        callable_choices = self.get_callable_choices(choices)
+        self.field = forms.ChoiceField(choices=callable_choices, required=required, help_text=help_text)
         super(ChoiceBlock, self).__init__(**kwargs)
 
     def get_callable_choices(self, choices):
         """
-        Because we need to support callable choices and insert blank choice into choices list
-        we will always pass callable into `forms.ChoiceField`.
+        Return a callable that we can pass into `forms.ChoiceField`, which will provide the
+        choices list with the addition of a blank choice (if one does not already exist).
         """
         def choices_callable():
-            # Variable choices can be an instance of CallableChoiceIterator,
-            # and we don't want to call it twice if produced list doesn't contain blank choice,
-            # so cast it as a list here
+            # Variable choices could be an instance of CallableChoiceIterator, which may be wrapping
+            # something we don't want to evaluate multiple times (e.g. a database query). Cast as a
+            # list now to prevent it getting evaluated twice (once while searching for a blank choice,
+            # once while rendering the final ChoiceField).
             local_choices = list(choices)
 
             # If choices does not already contain a blank option, insert one
@@ -368,7 +378,7 @@ class ChoiceBlock(FieldBlock):
                         break
 
             if not has_blank_choice:
-                return BLANK_CHOICE_DASH + list(local_choices)
+                return BLANK_CHOICE_DASH + local_choices
 
             return local_choices
         return choices_callable
@@ -380,14 +390,7 @@ class ChoiceBlock(FieldBlock):
         users to define subclasses of ChoiceBlock in their models.py, with specific choice lists
         passed in, without references to those classes ending up frozen into migrations.
         """
-
-        # Actually, we can just return CallableChoiceIterator,
-        # but it will be casted as a list in __init__ method
-        _constructor_kwargs = self._constructor_kwargs.copy()
-        if isinstance(_constructor_kwargs['choices'], CallableChoiceIterator):
-            _constructor_kwargs['choices'] = _constructor_kwargs['choices'].choices_func
-
-        return 'wagtail.wagtailcore.blocks.ChoiceBlock', [], _constructor_kwargs
+        return ('wagtail.wagtailcore.blocks.ChoiceBlock', [], self._constructor_kwargs)
 
     def get_searchable_content(self, value):
         # Return the display value as the searchable value
