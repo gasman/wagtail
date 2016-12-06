@@ -981,6 +981,22 @@ class TestBackendConfiguration(TestCase):
         self.assertEqual(backend.hosts[3]['use_ssl'], True)
         self.assertEqual(backend.hosts[3]['url_prefix'], '/hello')
 
+    def test_default_index_settings_override(self):
+        backend = ElasticsearchSearchBackend(params={
+            'INDEX_SETTINGS': {
+                "settings": {  # Already existing key
+                    "number_of_shards": 2,  # New key
+                    "analysis": {  # Already existing key
+                        "analyzer": {  # Already existing key
+                            "edgengram_analyzer": {  # Already existing key
+                                "tokenizer": "standard"  # Key redefinition
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
 
 @unittest.skipUnless(os.environ.get('ELASTICSEARCH_URL', False), "ELASTICSEARCH_URL not set")
 @unittest.skipUnless(os.environ.get('ELASTICSEARCH_VERSION', '1') == '1', "ELASTICSEARCH_VERSION not set to 1")
