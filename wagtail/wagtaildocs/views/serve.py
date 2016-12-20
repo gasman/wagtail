@@ -25,7 +25,7 @@ def serve(request, document_id, document_filename):
 
     if hasattr(doc, 'collection'):
         for fn in hooks.get_hooks('before_serve_from_collection'):
-            result = fn(doc.collection, request)
+            result = fn(doc.collection, request, obj=doc)
             if isinstance(result, HttpResponse):
                 return result
 
