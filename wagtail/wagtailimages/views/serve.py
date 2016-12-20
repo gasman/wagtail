@@ -14,7 +14,9 @@ from django.utils.decorators import classonlymethod
 from django.utils.six import text_type
 from django.views.generic import View
 
+from wagtail.utils import sendfile_streaming_backend
 from wagtail.utils.sendfile import sendfile
+from wagtail.wagtailcore import hooks
 from wagtail.wagtailimages import get_image_model
 from wagtail.wagtailimages.exceptions import InvalidFilterSpecError
 from wagtail.wagtailimages.models import SourceImageIOError
@@ -56,6 +58,12 @@ class ServeView(View):
             raise PermissionDenied
 
         image = get_object_or_404(self.model, id=image_id)
+
+        if hasattr(image, 'collection'):
+            for fn in hooks.get_hooks('before_serve_from_collection'):
+                result = fn(image.collection, request)
+                if isinstance(result, HttpResponse):
+                    return result
 
         # Get/generate the rendition
         try:
