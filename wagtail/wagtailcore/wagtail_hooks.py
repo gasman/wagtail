@@ -8,6 +8,11 @@ from django.core.urlresolvers import reverse
 from wagtail.wagtailcore import hooks
 from wagtail.wagtailcore.models import BaseViewRestriction
 
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
+
 
 def require_wagtail_login(next):
     login_url = getattr(settings, 'WAGTAIL_FRONTEND_LOGIN_URL', reverse('wagtailcore_login'))
@@ -15,7 +20,7 @@ def require_wagtail_login(next):
 
 
 @hooks.register('before_serve_page')
-def check_view_restrictions(page, request, serve_args, serve_kwargs):
+def check_page_view_restrictions(page, request, serve_args, serve_kwargs):
     """
     Check whether there are any view restrictions on this page which are
     not fulfilled by the given request object. If there are, return an
@@ -31,7 +36,7 @@ def check_view_restrictions(page, request, serve_args, serve_kwargs):
                     instance=restriction,
                     initial={'return_url': request.get_full_path()}
                 )
-                action_url = reverse('wagtailcore_authenticate_with_password', args=['page', restriction.id, None, page.id])
+                action_url = reverse('wagtailcore_authenticate_with_password', args=['page', restriction.id, 0, page.id])
                 return page.serve_password_required_response(request, form, action_url)
 
             elif restriction.restriction_type in [BaseViewRestriction.LOGIN, BaseViewRestriction.GROUPS]:
@@ -39,7 +44,7 @@ def check_view_restrictions(page, request, serve_args, serve_kwargs):
 
 
 @hooks.register('before_serve_from_collection')
-def check_view_restrictions(collection, request, *serve_args, **serve_kwargs):
+def check_collection_view_restrictions(collection, request, *serve_args, **serve_kwargs):
     """
     Check whether there are any view restrictions on the collection which are
     not fulfilled by the given request object. If there are, return an
@@ -54,9 +59,9 @@ def check_view_restrictions(collection, request, *serve_args, **serve_kwargs):
             if restriction.restriction_type == BaseViewRestriction.PASSWORD:
                 from wagtail.wagtailcore.forms import PasswordBaseViewRestrictionForm
                 form = PasswordBaseViewRestrictionForm(instance=restriction,
-                                                       initial={'return_url': request.get_full_path()})
+                                                       initial={'return_url': unquote(request.get_full_path())})
                 action_url = reverse('wagtailcore_authenticate_with_password', args=['collection', restriction.id, obj_type.id, obj.id])
                 return collection.serve_password_required_response(request, form, action_url)
 
             elif restriction.restriction_type in [BaseViewRestriction.LOGIN, BaseViewRestriction.GROUPS]:
-                return require_wagtail_login(next=request.get_full_path())
+                return require_wagtail_login(next=unquote(request.get_full_path()))
