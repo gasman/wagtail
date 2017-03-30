@@ -7,6 +7,10 @@ environment:
     - TOXENV: py27-dj110-sqlite-noelasticsearch
     - TOXENV: py35-dj18-sqlite-noelasticsearch
     - TOXENV: py35-dj110-sqlite-noelasticsearch
+    - TOXENV: py27-dj18-mssql-noelasticsearch
+    - TOXENV: py27-dj110-mssql-noelasticsearch
+    - TOXENV: py35-dj18-mssql-noelasticsearch
+    - TOXENV: py35-dj110-mssql-noelasticsearch
 
 matrix:
   fast_finish: true
