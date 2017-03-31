@@ -245,10 +245,6 @@ class DateBlock(FieldBlock):
         from wagtail.wagtailadmin.widgets import AdminDateInput
         field_kwargs = {
             'widget': AdminDateInput(format=self.format),
-            # FIXME: input_formats should accept any format from the default (locale-specific)
-            # DATE_INPUT_FORMATS list (django.utils.formats.get_format_lazy('DATE_INPUT_FORMATS'))
-            # with self.format taking precedence
-            'input_formats': [self.format],
         }
         field_kwargs.update(self.field_options)
         return forms.DateField(**field_kwargs)
@@ -301,10 +297,6 @@ class DateTimeBlock(FieldBlock):
         from wagtail.wagtailadmin.widgets import AdminDateTimeInput
         field_kwargs = {
             'widget': AdminDateTimeInput(format=self.format),
-            # FIXME: input_formats should accept any format from the default (locale-specific)
-            # DATETIME_INPUT_FORMATS list (django.utils.formats.get_format_lazy('DATETIME_INPUT_FORMATS'))
-            # with self.format taking precedence
-            'input_formats': [self.format],
         }
         field_kwargs.update(self.field_options)
         return forms.DateTimeField(**field_kwargs)
