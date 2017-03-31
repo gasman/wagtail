@@ -40,24 +40,18 @@ class AdminAutoHeightTextInput(WidgetWithScript, widgets.Textarea):
 
 
 class AdminDateInput(WidgetWithScript, widgets.DateInput):
-    # Set a default date format to match the one that our JS date picker expects -
-    # it can still be overridden explicitly, but this way it won't be affected by
-    # the DATE_INPUT_FORMATS setting
-    def __init__(self, attrs=None, format=None, js_format=None):
+    def __init__(self, attrs=None, format=None):
         fmt = format
         if fmt is None:
             fmt = getattr(settings, 'WAGTAIL_DATE_FORMAT', DEFAULT_DATE_FORMAT)
-        self.js_format = js_format
-        if fmt != DEFAULT_DATE_FORMAT and self.js_format is None:
-            self.js_format = to_datetimepicker_format(fmt)
+        self.js_format = to_datetimepicker_format(fmt)
         super(AdminDateInput, self).__init__(attrs=attrs, format=fmt)
 
     def render_js_init(self, id_, name, value):
         config = {
             'dayOfWeekStart': get_format('FIRST_DAY_OF_WEEK'),
+            'format': self.js_format,
         }
-        if self.js_format:
-            config['format'] = self.js_format
         return 'initDateChooser({0}, {1});'.format(
             json.dumps(id_),
             json.dumps(config)
@@ -73,22 +67,18 @@ class AdminTimeInput(WidgetWithScript, widgets.TimeInput):
 
 
 class AdminDateTimeInput(WidgetWithScript, widgets.DateTimeInput):
-    def __init__(self, attrs=None, format=None, js_format=None):
+    def __init__(self, attrs=None, format=None):
         fmt = format
         if fmt is None:
-            fmt = getattr(settings, 'WAGTAIL_DATETIME_FORMAT',
-                          DEFAULT_DATETIME_FORMAT)
-        self.js_format = js_format
-        if fmt != DEFAULT_DATETIME_FORMAT and self.js_format is None:
-            self.js_format = to_datetimepicker_format(fmt)
+            fmt = getattr(settings, 'WAGTAIL_DATETIME_FORMAT', DEFAULT_DATETIME_FORMAT)
+        self.js_format = to_datetimepicker_format(fmt)
         super(AdminDateTimeInput, self).__init__(attrs=attrs, format=fmt)
 
     def render_js_init(self, id_, name, value):
         config = {
             'dayOfWeekStart': get_format('FIRST_DAY_OF_WEEK'),
+            'format': self.js_format,
         }
-        if self.js_format:
-            config['format'] = self.js_format
         return 'initDateTimeChooser({0}, {1});'.format(
             json.dumps(id_),
             json.dumps(config)

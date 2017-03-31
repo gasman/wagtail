@@ -160,13 +160,7 @@ DateBlock
 A date picker. The keyword arguments ``required``, ``help_text``, ``format``, ``input_formats`` and ``js_format`` are accepted.
 
 ``format`` (default: None)
-  Date format. If not specifed Wagtail will use ``WAGTAIL_DATE_FORMAT`` setting with failback to '%Y-%m-%d'.
-
-``js_format`` (default: None)
-  Javascript datepicker format. Leave empty for automatic conversion.
-
-``input_formats`` (default: None)
-  Input formats to be passed to django field.
+  Date format. If not specifed Wagtail will use ``WAGTAIL_DATE_FORMAT`` setting with fallback to '%Y-%m-%d'.
 
 TimeBlock
 ~~~~~~~~~
@@ -183,13 +177,7 @@ DateTimeBlock
 A combined date / time picker. The keyword arguments ``required``, ``help_text``, ``format``, ``input_formats`` and ``js_format`` are accepted.
 
 ``format`` (default: None)
-  Date format. If not specifed Wagtail will use ``WAGTAIL_DATETIME_FORMAT`` setting with failback to '%Y-%m-%d %H:%M'.
-
-``js_format`` (default: None)
-  Javascript datepicker format. Leave empty for automatic conversion.
-
-``input_formats`` (default: None)
-  Input formats to be passed to django field.
+  Date format. If not specifed Wagtail will use ``WAGTAIL_DATETIME_FORMAT`` setting with fallback to '%Y-%m-%d %H:%M'.
 
 RichTextBlock
 ~~~~~~~~~~~~~

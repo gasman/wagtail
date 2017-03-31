@@ -89,16 +89,13 @@ class TestAdminDateInput(TestCase):
         widget = widgets.AdminDateInput()
 
         js_init = widget.render_js_init('test-id', 'test', None)
-        self.assertEqual(js_init, 'initDateChooser("test-id", {"dayOfWeekStart": 0});')
 
-    def test_render_js_init_with_format_and_js_format(self):
-        widget = widgets.AdminDateInput(format='%d.%m.%Y.', js_format='d.m.Y.')
-
-        js_init = widget.render_js_init('test-id', 'test', None)
-        self.assertIn(
-            '"format": "d.m.Y."',
-            js_init,
-        )
+        # we should see the JS initialiser code:
+        # initDateChooser("test-id", {"dayOfWeekStart": 0, "format": "Y-m-d"});
+        # except that we can't predict the order of the config options
+        self.assertIn('initDateChooser("test-id", {', js_init)
+        self.assertIn('"dayOfWeekStart": 0', js_init)
+        self.assertIn('"format": "Y-m-d"', js_init)
 
     def test_render_js_init_with_format(self):
         widget = widgets.AdminDateInput(format='%d.%m.%Y.')
@@ -126,7 +123,13 @@ class TestAdminDateTimeInput(TestCase):
         widget = widgets.AdminDateTimeInput()
 
         js_init = widget.render_js_init('test-id', 'test', None)
-        self.assertEqual(js_init, 'initDateTimeChooser("test-id", {"dayOfWeekStart": 0});')
+
+        # we should see the JS initialiser code:
+        # initDateTimeChooser("test-id", {"dayOfWeekStart": 0, "format": "Y-m-d H:i"});
+        # except that we can't predict the order of the config options
+        self.assertIn('initDateTimeChooser("test-id", {', js_init)
+        self.assertIn('"dayOfWeekStart": 0', js_init)
+        self.assertIn('"format": "Y-m-d H:i"', js_init)
 
     def test_render_js_init_with_format(self):
         widget = widgets.AdminDateTimeInput(format='%d.%m.%Y. %H:%M')
@@ -136,7 +139,6 @@ class TestAdminDateTimeInput(TestCase):
             '"format": "d.m.Y. H:i"',
             js_init,
         )
-
 
     @override_settings(WAGTAIL_DATETIME_FORMAT='%d.%m.%Y. %H:%M')
     def test_render_js_init_with_format_from_settings(self):

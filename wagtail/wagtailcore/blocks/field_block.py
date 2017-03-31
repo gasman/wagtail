@@ -231,22 +231,24 @@ class BooleanBlock(FieldBlock):
 
 class DateBlock(FieldBlock):
 
-    def __init__(self, required=True, help_text=None, format=None, js_format=None,
-                 **kwargs):
+    def __init__(self, required=True, help_text=None, format=None, **kwargs):
         self.field_options = {'required': required, 'help_text': help_text}
         try:
             self.field_options['input_formats'] = kwargs.pop('input_formats')
         except KeyError:
             pass
         self.format = format
-        self.js_format = js_format
         super(DateBlock, self).__init__(**kwargs)
 
     @cached_property
     def field(self):
         from wagtail.wagtailadmin.widgets import AdminDateInput
         field_kwargs = {
-            'widget': AdminDateInput(format=self.format, js_format=self.js_format),
+            'widget': AdminDateInput(format=self.format),
+            # FIXME: input_formats should accept any format from the default (locale-specific)
+            # DATE_INPUT_FORMATS list (django.utils.formats.get_format_lazy('DATE_INPUT_FORMATS'))
+            # with self.format taking precedence
+            'input_formats': [self.format],
         }
         field_kwargs.update(self.field_options)
         return forms.DateField(**field_kwargs)
@@ -289,22 +291,20 @@ class TimeBlock(FieldBlock):
 
 class DateTimeBlock(FieldBlock):
 
-    def __init__(self, required=True, help_text=None, format=None, js_format=None,
-                 **kwargs):
+    def __init__(self, required=True, help_text=None, format=None, **kwargs):
         self.field_options = {'required': required, 'help_text': help_text}
-        try:
-            self.field_options['input_formats'] = kwargs.pop('input_formats')
-        except KeyError:
-            pass
         self.format = format
-        self.js_format = js_format
         super(DateTimeBlock, self).__init__(**kwargs)
 
     @cached_property
     def field(self):
         from wagtail.wagtailadmin.widgets import AdminDateTimeInput
         field_kwargs = {
-            'widget': AdminDateTimeInput(format=self.format, js_format=self.js_format),
+            'widget': AdminDateTimeInput(format=self.format),
+            # FIXME: input_formats should accept any format from the default (locale-specific)
+            # DATETIME_INPUT_FORMATS list (django.utils.formats.get_format_lazy('DATETIME_INPUT_FORMATS'))
+            # with self.format taking precedence
+            'input_formats': [self.format],
         }
         field_kwargs.update(self.field_options)
         return forms.DateTimeField(**field_kwargs)

@@ -2445,11 +2445,15 @@ class TestDateBlock(TestCase):
         block = blocks.DateBlock()
         value = date(2015, 8, 13)
         result = block.render_form(value, prefix='dateblock')
-        self.assertIn(
-            '<script>initDateChooser("dateblock", {"dayOfWeekStart": 0});</script>',
-            result
-        )
-        self.assertIn(
+
+        # we should see the JS initialiser code:
+        # <script>initDateChooser("dateblock", {"dayOfWeekStart": 0, "format": "Y-m-d"});</script>
+        # except that we can't predict the order of the config options
+        self.assertIn('<script>initDateChooser("dateblock", {', result)
+        self.assertIn('"dayOfWeekStart": 0', result)
+        self.assertIn('"format": "Y-m-d"', result)
+
+        self.assertInHTML(
             '<input id="dateblock" name="dateblock" placeholder="" type="text" value="2015-08-13" />',
             result
         )
@@ -2458,10 +2462,10 @@ class TestDateBlock(TestCase):
         block = blocks.DateBlock(format='%d.%m.%Y')
         value = date(2015, 8, 13)
         result = block.render_form(value, prefix='dateblock')
-        self.assertIn(
-            '"format": "d.m.Y"',
-            result
-        )
+
+        self.assertIn('<script>initDateChooser("dateblock", {', result)
+        self.assertIn('"dayOfWeekStart": 0', result)
+        self.assertIn('"format": "d.m.Y"', result)
         self.assertInHTML(
             '<input id="dateblock" name="dateblock" placeholder="" type="text" value="13.08.2015" />',
             result
