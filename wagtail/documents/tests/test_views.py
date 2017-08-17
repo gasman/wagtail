@@ -67,6 +67,7 @@ class TestEditView(TestCase, WagtailTestUtils):
                          b'An updated test content.')
 
 
+@override_settings(WAGTAILDOCS_SERVE_METHOD=None)
 class TestServeView(TestCase):
     def setUp(self):
         self.document = models.Document(title="Test document")
@@ -123,6 +124,37 @@ class TestServeView(TestCase):
         _get_sendfile.clear()
 
 
+@override_settings(WAGTAILDOCS_SERVE_METHOD='redirect')
+class TestServeViewWithRedirect(TestCase):
+    def setUp(self):
+        self.document = models.Document(title="Test document")
+        self.document.file.save('example.doc', ContentFile("A boring example document"))
+
+    def tearDown(self):
+        self.document.delete()
+
+    def get(self):
+        return self.client.get(reverse('wagtaildocs_serve', args=(self.document.id, self.document.filename)))
+
+    def test_redirect(self):
+        response = self.get()
+        self.assertRedirects(response, self.document.file.url, fetch_redirect_response=False)
+
+
+@override_settings(WAGTAILDOCS_SERVE_METHOD='direct')
+class TestDirectDocumentUrls(TestCase):
+    def setUp(self):
+        self.document = models.Document(title="Test document")
+        self.document.file.save('example.doc', ContentFile("A boring example document"))
+
+    def tearDown(self):
+        self.document.delete()
+
+    def test_url(self):
+        self.assertEqual(self.document.url, self.document.file.url)
+
+
+@override_settings(WAGTAILDOCS_SERVE_METHOD=None)
 class TestServeViewWithSendfile(TestCase):
     def setUp(self):
         # Import using a try-catch block to prevent crashes if the
@@ -180,6 +212,7 @@ class TestServeViewWithSendfile(TestCase):
         self.assertEqual(response['X-Accel-Redirect'], os.path.join(settings.MEDIA_URL, self.document.file.name))
 
 
+@override_settings(WAGTAILDOCS_SERVE_METHOD=None)
 class TestServeWithUnicodeFilename(TestCase):
     def setUp(self):
         self.document = models.Document(title="Test document")
