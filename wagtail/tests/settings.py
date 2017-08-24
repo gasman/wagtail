@@ -226,3 +226,11 @@ WAGTAILADMIN_RICH_TEXT_EDITORS = {
         'WIDGET': 'wagtail.tests.testapp.rich_text.CustomRichTextArea'
     },
 }
+
+
+# Some apps may cache the contents of the django_contenttypes table for performance;
+# in normal scenarios this is safe because the table will not change during the lifetime
+# of a python process. However, we cannot rely on this when running tests, since
+# the contenttypes table will be left unpopulated when running a TransactionTestCase.
+# We therefore need to disable the cache.
+WAGTAIL_CACHE_CONTENT_TYPES = False

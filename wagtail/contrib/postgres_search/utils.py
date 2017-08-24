@@ -5,6 +5,7 @@ import re
 from functools import partial, reduce
 
 from django.apps import apps
+from django.conf import settings
 from django.db import connections
 from django.db.models import Q
 from django.utils.lru_cache import lru_cache
@@ -68,7 +69,6 @@ def get_descendants_content_types_pks(models, db_alias):
               for descendant_model in get_descendant_models(model)), db_alias)
 
 
-@lru_cache()
 def get_content_types_pks(models, db_alias):
     # We import it locally because this file is loaded before apps are ready.
     from django.contrib.contenttypes.models import ContentType
@@ -77,6 +77,9 @@ def get_content_types_pks(models, db_alias):
                               model=model._meta.model_name)
                             for model in models]))
                 .values_list('pk', flat=True))
+
+if getattr(settings, 'WAGTAIL_CACHE_CONTENT_TYPES', True):
+    get_content_types_pks = lru_cache(get_content_types_pks)
 
 
 def get_search_fields(search_fields):
