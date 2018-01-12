@@ -942,18 +942,17 @@ class TestSnippetChooserPanelWithCustomPrimaryKey(TestCase, WagtailTestUtils):
             )
         )
 
-        self.edit_handler_class = get_snippet_edit_handler(model)
-        self.form_class = self.edit_handler_class.get_form_class(model)
+        self.edit_handler = get_snippet_edit_handler(model)
+        self.form_class = self.edit_handler.get_form_class()
         form = self.form_class(instance=test_snippet)
-        edit_handler = self.edit_handler_class(instance=test_snippet, form=form)
+        edit_handler = self.edit_handler.bind_to_instance(instance=test_snippet, form=form)
 
         self.snippet_chooser_panel = [
             panel for panel in edit_handler.children
             if getattr(panel, 'field_name', None) == 'advertwithcustomprimarykey'][0]
 
     def test_create_snippet_chooser_panel_class(self):
-        self.assertEqual(type(self.snippet_chooser_panel).__name__,
-                         '_SnippetChooserPanel')
+        self.assertIsInstance(self.snippet_chooser_panel, SnippetChooserPanel)
 
     def test_render_as_field(self):
         field_html = self.snippet_chooser_panel.render_as_field()
@@ -964,7 +963,7 @@ class TestSnippetChooserPanelWithCustomPrimaryKey(TestCase, WagtailTestUtils):
     def test_render_as_empty_field(self):
         test_snippet = SnippetChooserModelWithCustomPrimaryKey()
         form = self.form_class(instance=test_snippet)
-        edit_handler = self.edit_handler_class(instance=test_snippet, form=form)
+        edit_handler = self.edit_handler.bind_to_instance(instance=test_snippet, form=form)
 
         snippet_chooser_panel = [
             panel for panel in edit_handler.children
@@ -982,10 +981,8 @@ class TestSnippetChooserPanelWithCustomPrimaryKey(TestCase, WagtailTestUtils):
     def test_target_model_autodetected(self):
         result = SnippetChooserPanel(
             'advertwithcustomprimarykey'
-        ).bind_to_model(SnippetChooserModelWithCustomPrimaryKey).target_model()
+        ).bind_to_model(SnippetChooserModelWithCustomPrimaryKey).target_model
         self.assertEqual(result, AdvertWithCustomPrimaryKey)
-
-
 
 
 class TestSnippetChooseWithCustomPrimaryKey(TestCase, WagtailTestUtils):
@@ -1013,7 +1010,6 @@ class TestSnippetChooseWithCustomPrimaryKey(TestCase, WagtailTestUtils):
         response = self.get()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['items'][0].text, "advert 1")
-
 
 
 class TestSnippetChosenWithCustomPrimaryKey(TestCase, WagtailTestUtils):

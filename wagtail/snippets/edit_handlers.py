@@ -21,4 +21,4 @@ class SnippetChooserPanel(BaseChooserPanel):
 
     def on_model_bound(self):
         super().on_model_bound()
-        self.target_model = self.db_field.rel.model
+        self.target_model = self.db_field.remote_field.model
