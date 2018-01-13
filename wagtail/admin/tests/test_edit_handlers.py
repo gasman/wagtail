@@ -540,6 +540,38 @@ class TestFieldRowPanel(TestCase):
         self.assertIn('<li class="field-col col4', result)
 
 
+class TestFieldRowPanelWithChooser(TestCase):
+    def setUp(self):
+        self.EventPageForm = get_form_for_model(
+            EventPage, form_class=WagtailAdminPageForm, formsets=[])
+        self.event = EventPage(title='Abergavenny sheepdog trials',
+                               date_from=date(2014, 7, 19), date_to=date(2014, 7, 21))
+
+        self.dates_panel = FieldRowPanel([
+            FieldPanel('date_from'),
+            ImageChooserPanel('feed_image'),
+        ]).bind_to_model(EventPage)
+
+    def test_render_as_object(self):
+        form = self.EventPageForm(
+            {'title': 'Pontypridd sheepdog trials', 'date_from': '2014-07-20', 'date_to': '2014-07-22'},
+            instance=self.event)
+
+        form.is_valid()
+
+        field_panel = self.dates_panel.bind_to_instance(
+            instance=self.event,
+            form=form
+        )
+        result = field_panel.render_as_object()
+
+        # check that the populated form field is included
+        self.assertIn('value="2014-07-20"', result)
+
+        # there should be no errors on this field
+        self.assertNotIn('<p class="error-message">', result)
+
+
 class TestPageChooserPanel(TestCase):
     fixtures = ['test.json']
 
