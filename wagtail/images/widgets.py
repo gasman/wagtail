@@ -1,5 +1,3 @@
-import json
-
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -29,7 +27,7 @@ class AdminImageChooser(AdminChooser):
         })
 
     def render_js_init(self, id_, name, value):
-        return "createImageChooser({0});".format(json.dumps(id_))
+        return "createBoundImageChooser('{id}');".format(id=id_)
 
     class Media:
         js = [
