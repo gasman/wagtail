@@ -20,8 +20,8 @@ from wagtail.embeds.finders.embedly import EmbedlyFinder as EmbedlyFinder
 from wagtail.embeds.finders.embedly import AccessDeniedEmbedlyException, EmbedlyException
 from wagtail.embeds.finders.oembed import OEmbedFinder as OEmbedFinder
 from wagtail.embeds.models import Embed
-from wagtail.embeds.rich_text import media_embedtype_handler
-from wagtail.embeds.rich_text.editor_html import MediaEmbedHandler
+from wagtail.embeds.rich_text import MediaEmbedHandler as MediaFrontendHandler
+from wagtail.embeds.rich_text.editor_html import MediaEmbedHandler as MediaEditorHTMLHandler
 from wagtail.embeds.templatetags.wagtailembeds_tags import embed_tag
 from wagtail.tests.utils import WagtailTestUtils
 
@@ -534,11 +534,11 @@ class TestEmbedBlock(TestCase):
             required_block.clean(None)
 
 
-class TestMediaEmbedHandler(TestCase):
+class TestMediaEmbedHandlers(TestCase):
     def test_get_db_attributes(self):
         soup = BeautifulSoup('<b data-url="test-url">foo</b>', 'html5lib')
         tag = soup.b
-        result = MediaEmbedHandler.get_db_attributes(tag)
+        result = MediaEditorHTMLHandler.get_db_attributes(tag)
         self.assertEqual(result,
                          {'url': 'test-url'})
 
@@ -557,7 +557,7 @@ class TestMediaEmbedHandler(TestCase):
             height=1000,
         )
 
-        result = MediaEmbedHandler.expand_db_attributes(
+        result = MediaEditorHTMLHandler.expand_db_attributes(
             {'url': 'http://www.youtube.com/watch/'}
         )
         self.assertIn(
@@ -577,7 +577,7 @@ class TestMediaEmbedHandler(TestCase):
     def test_test_expand_db_attributes_for_editor_catches_embed_not_found(self, get_embed):
         get_embed.side_effect = EmbedNotFoundException
 
-        result = MediaEmbedHandler.expand_db_attributes(
+        result = MediaEditorHTMLHandler.expand_db_attributes(
             {'url': 'http://www.youtube.com/watch/'},
         )
 
@@ -598,7 +598,7 @@ class TestMediaEmbedHandler(TestCase):
             height=1000,
         )
 
-        result = media_embedtype_handler(
+        result = MediaFrontendHandler.expand_db_attributes(
             {'url': 'http://www.youtube.com/watch/'}
         )
         self.assertIn('test html', result)
@@ -607,7 +607,7 @@ class TestMediaEmbedHandler(TestCase):
     def test_expand_db_attributes_catches_embed_not_found(self, get_embed):
         get_embed.side_effect = EmbedNotFoundException
 
-        result = media_embedtype_handler(
+        result = MediaFrontendHandler.expand_db_attributes(
             {'url': 'http://www.youtube.com/watch/'}
         )
 
