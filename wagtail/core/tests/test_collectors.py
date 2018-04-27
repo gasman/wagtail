@@ -65,6 +65,9 @@ class ModelRichTextCollectorTest(TestCase):
     def get_uses(self, *objects):
         return list(self.collector.find_objects(*objects))
 
+    def get_all_uses(self, *objects):
+        return list(self.collector.find_all_objects())
+
     def test_empty(self):
         with self.assertNumQueries(1):
             uses = self.get_uses(self.obj0)
@@ -89,9 +92,9 @@ class ModelRichTextCollectorTest(TestCase):
             uses = self.get_uses(self.obj4)
             self.assertListEqual(uses, [(self.obj5, self.obj4)])
 
-    def test_multiple(self):
+    def test_find_all(self):
         with self.assertNumQueries(17):
-            uses = self.get_uses()
+            uses = self.get_all_uses()
             self.assertListEqual(uses, [(self.obj2, self.obj1),
                                         (self.obj3, self.obj2),
                                         (self.obj4, self.obj3),
@@ -102,7 +105,12 @@ class ModelRichTextCollectorTest(TestCase):
                                         (self.obj9, self.document),
                                         (self.obj10, self.video)])
 
-        with self.assertNumQueries(5):
+    def test_multiple(self):
+        with self.assertNumQueries(0):
+            uses = self.get_uses()
+            self.assertListEqual(uses, [])
+
+        with self.assertNumQueries(6):
             uses = self.get_uses(self.obj5)
             self.assertListEqual(uses, [(self.obj7, self.obj5)])
 

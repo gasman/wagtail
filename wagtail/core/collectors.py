@@ -53,20 +53,38 @@ class ModelRichTextCollector:
 
     @staticmethod
     def get_handlers(searched_objects):
-        if searched_objects:
-            searched_models = set()
-            for obj in searched_objects:
-                searched_models.add(obj._meta.model)
-                searched_models.update(obj._meta.get_parent_list())
+        searched_models = set()
+        for obj in searched_objects:
+            searched_models.add(obj._meta.model)
+            searched_models.update(obj._meta.get_parent_list())
 
         for handler in chain(features.get_link_types().values(),
                              features.get_embed_types().values()):
-            model = handler.get_model()
-            if searched_objects:
-                if model in searched_models:
-                    yield model, handler
-            else:
+            try:
+                model = handler.get_model()
+            except NotImplementedError:
+                continue
+
+            if model in searched_models:
                 yield model, handler
+
+    @staticmethod
+    def get_all_handlers():
+        for handler in chain(features.get_link_types().values(),
+                             features.get_embed_types().values()):
+            try:
+                model = handler.get_model()
+            except NotImplementedError:
+                continue
+
+            yield model, handler
+
+    @staticmethod
+    def get_type_attribute_pattern(handlers):
+        link_types = [re.escape(h.identifier) for h in handlers.values()]
+        return r'(link|embed)type="%s"' % (
+            link_types[0] if len(link_types) == 1
+            else r'(%s)' % r'|'.join(link_types))
 
     @classmethod
     def get_pattern_for_objects(cls, searched_objects):
@@ -74,23 +92,28 @@ class ModelRichTextCollector:
         if not handlers:
             return
 
-        link_types = [re.escape(h.identifier) for h in handlers.values()]
-        type_pat = r'(link|embed)type="%s"' % (
-            link_types[0] if len(link_types) == 1
-            else r'(%s)' % r'|'.join(link_types))
-        params = {'type': type_pat}
-        if searched_objects:
-            pattern = r'<(a|embed)( %(type)s %(val)s| %(val)s %(type)s)[^>]*>'
-            values = []
-            for obj in searched_objects:
-                for model, handler in handlers.items():
-                    if isinstance(obj, model):
-                        k, v = handler.get_id_pair_from_instance(obj)
-                        values.append('%s="%s"' % (k, re.escape(str(v))))
-            params['val'] = (values[0] if len(values) == 1
-                             else r'(%s)' % r'|'.join(values))
-        else:
-            pattern = r'<(a|embed) %(type)s[^>]*>'
+        params = {'type': cls.get_type_attribute_pattern(handlers)}
+        pattern = r'<(a|embed)( %(type)s %(val)s| %(val)s %(type)s)[^>]*>'
+        values = []
+        for obj in searched_objects:
+            for model, handler in handlers.items():
+                if isinstance(obj, model):
+                    k, v = handler.get_id_pair_from_instance(obj)
+                    values.append('%s="%s"' % (k, re.escape(str(v))))
+        params['val'] = (values[0] if len(values) == 1
+                         else r'(%s)' % r'|'.join(values))
+
+        return pattern.replace(r' ', r'[^>]*[ \t\n]') % params
+
+    @classmethod
+    def get_pattern_for_all_objects(cls):
+        handlers = dict(cls.get_all_handlers())
+        if not handlers:
+            return
+
+        params = {'type': cls.get_type_attribute_pattern(handlers)}
+        pattern = r'<(a|embed) %(type)s[^>]*>'
+
         return pattern.replace(r' ', r'[^>]*[ \t\n]') % params
 
     def find_objects(self, *searched_objects):
@@ -111,9 +134,27 @@ class ModelRichTextCollector:
             for field in self.fields:
                 for found_obj in find_objects_in_rich_text(
                         getattr(obj, field.attname)):
-                    if not searched_objects or \
-                            get_obj_base_key(found_obj) in searched_data:
+                    if get_obj_base_key(found_obj) in searched_data:
                         yield obj, found_obj
+
+    def find_all_objects(self):
+        if not self.fields:
+            return
+
+        pattern = self.get_pattern_for_all_objects()
+        if pattern is None:
+            return
+
+        filters = Q()
+        for field in self.fields:
+            filters |= Q(**{field.attname + '__regex': pattern})
+
+        for obj in self.model._default_manager.using(self.using) \
+                .filter(filters):
+            for field in self.fields:
+                for found_obj in find_objects_in_rich_text(
+                        getattr(obj, field.attname)):
+                    yield obj, found_obj
 
 
 class StreamFieldCollector:
