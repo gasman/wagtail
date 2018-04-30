@@ -22,6 +22,9 @@ from wagtail.utils.pagination import paginate
 
 
 def get_obj_base_key(obj):
+    """Return a tuple of an object's base model class (the non-abstract model highest up the
+    inheritance chain) and primary key. When searching references to an object, an object
+    reference is considered to match if it yields the same (base model class, primary key) tuple."""
     if isinstance(obj, Model):
         base_model = ([obj._meta.model] + obj._meta.get_parent_list())[-1]
         return base_model._meta.label, obj.pk
@@ -29,6 +32,7 @@ def get_obj_base_key(obj):
 
 
 def find_objects_in_rich_text(rich_text: str):
+    """Yield a sequence of all objects referenced as links or embeds in the given rich text string"""
     for regex, registry, name_attr in (
             (FIND_A_TAG, features.get_link_types(), 'linktype'),
             (FIND_EMBED_TAG, features.get_embed_types(), 'embedtype')):
@@ -41,10 +45,13 @@ def find_objects_in_rich_text(rich_text: str):
                 instance = handler.get_instance(attrs)
                 yield instance
             except (ObjectDoesNotExist, NotImplementedError):
+                # Ignore links/embeds that fail to resolve to a currently-existing object,
+                # or do not correspond to a model at all
                 pass
 
 
 class ModelRichTextCollector:
+    """An object that searches all of a model's rich text fields for object references"""
     def __init__(self, model, using=DEFAULT_DB_ALIAS):
         self.model = model
         self.using = using
@@ -53,6 +60,8 @@ class ModelRichTextCollector:
 
     @staticmethod
     def get_handlers(searched_objects):
+        """Given a collection of model instances, yield a sequence of (model, handler) tuples
+        that define ways those models may be represented as links or embeds in rich text"""
         searched_models = set()
         for obj in searched_objects:
             searched_models.add(obj._meta.model)
@@ -70,6 +79,8 @@ class ModelRichTextCollector:
 
     @staticmethod
     def get_all_handlers():
+        """Yield a sequence of (model, handler) tuples for all of the link / embed types that
+        represent model instances within rich text"""
         for handler in chain(features.get_link_types().values(),
                              features.get_embed_types().values()):
             try:
@@ -81,32 +92,57 @@ class ModelRichTextCollector:
 
     @staticmethod
     def get_type_attribute_pattern(handlers):
+        """Return a regular expression pattern that matches the linktype/embedtype attribute of a
+        pseudo-HTML tag produced by any of the given link/embed handlers"""
+        # form a list of the identifiers that these handlers use as the linktype/embedtype attribute;
+        # e.g. ['page', 'image', 'document']
         link_types = [re.escape(h.identifier) for h in handlers.values()]
+
+        # if there is only one link_type, the resulting pattern will be of the form '(link|embed)type="page"';
+        # if there are multiple, it will be of the form '(link|embed)type="(page|image)"'
         return r'(link|embed)type="%s"' % (
             link_types[0] if len(link_types) == 1
             else r'(%s)' % r'|'.join(link_types))
 
     @classmethod
     def get_pattern_for_objects(cls, searched_objects):
+        """Return a regular expression pattern to match rich text strings that contain link/embed references
+        to any of the given model instances"""
         handlers = dict(cls.get_handlers(searched_objects))
         if not handlers:
             return
 
-        params = {'type': cls.get_type_attribute_pattern(handlers)}
+        # The overall structure of a matching link/embed tag: an 'a' or 'embed' tag, with attributes
+        # for the type and value (which will be constructed below as separate patterns and interpolated
+        # into the final pattern), in either order. These may optionally be followed by additional
+        # attributes before the closing bracket of the tag.
         pattern = r'<(a|embed)( %(type)s %(val)s| %(val)s %(type)s)[^>]*>'
+
+        params = {'type': cls.get_type_attribute_pattern(handlers)}
+
         values = []
         for obj in searched_objects:
+            # find the link/embed handlers corresponding to this object's model
             for model, handler in handlers.items():
                 if isinstance(obj, model):
+                    # query the handler for the attribute name/value that identifies this object
+                    # (this varies between handlers; e.g. media embeds use url rather than id)
                     k, v = handler.get_id_pair_from_instance(obj)
                     values.append('%s="%s"' % (k, re.escape(str(v))))
+
+        # if multiple value attributes are to be matched, join them into a (val1|val2|val3) expression
         params['val'] = (values[0] if len(values) == 1
                          else r'(%s)' % r'|'.join(values))
 
+        # Modify the overall pattern to permit additional arbitrary attributes before and between
+        # the type / value attributes; then interpolate the patterns for the type / value attributes
+        # to produce the final pattern.
         return pattern.replace(r' ', r'[^>]*[ \t\n]') % params
 
     @classmethod
     def get_pattern_for_all_objects(cls):
+        """Return a regular expression pattern to match rich text strings that contain link/embed references
+        to any model instances"""
         handlers = dict(cls.get_all_handlers())
         if not handlers:
             return
@@ -114,43 +150,63 @@ class ModelRichTextCollector:
         params = {'type': cls.get_type_attribute_pattern(handlers)}
         pattern = r'<(a|embed) %(type)s[^>]*>'
 
+        # Modify the overall pattern to permit additional arbitrary attributes before the type
+        # attribute; then interpolate the pattern for the type attribute to produce the final pattern.
         return pattern.replace(r' ', r'[^>]*[ \t\n]') % params
 
     def find_objects(self, *searched_objects):
+        """Given a collection of model instances to search for, yield a sequence of
+        (this_object, found_object) tuples each indicating an occurrence of found_object
+        within rich text fields of this_object (an instance of this collector's associated model)."""
         if not self.fields:
             return
 
+        # Form the regular expression pattern to match each rich text field against
         pattern = self.get_pattern_for_objects(searched_objects)
         if pattern is None:
             return
 
+        # form a Q expression to perform a regexp match against all rich text fields of this model,
+        # ORed together
         filters = Q()
         for field in self.fields:
             filters |= Q(**{field.attname + '__regex': pattern})
 
+        # Form a set of (model, id) tuples that unambiguously represent the models being searched for
         searched_data = {get_obj_base_key(obj) for obj in searched_objects}
+
         for obj in self.model._default_manager.using(self.using) \
                 .filter(filters):
+            # for each instance that matched the regexp pattern (which may include false positives),
+            # perform a systematic scan of all objects referenced in that instance's rich text fields
             for field in self.fields:
                 for found_obj in find_objects_in_rich_text(
                         getattr(obj, field.attname)):
+                    # check if this object is one we're searching for, by comparing on base_key
                     if get_obj_base_key(found_obj) in searched_data:
                         yield obj, found_obj
 
     def find_all_objects(self):
+        """Yield a sequence of (this_object, found_object) tuples for all objects referenced as
+        links/embeds within rich text fields of this model."""
         if not self.fields:
             return
 
+        # Form the regular expression pattern to match each rich text field against
         pattern = self.get_pattern_for_all_objects()
         if pattern is None:
             return
 
+        # form a Q expression to perform a regexp match against all rich text fields of this model,
+        # ORed together
         filters = Q()
         for field in self.fields:
             filters |= Q(**{field.attname + '__regex': pattern})
 
         for obj in self.model._default_manager.using(self.using) \
                 .filter(filters):
+            # for each instance that matched the regexp pattern (indicating that it contained linked/embedded
+            # objects of any type), unpack all objects referenced in that instance's rich text fields
             for field in self.fields:
                 for found_obj in find_objects_in_rich_text(
                         getattr(obj, field.attname)):
