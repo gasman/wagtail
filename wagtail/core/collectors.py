@@ -1,3 +1,4 @@
+import json
 import re
 from itertools import chain
 from warnings import warn
@@ -214,10 +215,13 @@ class ModelRichTextCollector:
 
 
 class StreamFieldCollector:
+    """Handles searches for object references within a single StreamField field of a model"""
     def __init__(self, field):
         self.field = field
 
     def block_tree_paths(self, block, ancestors=()):
+        """Walk the tree of a block definition; for each block encountered,
+        yield a tuple of the block's ancestors (including the block itself)."""
         if isinstance(block, (StreamBlock, StructBlock)):
             for child_block in block.child_blocks.values():
                 yield from self.block_tree_paths(child_block,
@@ -229,11 +233,13 @@ class StreamFieldCollector:
             yield ancestors + (block,)
 
     def find_block_type(self, block_types):
+        """Given a block type class (or a tuple of them),
+        yield the paths of all blocks matching that type/types (as a tuple of the block's ancestors including itself)"""
         for block_path in self.block_tree_paths(self.field.stream_block):
             if isinstance(block_path[-1], block_types):
                 yield block_path
 
-    def find_values(self, stream, block_path):
+    def find_objects(self, stream, block_path):
         if not block_path:
             if isinstance(stream, RichText):
                 yield from find_objects_in_rich_text(stream.source)
@@ -244,23 +250,24 @@ class StreamFieldCollector:
         if isinstance(current_block, StreamBlock) \
                 and isinstance(stream, StreamValue):
             for sub_value in stream:
-                yield from self.find_values(sub_value, block_path)
+                yield from self.find_objects(sub_value, block_path)
         elif isinstance(stream, StreamValue.StreamChild):
             if stream.block == current_block:
-                yield from self.find_values(stream.value, block_path)
+                yield from self.find_objects(stream.value, block_path)
         elif isinstance(stream, StructValue):
             if current_block.name in stream:
-                yield from self.find_values(stream[current_block.name],
-                                            block_path)
+                yield from self.find_objects(stream[current_block.name],
+                                             block_path)
         elif current_block.name == '' and isinstance(stream, list):
             for sub_value in stream:
-                yield from self.find_values(sub_value, block_path)
+                yield from self.find_objects(sub_value, block_path)
         else:
             warn('Unexpected StreamField value: <%s: %s>'
                  % (type(stream), str(stream)[:30]))
 
 
 class ModelStreamFieldsCollector:
+    """Handles searches for object references across all StreamFields of a model"""
     def __init__(self, model, using=DEFAULT_DB_ALIAS):
         self.model = model
         self.using = using
@@ -281,17 +288,31 @@ class ModelStreamFieldsCollector:
         return '"%s"' % re.escape(str(value).replace('"', r'\"')
                                   .replace('|', r'\|'))
 
-    def find_objects(self, *searched_values, block_types=()):
+    def find_objects(self, *searched_objects, block_types=()):
         if not self.fields:
             return
+        if not searched_objects:
+            return
         if not block_types:
+            # define the list of block types that may contain object references;
+            # choosers and rich text, by default
             block_types = (ChooserBlock, RichTextBlock)
+
+        # find all occurrences of these block types across all StreamFields of the model;
+        # store each one as a tuple of StreamFieldCollector (which identifies a single field)
+        # and path to the block (a list of ancestor blocks)
         block_paths_per_collector = [(c, list(c.find_block_type(block_types)))
                                      for c in self.field_collectors]
-        stream_structure_pattern = r'[[ \t\n:](%s)[] \t\n,}]' % '|'.join(
-            self.prepare_value(v) for v in searched_values)
-        rich_text_pattern = ModelRichTextCollector.get_pattern_for_objects(
-            [v for v in searched_values if isinstance(v, Model)])
+
+        # Construct a regexp pattern that matches any of the searched objects in the format
+        # we expect to see them when they appear directly in stream data (i.e. not within
+        # rich text); This consists of:
+        # - the object's primary key, JSON-encoded (to account for non-numeric keys)
+        # - appearing as a value within a dict or array, i.e. preceded by `[`, `:`, `,` or whitespace and followed by `]`, `}`, `,` or whitespace
+        stream_structure_pattern = r'[\[\,\:\s](%s)[\]\}\,\s]' % '|'.join(
+            re.escape(json.dumps(v.pk)) for v in searched_objects)
+
+        rich_text_pattern = ModelRichTextCollector.get_pattern_for_objects(searched_objects)
         if rich_text_pattern is None:
             pattern = stream_structure_pattern
         else:
@@ -307,16 +328,16 @@ class ModelStreamFieldsCollector:
                                 % '|'.join({block.name for block in last_blocks})})
             value_filter = (
                 Q(**{field_name + '__regex': pattern})
-                if searched_values else Q())
+                if searched_objects else Q())
             filters |= block_filter & value_filter
-        searched_data = {get_obj_base_key(v) for v in searched_values}
+        searched_data = {get_obj_base_key(v) for v in searched_objects}
         for obj in self.model._default_manager.using(self.using) \
                 .filter(filters):
             for collector, block_paths in block_paths_per_collector:
                 for block_path in block_paths:
-                    for found_value in collector.find_values(
+                    for found_value in collector.find_objects(
                             getattr(obj, collector.field.attname), block_path):
-                        if not searched_values \
+                        if not searched_objects \
                                 or get_obj_base_key(found_value) in searched_data:
                             yield obj, found_value
 
