@@ -6,7 +6,7 @@ from warnings import warn
 from django.apps import apps
 from django.contrib.admin.utils import NestedObjects
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import CASCADE, DO_NOTHING, PROTECT, SET_DEFAULT, SET_NULL, Model, Q
 from django.urls import reverse
 from django.utils.html import format_html
@@ -58,6 +58,7 @@ class ModelRichTextCollector:
         self.using = using
         self.fields = [f for f in self.model._meta.fields
                        if isinstance(f, RichTextField)]
+        self.db_vendor = connections[using].vendor
 
     @staticmethod
     def get_handlers(searched_objects):
@@ -105,11 +106,16 @@ class ModelRichTextCollector:
             link_types[0] if len(link_types) == 1
             else r'(%s)' % r'|'.join(link_types))
 
-    @classmethod
-    def get_pattern_for_objects(cls, searched_objects):
-        """Return a regular expression pattern to match rich text strings that contain link/embed references
-        to any of the given model instances"""
-        handlers = dict(cls.get_handlers(searched_objects))
+    def get_pattern_for_objects(self, searched_objects):
+        """
+        Return a regular expression pattern to match rich text strings that contain link/embed references
+        to any of the given model instances.
+        This pattern may be overly eager; i.e. it may produce false positives where a string matches
+        but does not in fact contain references to the searched objects. (For performance, this should
+        be minimised as much as possible.) However, it must not fail to match any strings that _do_
+        contain references to the searched objects.
+        """
+        handlers = dict(self.get_handlers(searched_objects))
         if not handlers:
             return
 
@@ -119,7 +125,7 @@ class ModelRichTextCollector:
         # attributes before the closing bracket of the tag.
         pattern = r'<(a|embed)( %(type)s %(val)s| %(val)s %(type)s)[^>]*>'
 
-        params = {'type': cls.get_type_attribute_pattern(handlers)}
+        params = {'type': self.get_type_attribute_pattern(handlers)}
 
         values = []
         for obj in searched_objects:
@@ -138,22 +144,33 @@ class ModelRichTextCollector:
         # Modify the overall pattern to permit additional arbitrary attributes before and between
         # the type / value attributes; then interpolate the patterns for the type / value attributes
         # to produce the final pattern.
-        return pattern.replace(r' ', r'[^>]*[ \t\n]') % params
+        if self.db_vendor == 'mysql':
+            return pattern.replace(r' ', r'[^>]*[[:space:]]') % params
+        else:
+            return pattern.replace(r' ', r'[^>]*\s') % params
 
-    @classmethod
-    def get_pattern_for_all_objects(cls):
-        """Return a regular expression pattern to match rich text strings that contain link/embed references
-        to any model instances"""
-        handlers = dict(cls.get_all_handlers())
+    def get_pattern_for_all_objects(self):
+        """
+        Return a regular expression pattern to match rich text strings that contain link/embed references
+        to any model instances.
+        This pattern may be overly eager; i.e. it may produce false positives where a string matches
+        but does not in fact contain object references. (For performance, this should be minimised as
+        much as possible.) However, it must not fail to match any strings that _do_ contain object
+        references.
+        """
+        handlers = dict(self.get_all_handlers())
         if not handlers:
             return
 
-        params = {'type': cls.get_type_attribute_pattern(handlers)}
+        params = {'type': self.get_type_attribute_pattern(handlers)}
         pattern = r'<(a|embed) %(type)s[^>]*>'
 
         # Modify the overall pattern to permit additional arbitrary attributes before the type
         # attribute; then interpolate the pattern for the type attribute to produce the final pattern.
-        return pattern.replace(r' ', r'[^>]*[ \t\n]') % params
+        if self.db_vendor == 'mysql':
+            return pattern.replace(r' ', r'[^>]*[[:space:]]') % params
+        else:
+            return pattern.replace(r' ', r'[^>]*\s') % params
 
     def find_objects(self, *searched_objects):
         """Given a collection of model instances to search for, yield a sequence of
@@ -275,18 +292,8 @@ class ModelStreamFieldsCollector:
                        if isinstance(field, StreamField)]
         self.field_collectors = [StreamFieldCollector(field)
                                  for field in self.fields]
-
-    def prepare_value(self, value):
-        if isinstance(value, Model):
-            return str(value.pk)
-        if isinstance(value, (int, float)):
-            return str(value)
-        if isinstance(value, bool):
-            return 'true' if value else 'false'
-        if value is None:
-            return 'null'
-        return '"%s"' % re.escape(str(value).replace('"', r'\"')
-                                  .replace('|', r'\|'))
+        self.rich_text_collector = ModelRichTextCollector(model, using=using)
+        self.db_vendor = connections[using].vendor
 
     def find_objects(self, *searched_objects, block_types=()):
         if not self.fields:
@@ -309,19 +316,37 @@ class ModelStreamFieldsCollector:
         # rich text); This consists of:
         # - the object's primary key, JSON-encoded (to account for non-numeric keys)
         # - appearing as a value within a dict or array, i.e. preceded by `[`, `:`, `,` or whitespace and followed by `]`, `}`, `,` or whitespace
-        stream_structure_pattern = r'[\[\,\:\s](%s)[\]\}\,\s]' % '|'.join(
-            re.escape(json.dumps(v.pk)) for v in searched_objects)
+        object_id_pattern = '|'.join(re.escape(json.dumps(v.pk)) for v in searched_objects)
+        if self.db_vendor == 'mysql':
+            stream_structure_pattern = r'[[,[:space:]:](%s)[]},[:space:]]' % object_id_pattern
+        else:
+            stream_structure_pattern = r'[[,\s:](%s)[]},\s]' % object_id_pattern
 
-        rich_text_pattern = ModelRichTextCollector.get_pattern_for_objects(searched_objects)
+        rich_text_pattern = self.rich_text_collector.get_pattern_for_objects(searched_objects)
         if rich_text_pattern is None:
             pattern = stream_structure_pattern
         else:
-            # Escapes the pattern since values are between double quotes.
+            # Rich text content will appear in JSON-escaped form, so adjust the regexp
+            # pattern to compensate, by searching for backslash-escaped double quotes
+            # where we would previously have searched for unescaped ones
             rich_text_pattern = rich_text_pattern.replace(r'"', r'\\"')
+
+            # Final pattern shall match stream_structure_pattern OR rich_text_pattern
             pattern = r'(%s|%s)' % (stream_structure_pattern, rich_text_pattern)
+
+        # Generate a filter expression that will find records where any StreamField
+        # field matches:
+        # * the above regexp pattern for the PK value(s)
+        # * AND a (quoted) block name that indicates the presence of a block that can contain
+        #   object references, as specified by block_types above
         filters = Q()
         for collector, block_paths in block_paths_per_collector:
             field_name = collector.field.attname
+
+            # for each block in the StreamField's definition that might contain an object
+            # reference, as specified by block_types above, find the deepest-nested named
+            # block in its path. (Not all blocks are named; the child block of a ListBlock
+            # isn't, for example.)
             last_blocks = [[block for block in block_path if block.name][-1]
                            for block_path in block_paths]
             block_filter = Q(**{field_name + '__regex': r'"(%s)"'
@@ -330,6 +355,7 @@ class ModelStreamFieldsCollector:
                 Q(**{field_name + '__regex': pattern})
                 if searched_objects else Q())
             filters |= block_filter & value_filter
+
         searched_data = {get_obj_base_key(v) for v in searched_objects}
         for obj in self.model._default_manager.using(self.using) \
                 .filter(filters):
