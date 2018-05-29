@@ -161,6 +161,8 @@ class ModelStreamFieldCollectorTest(TestCase):
                                             file=get_test_image_file())
         self.image11 = Image.objects.create(title='Test image 11',
                                             file=get_test_image_file())
+        self.image12 = Image.objects.create(title='Test image 12',
+                                            file=get_test_image_file())
 
         self.obj_empty = StreamModel.objects.create()
         self.obj_text = StreamModel.objects.create(body=[
@@ -199,6 +201,26 @@ class ModelStreamFieldCollectorTest(TestCase):
              RichText('<p><embed alt="bodyline" embedtype="image" '
                       'format="centered" id="%s"/></p>' % self.image11.pk))])
 
+        self.obj12 = StreamModel()
+        stream_value = StreamModel._meta.get_field('body').to_python('''[
+            {"type": "gallery", "value": [
+                {"type": "image", "value": %d}
+            ]}
+        ]''' % self.image12.id)
+        self.obj12.body = stream_value
+        self.obj12.save()
+
+        self.obj13 = StreamModel()
+        stream_value = StreamModel._meta.get_field('body').to_python('''[
+            {"type": "gallery", "value": [
+                {"type": "image_with_caption", "value": {
+                    "image": %d, "caption", "a Scotsman on a horse"
+                }}
+            ]}
+        ]''' % self.image12.id)
+        self.obj13.body = stream_value
+        self.obj13.save()
+
         # For query count consistency.
         ContentType.objects.clear_cache()
 
@@ -235,6 +257,10 @@ class ModelStreamFieldCollectorTest(TestCase):
         with self.assertNumQueries(2):
             uses = self.get_image_uses(self.image5)
             self.assertListEqual(uses, [(self.obj5, self.image5)])
+
+    def test_nested_stream(self):
+        uses = self.get_image_uses(self.image12)
+        self.assertListEqual(uses, [(self.obj12, self.image12), (self.obj13, self.image12)])
 
     def test_multiple(self):
         with self.assertNumQueries(6):
