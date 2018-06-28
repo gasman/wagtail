@@ -1,4 +1,8 @@
-![Wagtail](https://releases.wagtail.io/wagtail-github-header.png?x)
+<h1 align="center">
+	<img width="343" src="https://cdn.rawgit.com/gasman/wagtail/tomdyson-readme-rewrite/.github/wagtail.svg" alt="Wagtail">
+	<br>
+	<br>
+</h1>
 
 Wagtail is an open source content management system built on Django, with a strong community and commercial support. It's focused on user experience, and offers precise control for designers and developers. 
 
