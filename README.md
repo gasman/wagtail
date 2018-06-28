@@ -11,7 +11,7 @@ Wagtail is an open source content management system built on Django, with a stro
 ### Features
 
 * A fast, attractive interface for authors
-* Complete control over design and front-end
+* Complete control over front-end design and structure
 * Scales to millions of pages and thousands of editors
 * Fast out of the box, cache-friendly when you need it
 * Content API for 'headless' sites with de-coupled front-end
@@ -41,7 +41,7 @@ For detailed installation and setup docs, see [docs.wagtail.io](http://docs.wagt
 
 ### Who’s using it?
 
-Wagtail is used by NASA, Google, Oxfam, the NHS, Mozilla, MIT, the Red Cross, Salesforce, NBC, BMW, the US and UK governments. Add your own Wagtail site to [madewithwagtail.org](http://madewithwagtail.org).
+Wagtail is used by NASA, Google, Oxfam, the NHS, Mozilla, MIT, the Red Cross, Salesforce, NBC, BMW, and the US and UK governments. Add your own Wagtail site to [madewithwagtail.org](http://madewithwagtail.org).
 
 ### Documentation
 
@@ -49,7 +49,13 @@ Wagtail is used by NASA, Google, Oxfam, the NHS, Mozilla, MIT, the Red Cross, Sa
 
 ### Compatibility
 
-Wagtail supports Django 1.11.x and 2.0 on Python 3.4, 3.5 and 3.6. Supported database backends are PostgreSQL, MySQL and SQLite.
+Wagtail supports:
+
+* Django 1.11.x and 2.0
+* Python 3.4, 3.5 and 3.6
+* PostgreSQL, MySQL and SQLite as database backends
+
+Previous versions of Wagtail (1.13 and earlier) additionally supported Python 2.7.
 
 ---
 
