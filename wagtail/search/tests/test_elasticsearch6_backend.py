@@ -540,8 +540,7 @@ class TestElasticsearch6Mapping(TestCase):
                             'name': {'type': 'text', 'copy_to': '_all_text'},
                             'slug_filter': {'type': 'keyword'},
                         },
-                    },
-                    'tags_filter': {'type': 'keyword'}
+                    }
                 }
             }
         }
@@ -574,8 +573,7 @@ class TestElasticsearch6Mapping(TestCase):
             ],
             'publication_date_filter': datetime.date(1954, 7, 29),
             'number_of_pages_filter': 423,
-            'tags': [],
-            'tags_filter': []
+            'tags': []
         }
 
         self.assertDictEqual(document, expected_result)
@@ -644,8 +642,7 @@ class TestElasticsearch6MappingInheritance(TestCase):
                             'name': {'type': 'text', 'copy_to': '_all_text'},
                             'slug_filter': {'type': 'keyword'},
                         },
-                    },
-                    'tags_filter': {'type': 'keyword'}
+                    }
                 }
             }
         }
@@ -705,8 +702,7 @@ class TestElasticsearch6MappingInheritance(TestCase):
             ],
             'publication_date_filter': datetime.date(1954, 7, 29),
             'number_of_pages_filter': 423,
-            'tags': [],
-            'tags_filter': []
+            'tags': []
         }
 
         self.assertDictEqual(document, expected_result)
