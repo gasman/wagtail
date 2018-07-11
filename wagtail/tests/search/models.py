@@ -34,7 +34,6 @@ class Book(index.Indexed, models.Model):
             index.SearchField('name'),
             index.FilterField('slug'),
         ]),
-        index.FilterField('tags'),
     ]
 
     @classmethod

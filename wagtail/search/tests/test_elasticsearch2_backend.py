@@ -538,8 +538,7 @@ class TestElasticsearch2Mapping(TestCase):
                             'name': {'type': 'string', 'include_in_all': True},
                             'slug_filter': {'index': 'not_analyzed', 'type': 'string', 'include_in_all': False},
                         },
-                    },
-                    'tags_filter': {'index': 'not_analyzed', 'type': 'string', 'include_in_all': False}
+                    }
                 }
             }
         }
@@ -572,8 +571,7 @@ class TestElasticsearch2Mapping(TestCase):
             ],
             'publication_date_filter': datetime.date(1954, 7, 29),
             'number_of_pages_filter': 423,
-            'tags': [],
-            'tags_filter': []
+            'tags': []
         }
 
         self.assertDictEqual(document, expected_result)
@@ -641,8 +639,7 @@ class TestElasticsearch2MappingInheritance(TestCase):
                             'name': {'type': 'string', 'include_in_all': True},
                             'slug_filter': {'index': 'not_analyzed', 'type': 'string', 'include_in_all': False},
                         },
-                    },
-                    'tags_filter': {'index': 'not_analyzed', 'type': 'string', 'include_in_all': False}
+                    }
                 }
             }
         }
@@ -702,8 +699,7 @@ class TestElasticsearch2MappingInheritance(TestCase):
             ],
             'publication_date_filter': datetime.date(1954, 7, 29),
             'number_of_pages_filter': 423,
-            'tags': [],
-            'tags_filter': []
+            'tags': []
         }
 
         self.assertDictEqual(document, expected_result)
