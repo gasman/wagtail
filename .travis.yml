@@ -8,9 +8,13 @@ sudo: false
 # Install JDK9 for Elasticsearch 5
 addons:
   apt:
+    sources:
+     - mysql-5.7-trusty
     packages:
      - oracle-java9-installer
      - oracle-java9-set-default
+     - mysql-server
+     - mysql-client
   postgresql: "9.6"
 
 matrix:
