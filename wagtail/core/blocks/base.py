@@ -1,17 +1,21 @@
 import collections
+import json
 from importlib import import_module
 
 from django import forms
 from django.core import checks
 from django.core.exceptions import ImproperlyConfigured
+from django.forms import Media
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _
 
 # unicode_literals ensures that any render / __str__ methods returning HTML via calls to mark_safe / format_html
 # return a SafeText, not SafeBytes; necessary so that it doesn't get re-encoded when the template engine
 # calls force_text, which would cause it to lose its 'safe' flag
+from .utils import InputJSONEncoder, get_non_block_errors, to_json_script
 
 __all__ = ['BaseBlock', 'Block', 'BoundBlock', 'DeclarativeSubBlocksMetaclass', 'BlockWidget', 'BlockField']
 
@@ -42,11 +46,14 @@ class Block(metaclass=BaseBlock):
 
     TEMPLATE_VAR = 'value'
 
+    FIELD_NAME_TEMPLATE = 'field-__ID__'
+
     class Meta:
         label = None
         icon = "placeholder"
         classname = None
         group = ''
+        closed = False
 
     """
     Setting a 'dependencies' list serves as a shortcut for the common case where a complex block type
@@ -81,10 +88,6 @@ class Block(metaclass=BaseBlock):
             media += block.media
         return media
 
-    def all_html_declarations(self):
-        declarations = filter(bool, [block.html_declarations() for block in self.all_blocks()])
-        return mark_safe('\n'.join(declarations))
-
     def __init__(self, **kwargs):
         self.meta = self._meta_class()
 
@@ -107,33 +110,48 @@ class Block(metaclass=BaseBlock):
     def media(self):
         return forms.Media()
 
-    def html_declarations(self):
+    def prepare_value(self, value, errors=None):
         """
-        Return an HTML fragment to be rendered on the form page once per block definition -
-        as opposed to once per occurrence of the block. For example, the block definition
-            ListBlock(label="Shopping list", CharBlock(label="Product"))
-        needs to output a <script type="text/template"></script> block containing the HTML for
-        a 'product' text input, to that these can be dynamically added to the list. This
-        template block must only occur once in the page, even if there are multiple 'shopping list'
-        blocks on the page.
+        Returns the value as it will be displayed in react-streamfield.
+        """
+        return value
 
-        Any element IDs used in this HTML fragment must begin with definition_prefix.
-        (More precisely, they must either be definition_prefix itself, or begin with definition_prefix
-        followed by a '-' character)
+    def get_instance_html(self, value, errors=None):
         """
-        return ''
+        Returns the HTML template generated for a given value.
 
-    def js_initializer(self):
+        That HTML will be displayed as the block content panel
+        in react-streamfield. It is usually not rendered
         """
-        Returns a Javascript expression string, or None if this block does not require any
-        Javascript behaviour. This expression evaluates to an initializer function, a function that
-        takes the ID prefix and applies JS behaviour to the block instance with that value and prefix.
+        help_text = getattr(self.meta, 'help_text', None)
+        non_block_errors = get_non_block_errors(errors)
+        if help_text or non_block_errors:
+            return render_to_string(
+                'wagtailadmin/block_forms/blocks_container.html',
+                {
+                    'help_text': help_text,
+                    'non_block_errors': non_block_errors,
+                }
+            )
 
-        The parent block of this block (or the top-level page code) must ensure that this
-        expression is not evaluated more than once. (The resulting initializer function can and will be
-        called as many times as there are instances of this block, though.)
-        """
-        return None
+    def get_definition(self):
+        definition = {
+            'key': self.name,
+            'label': capfirst(self.label),
+            'required': self.required,
+            'closed': self.meta.closed,
+            'dangerouslyRunInnerScripts': True,
+        }
+        if self.meta.icon != Block._meta_class.icon:
+            definition['icon'] = ('<i class="icon icon-%s"></i>'
+                                  % self.meta.icon)
+        if self.meta.classname is not None:
+            definition['className'] = self.meta.classname
+        if self.meta.group:
+            definition['group'] = str(self.meta.group)
+        if self.meta.default:
+            definition['default'] = self.prepare_value(self.get_default())
+        return definition
 
     def render_form(self, value, prefix='', errors=None):
         """
@@ -143,14 +161,6 @@ class Block(metaclass=BaseBlock):
 
     def value_from_datadict(self, data, files, prefix):
         raise NotImplementedError('%s.value_from_datadict' % self.__class__)
-
-    def value_omitted_from_data(self, data, files, name):
-        """
-        Used only for top-level blocks wrapped by BlockWidget (i.e.: typically only StreamBlock)
-        to inform ModelForm logic on Django >=1.10.2 whether the field is absent from the form
-        submission (and should therefore revert to the field default).
-        """
-        return name not in data
 
     def bind(self, value, prefix=None, errors=None):
         """
@@ -168,17 +178,12 @@ class Block(metaclass=BaseBlock):
         converted to the value type expected by this block. This caters for the case
         where that value type is not something that can be expressed statically at
         model definition type (e.g. something like StructValue which incorporates a
-        pointer back to the block definion object).
+        pointer back to the block definition object).
         """
-        return self.meta.default
-
-    def prototype_block(self):
-        """
-        Return a BoundBlock that can be used as a basis for new empty block instances to be added on the fly
-        (new list items, for example). This will have a prefix of '__PREFIX__' (to be dynamically replaced with
-        a real prefix when it's inserted into the page) and a value equal to the block's default value.
-        """
-        return self.bind(self.get_default(), '__PREFIX__')
+        default = self.meta.default
+        if callable(default):
+            default = default()
+        return default
 
     def clean(self, value):
         """
@@ -485,34 +490,68 @@ class BlockWidget(forms.Widget):
         super().__init__(attrs=attrs)
         self.block_def = block_def
 
-    def render_with_errors(self, name, value, attrs=None, errors=None, renderer=None):
-        bound_block = self.block_def.bind(value, prefix=name, errors=errors)
-        js_initializer = self.block_def.js_initializer()
-        if js_initializer:
-            js_snippet = """
-                <script>
-                $(function() {
-                    var initializer = %s;
-                    initializer('%s');
-                })
-                </script>
-            """ % (js_initializer, name)
-        else:
-            js_snippet = ''
-        return mark_safe(bound_block.render_form() + js_snippet)
+    def get_action_labels(self):
+        return {
+            'add': _('Add'),
+            'moveUp': _('Move up'),
+            'moveDown': _('Move down'),
+            'duplicate': _('Duplicate'),
+            'delete': _('Delete'),
+        }
+
+    def get_actions_icons(self):
+        return {
+            'add': '<i aria-hidden="true">+</i>',
+            'moveUp': '<i class="icon icon-arrow-up" aria-hidden="true"></i>',
+            'moveDown': '<i class="icon icon-arrow-down" aria-hidden="true"></i>',
+            'duplicate': '<i class="icon icon-duplicate" aria-hidden="true"></i>',
+            'delete': '<i class="icon icon-bin" aria-hidden="true"></i>',
+            'grip': '<i class="icon icon-grip" aria-hidden="true"></i>',
+        }
+
+    def get_streamfield_config(self, value, errors=None):
+        return {
+            'required': self.block_def.required,
+            'minNum': self.block_def.meta.min_num,
+            'maxNum': self.block_def.meta.max_num,
+            'icons': self.get_actions_icons(),
+            'labels': self.get_action_labels(),
+            'blockDefinitions': self.block_def.get_definition()['children'],
+            'value': self.block_def.prepare_value(value, errors=errors),
+        }
+
+    def render_with_errors(self, name, value, attrs=None, errors=None,
+                           renderer=None):
+        streamfield_config = self.get_streamfield_config(value, errors=errors)
+        escaped_value = to_json_script(streamfield_config['value'],
+                                       encoder=InputJSONEncoder)
+        non_block_errors = get_non_block_errors(errors)
+        non_block_errors = ''.join([
+            mark_safe('<div class="help-block help-critical">%s</div>') % error
+            for error in non_block_errors])
+        return mark_safe("""
+        <textarea style="display: none;" name="%s">%s</textarea>
+        <script>window.streamField.init('%s', %s, document.currentScript)</script>
+        %s
+        """ % (name, escaped_value,
+               name, to_json_script(streamfield_config),
+               non_block_errors))
 
     def render(self, name, value, attrs=None, renderer=None):
         return self.render_with_errors(name, value, attrs=attrs, errors=None, renderer=renderer)
 
     @property
     def media(self):
-        return self.block_def.all_media()
+        return self.block_def.all_media() + Media(
+            js=['wagtailadmin/js/streamfield.js'],
+            css={'all': [
+                'wagtailadmin/css/panels/streamfield.css',
+            ]})
 
     def value_from_datadict(self, data, files, name):
-        return self.block_def.value_from_datadict(data, files, name)
-
-    def value_omitted_from_data(self, data, files, name):
-        return self.block_def.value_omitted_from_data(data, files, name)
+        stream_field_data = json.loads(data.get(name))
+        return self.block_def.value_from_datadict({'value': stream_field_data},
+                                                  files, name)
 
 
 class BlockField(forms.Field):

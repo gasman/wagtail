@@ -24,70 +24,33 @@ function hideCurrent(current, input) {
 }
 
 function initDateChooser(id, opts) {
-    if (window.dateTimePickerTranslations) {
-        $('#' + id).datetimepicker($.extend({
-            closeOnDateSelect: true,
-            timepicker: false,
-            scrollInput: false,
-            format: 'Y-m-d',
-            onGenerate: hideCurrent,
-            onChangeDateTime: function(_, $el) {
-              $el.get(0).dispatchEvent(new Event('change'))
-            }
-        }, opts || {}));
-    } else {
-        $('#' + id).datetimepicker($.extend({
-            timepicker: false,
-            scrollInput: false,
-            format: 'Y-m-d',
-            onGenerate: hideCurrent,
-            onChangeDateTime: function(_, $el) {
-              $el.get(0).dispatchEvent(new Event('change'))
-            }
-        }, opts || {}));
-    }
+    $('#' + id).datetimepicker($.extend({
+        timepicker: false,
+        scrollInput: false,
+        format: 'Y-m-d',
+        onGenerate: hideCurrent,
+        onChangeDateTime: function(_, $el) {
+          $el.get(0).dispatchEvent(new Event('change'))
+        }
+    }, opts || {}));
 }
 
 function initTimeChooser(id) {
-    if (window.dateTimePickerTranslations) {
-        $('#' + id).datetimepicker({
-            closeOnDateSelect: true,
-            datepicker: false,
-            scrollInput: false,
-            format: 'H:i',
-            onChangeDateTime: function(_, $el) {
-              $el.get(0).dispatchEvent(new Event('change'))
-            }
-        });
-    } else {
-        $('#' + id).datetimepicker({
-            datepicker: false,
-            format: 'H:i',
-            onChangeDateTime: function(_, $el) {
-              $el.get(0).dispatchEvent(new Event('change'))
-            }
-        });
-    }
+    $('#' + id).datetimepicker({
+        datepicker: false,
+        format: 'H:i',
+        onChangeDateTime: function(_, $el) {
+          $el.get(0).dispatchEvent(new Event('change'))
+        }
+    });
 }
 
 function initDateTimeChooser(id, opts) {
-    if (window.dateTimePickerTranslations) {
-        $('#' + id).datetimepicker($.extend({
-            closeOnDateSelect: true,
-            format: 'Y-m-d H:i',
-            scrollInput: false,
-            onGenerate: hideCurrent,
-            onChangeDateTime: function(_, $el) {
-              $el.get(0).dispatchEvent(new Event('change'))
-            }
-        }, opts || {}));
-    } else {
-        $('#' + id).datetimepicker($.extend({
-            format: 'Y-m-d H:i',
-            onGenerate: hideCurrent,
-            onChangeDateTime: function(_, $el) {
-              $el.get(0).dispatchEvent(new Event('change'))
-            }
-        }, opts || {}));
-    }
+    $('#' + id).datetimepicker($.extend({
+        format: 'Y-m-d H:i',
+        onGenerate: hideCurrent,
+        onChangeDateTime: function(_, $el) {
+          $el.get(0).dispatchEvent(new Event('change'))
+        }
+    }, opts || {}));
 }

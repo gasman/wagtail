@@ -25,6 +25,7 @@ module.exports = function exports() {
 
   entry[getOutputPath('admin', 'wagtailadmin')] = getEntryPath('admin', 'wagtailadmin.entry.js');
   entry[getOutputPath('admin', 'draftail')] = getEntryPath('admin', 'draftail.entry.js');
+  entry[getOutputPath('admin', 'streamfield')] = getEntryPath('admin', 'streamfield.entry.js');
 
   return {
     entry: entry,

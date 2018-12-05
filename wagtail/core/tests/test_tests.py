@@ -94,22 +94,18 @@ class TestWagtailPageTests(WagtailPageTests):
 
         self.assertCanCreate(self.root, StreamPage, {
             'title': 'Flierp',
-            'body-0-type': 'text',
-            'body-0-value': 'Dit is onze mooie text',
-            'body-0-order': '0',
-            'body-0-deleted': '',
-            'body-1-type': 'rich_text',
-            'body-1-value': '''{"entityMap": {},"blocks": [
-                {"inlineStyleRanges": [], "text": "Dit is onze mooie text in een ferrari", "depth": 0, "type": "unstyled", "key": "00000", "entityRanges": []}
-            ]}''',
-            'body-1-order': '1',
-            'body-1-deleted': '',
-            'body-2-type': 'product',
-            'body-2-value-name': 'pegs',
-            'body-2-value-price': 'a pound',
-            'body-2-order': '2',
-            'body-2-deleted': '',
-            'body-count': '3'
+            'body': json.dumps([
+                {'type': 'text', 'value': 'Dit is onze mooie text'},
+                {
+                    'type': 'rich_text',
+                    'value': '''{"entityMap": {},"blocks": [
+                        {"inlineStyleRanges": [], "text": "Dit is onze mooie text in een ferrari", "depth": 0, "type": "unstyled", "key": "00000", "entityRanges": []}
+                    ]}''',
+                },
+                {'type': 'product', 'value': [
+                    {'type': 'name', 'value': 'pegs'},
+                    {'type': 'price', 'value': 'a pound'}]}
+            ]),
         })
 
         self.assertCanCreate(self.root, SectionedRichTextPage, {
@@ -134,20 +130,23 @@ class TestWagtailPageTests(WagtailPageTests):
         # same as test_assert_can_create, but using the helpers from wagtail.tests.utils.form_data
         # as an end-to-end test
         self.assertFalse(EventIndex.objects.exists())
-        self.assertCanCreate(self.root, EventIndex, nested_form_data({
+        self.assertCanCreate(self.root, EventIndex, {
             'title': 'Event Index',
             'intro': rich_text('<p>Event intro</p>')
-        }))
+        })
         self.assertTrue(EventIndex.objects.exists())
 
-        self.assertCanCreate(self.root, StreamPage, nested_form_data({
+        self.assertCanCreate(self.root, StreamPage, {
             'title': 'Flierp',
-            'body': streamfield([
-                ('text', 'Dit is onze mooie text'),
-                ('rich_text', rich_text('<p>Dit is onze mooie text in een ferrari</p>')),
-                ('product', {'name': 'pegs', 'price': 'a pound'}),
+            'body': json.dumps([
+                {'type': 'text', 'value': 'Dit is onze mooie text'},
+                {'type': 'rich_text',
+                 'value': rich_text('<p>Dit is onze mooie text in een ferrari</p>')},
+                {'type': 'product', 'value': [
+                    {'type': 'name', 'value': 'pegs'},
+                    {'type': 'price', 'value': 'a pound'}]},
             ]),
-        }))
+        })
 
         self.assertCanCreate(self.root, SectionedRichTextPage, nested_form_data({
             'title': 'Fight Club',
@@ -216,20 +215,11 @@ class TestFormDataHelpers(TestCase):
         self.assertEqual(
             result,
             {
-                'content-count': '3',
-                'content-0-type': 'text',
-                'content-0-value': 'Hello, world',
-                'content-0-order': '0',
-                'content-0-deleted': '',
-                'content-1-type': 'text',
-                'content-1-value': 'Goodbye, world',
-                'content-1-order': '1',
-                'content-1-deleted': '',
-                'content-2-type': 'coffee',
-                'content-2-value-type': 'latte',
-                'content-2-value-milk': 'soya',
-                'content-2-order': '2',
-                'content-2-deleted': '',
+                'content':
+                    '[{"type": "text", "value": "Hello, world"}, '
+                    '{"type": "text", "value": "Goodbye, world"}, '
+                    '{"type": "coffee", '
+                    '"value": {"milk": "soya", "type": "latte"}}]',
             }
         )
 

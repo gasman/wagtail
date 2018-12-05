@@ -18,14 +18,10 @@ function initTable(id, tableOptions) {
     var structureEvent;
     var dataForForm = null;
     var isInitialized = false;
-    var getWidth = function() {
-        return $('.widget-table_input').closest('.sequence-member-inner').width();
-    };
     var getHeight = function() {
         var tableParent = $('#' + id).parent();
         return tableParent.find('.htCore').height() + (tableParent.find('.input').height() * 2);
     };
-    var height = getHeight();
     var resizeTargets = ['.input > .handsontable', '.wtHider', '.wtHolder'];
     var resizeHeight = function(height) {
         var currTable = $('#' + id);
@@ -33,14 +29,6 @@ function initTable(id, tableOptions) {
             currTable.closest('.field-content').find(this).height(height);
         });
     };
-    function resizeWidth(width) {
-        $.each(resizeTargets, function() {
-            $(this).width(width);
-        });
-        var parentDiv = $('.widget-table_input').parent();
-        parentDiv.find('.field-content').width(width);
-        parentDiv.find('.fieldname-table .field-content .field-content').width('80%');
-    }
 
     try {
         dataForForm = JSON.parse(hiddenStreamInput.val());
@@ -58,13 +46,11 @@ function initTable(id, tableOptions) {
     }
 
     if (!tableOptions.hasOwnProperty('width') || !tableOptions.hasOwnProperty('height')) {
-        // Size to parent .sequence-member-inner width if width is not given in tableOptions
         $(window).on('resize', function() {
             hot.updateSettings({
-                width: getWidth(),
+                width: '100%',
                 height: getHeight()
             });
-            resizeWidth('100%');
         });
     }
 
@@ -154,7 +140,7 @@ function initTable(id, tableOptions) {
     hot = new Handsontable(document.getElementById(containerId), finalOptions);
     hot.render(); // Call to render removes 'null' literals from empty cells
 
-    // Apply resize after document is finished loading (parent .sequence-member-inner width is set)
+    // Apply resize after document is finished loading
     if ('resize' in $(window)) {
         resizeHeight(getHeight());
         $(window).on('load', function() {

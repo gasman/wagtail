@@ -27,7 +27,7 @@ from wagtail.core.signals import page_published, page_unpublished
 from wagtail.search.index import SearchField
 from wagtail.tests.testapp.models import (
     EVENT_AUDIENCE_CHOICES, Advert, AdvertPlacement, BusinessChild, BusinessIndex, BusinessSubIndex,
-    DefaultStreamPage, EventCategory, EventPage, EventPageCarouselItem, FilePage,
+    EventCategory, EventPage, EventPageCarouselItem, FilePage,
     FormClassAdditionalFieldPage, ManyToManyBlogPage, SimplePage, SingleEventPage, SingletonPage,
     SingletonPageViaMaxCount, StandardChild, StandardIndex, TaggedPage)
 from wagtail.tests.utils import WagtailTestUtils
@@ -4798,7 +4798,9 @@ class TestInlineStreamField(TestCase, WagtailTestUtils):
         self.assertEqual(response.status_code, 200)
 
         # response should include HTML declarations for streamfield child blocks
-        self.assertContains(response, '<li id="__PREFIX__-container" class="sequence-member">')
+        self.assertContains(
+            response,
+            "<script>window.streamField.init('sections-__prefix__-body', {")
 
 
 class TestRecentEditsPanel(TestCase, WagtailTestUtils):
@@ -4883,38 +4885,6 @@ class TestRecentEditsPanel(TestCase, WagtailTestUtils):
         self.assertEqual(panel.last_edits[0][0].page, Page.objects.get(pk=self.child_page.id))
         # check if the page in this list is the specific page of this revision
         self.assertEqual(panel.last_edits[0][1], Page.objects.get(pk=self.child_page.id).specific)
-
-
-class TestIssue2994(TestCase, WagtailTestUtils):
-    """
-    In contrast to most "standard" form fields, StreamField form widgets generally won't
-    provide a postdata field with a name exactly matching the field name. To prevent Django
-    from wrongly interpreting this as the field being omitted from the form,
-    we need to provide a custom value_omitted_from_data method.
-    """
-
-    def setUp(self):
-        self.root_page = Page.objects.get(id=2)
-        self.user = self.login()
-
-    def test_page_edit_post_publish_url(self):
-        # Post
-        post_data = {
-            'title': "Issue 2994 test",
-            'slug': 'issue-2994-test',
-            'body-count': '1',
-            'body-0-deleted': '',
-            'body-0-order': '0',
-            'body-0-type': 'text',
-            'body-0-value': 'hello world',
-            'action-publish': "Publish",
-        }
-        self.client.post(
-            reverse('wagtailadmin_pages:add', args=('tests', 'defaultstreampage', self.root_page.id)), post_data
-        )
-        new_page = DefaultStreamPage.objects.get(slug='issue-2994-test')
-        self.assertEqual(1, len(new_page.body))
-        self.assertEqual('hello world', new_page.body[0].value)
 
 
 class TestParentalM2M(TestCase, WagtailTestUtils):
