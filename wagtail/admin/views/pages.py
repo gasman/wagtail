@@ -203,7 +203,7 @@ def create(request, content_type_app_name, content_type_model_name, parent_page_
 
     page = page_class(owner=request.user)
     edit_handler = page_class.get_edit_handler()
-    edit_handler = edit_handler.bind_to(request=request)
+    edit_handler = edit_handler.bind_to(request=request, instance=page)
     form_class = edit_handler.get_form_class()
 
     next_url = get_valid_next_url_from_request(request)
@@ -296,7 +296,7 @@ def create(request, content_type_app_name, content_type_model_name, parent_page_
         form = form_class(instance=page, parent_page=parent_page)
         has_unsaved_changes = False
 
-    edit_handler = edit_handler.bind_to(instance=page, form=form)
+    edit_handler = edit_handler.bind_to(form=form)
 
     return render(request, 'wagtailadmin/pages/create.html', {
         'content_type': content_type,
