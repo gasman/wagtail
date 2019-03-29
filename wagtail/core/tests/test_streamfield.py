@@ -356,3 +356,32 @@ class TestStreamFieldCountValidation(TestCase):
         body = [self.text_body, self.image_body, self.rich_text_body]
         instance = BlockCountsStreamModel.objects.create(body=json.dumps(body))
         self.assertTrue(instance.body.stream_block.clean(instance.body))
+
+    def test_streamfield_count_argument_precedence(self):
+
+        class TestStreamBlock(blocks.StreamBlock):
+            heading = blocks.CharBlock()
+            paragraph = blocks.RichTextBlock()
+
+            class Meta:
+                min_num = 2
+                max_num = 5
+                block_counts = {'heading': {'max_num': 1}}
+
+        # args being picked up from the class definition
+        field = StreamField(TestStreamBlock)
+        self.assertEqual(field.stream_block.meta.min_num, 2)
+        self.assertEqual(field.stream_block.meta.max_num, 5)
+        self.assertEqual(field.stream_block.meta.block_counts['heading']['max_num'], 1)
+
+        # args being overridden by StreamField
+        field = StreamField(TestStreamBlock, min_num=3, max_num=6, block_counts={'heading': {'max_num': 2}})
+        self.assertEqual(field.stream_block.meta.min_num, 3)
+        self.assertEqual(field.stream_block.meta.max_num, 6)
+        self.assertEqual(field.stream_block.meta.block_counts['heading']['max_num'], 2)
+
+        # passing None from StreamField should cancel limits set at the block level
+        field = StreamField(TestStreamBlock, min_num=None, max_num=None, block_counts=None)
+        self.assertEqual(field.stream_block.meta.min_num, None)
+        self.assertEqual(field.stream_block.meta.max_num, None)
+        self.assertEqual(field.stream_block.meta.block_counts, None)

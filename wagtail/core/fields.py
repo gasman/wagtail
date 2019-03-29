@@ -47,12 +47,14 @@ class StreamField(models.Field):
 
         super().__init__(**kwargs)
 
+        block_kwargs['required'] = not self.blank
+
         if isinstance(block_types, Block):
             self.stream_block = block_types
         elif isinstance(block_types, type):
-            self.stream_block = block_types(required=not self.blank)
+            # assume we have been passed a StreamBlock subclass in place of a block types list
+            self.stream_block = block_types(**block_kwargs)
         else:
-            block_kwargs["required"] = not self.blank
             self.stream_block = StreamBlock(block_types, **block_kwargs)
 
     def get_internal_type(self):
