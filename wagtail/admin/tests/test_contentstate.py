@@ -824,3 +824,87 @@ class TestHtmlToContentState(TestCase):
             ],
             'entityMap': {}
         })
+
+    def test_image_inside_paragraph(self):
+        # In Draftail's data model, images are block-level elements and therefore
+        # split up preceding / following text into their own paragraphs
+        converter = ContentstateConverter(features=['image'])
+        result = json.loads(converter.from_database_format(
+            '''
+            <p>before <embed embedtype="image" alt="an image" id="1" format="left" /> after</p>
+            '''
+        ))
+        self.assertContentStateEqual(result, {
+            'blocks': [
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [], 'depth': 0, 'text': 'before', 'type': 'unstyled'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [{'key': 0, 'offset': 0, 'length': 1}], 'depth': 0, 'text': ' ', 'type': 'atomic'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [], 'depth': 0, 'text': 'after', 'type': 'unstyled'}
+            ],
+            'entityMap': {
+                '0': {
+                    'data': {'format': 'left', 'alt': 'an image', 'id': '1', 'src': '/media/not-found'},
+                    'mutability': 'IMMUTABLE', 'type': 'IMAGE'
+                }
+            }
+        })
+
+    def test_image_inside_style(self):
+        # https://github.com/wagtail/wagtail/issues/4602 - ensure that an <embed> inside
+        # an inline style is handled. This is not valid in Draftail as images are block-level,
+        # but should be handled without errors, splitting the image into its own block
+        converter = ContentstateConverter(features=['image', 'italic'])
+        result = json.loads(converter.from_database_format(
+            '''
+            <p><i>before <embed embedtype="image" alt="an image" id="1" format="left" /> after</i></p>
+            <p><i><embed embedtype="image" alt="an image" id="1" format="left" /></i></p>
+            '''
+        ))
+        self.assertContentStateEqual(result, {
+            'blocks': [
+                {'key': '00000', 'inlineStyleRanges': [{'offset': 0, 'length': 6, 'style': 'ITALIC'}], 'entityRanges': [], 'depth': 0, 'text': 'before', 'type': 'unstyled'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [{'key': 0, 'offset': 0, 'length': 1}], 'depth': 0, 'text': ' ', 'type': 'atomic'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [], 'depth': 0, 'text': 'after', 'type': 'unstyled'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [{'key': 1, 'offset': 0, 'length': 1}], 'depth': 0, 'text': ' ', 'type': 'atomic'},
+            ],
+            'entityMap': {
+                '0': {
+                    'data': {'format': 'left', 'alt': 'an image', 'id': '1', 'src': '/media/not-found'},
+                    'mutability': 'IMMUTABLE', 'type': 'IMAGE'
+                },
+                '1': {
+                    'data': {'format': 'left', 'alt': 'an image', 'id': '1', 'src': '/media/not-found'},
+                    'mutability': 'IMMUTABLE', 'type': 'IMAGE'
+                },
+            }
+        })
+
+    def test_image_inside_link(self):
+        # https://github.com/wagtail/wagtail/issues/4602 - ensure that an <embed> inside
+        # a link is handled. This is not valid in Draftail as images are block-level,
+        # but should be handled without errors, splitting the image into its own block
+        converter = ContentstateConverter(features=['image', 'link'])
+        result = json.loads(converter.from_database_format(
+            '''
+            <p><a href="https://wagtail.io">before <embed embedtype="image" alt="an image" id="1" format="left" /> after</a></p>
+            <p><a href="https://wagtail.io"><embed embedtype="image" alt="an image" id="1" format="left" /></a></p>
+            '''
+        ))
+        self.assertContentStateEqual(result, {
+            'blocks': [
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [{'offset': 0, 'length': 6, 'key': 0}], 'depth': 0, 'text': 'before', 'type': 'unstyled'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [{'key': 1, 'offset': 0, 'length': 1}], 'depth': 0, 'text': ' ', 'type': 'atomic'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [], 'depth': 0, 'text': 'after', 'type': 'unstyled'},
+                {'key': '00000', 'inlineStyleRanges': [], 'entityRanges': [{'key': 2, 'offset': 0, 'length': 1}], 'depth': 0, 'text': ' ', 'type': 'atomic'},
+            ],
+            'entityMap': {
+                '0': {'mutability': 'MUTABLE', 'type': 'LINK', 'data': {'url': 'https://wagtail.io'}},
+                '1': {
+                    'data': {'format': 'left', 'alt': 'an image', 'id': '1', 'src': '/media/not-found'},
+                    'mutability': 'IMMUTABLE', 'type': 'IMAGE'
+                },
+                '2': {
+                    'data': {'format': 'left', 'alt': 'an image', 'id': '1', 'src': '/media/not-found'},
+                    'mutability': 'IMMUTABLE', 'type': 'IMAGE'
+                },
+            }
+        })
