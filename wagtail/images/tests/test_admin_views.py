@@ -636,7 +636,7 @@ class TestImageChooserView(TestCase, WagtailTestUtils):
         self.assertTemplateUsed(response, 'wagtailimages/chooser/chooser.html')
 
         # custom form fields should be present
-        self.assertIn('name="fancy_caption"', response_json['html'])
+        self.assertIn('name="image-chooser-upload-fancy_caption"', response_json['html'])
 
         # form media imports should appear on the page
         self.assertIn('wagtailadmin/js/draftail.js', response_json['html'])
