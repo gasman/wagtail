@@ -91,7 +91,7 @@ class Elasticsearch7SearchBackend(Elasticsearch6SearchBackend):
     results_class = Elasticsearch7SearchResults
 
     def __init__(self, params):
-        self.settings["settings"]["index"] = {"max_ngram_diff": 12}
+        # self.settings["settings"]["index"] = {"max_ngram_diff": 12}
         super().__init__(params)
 
 
