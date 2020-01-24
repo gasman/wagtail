@@ -1,3 +1,5 @@
+import json
+
 from django.db.models import Model
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -13,6 +15,7 @@ features = FeatureRegistry()
 # from wagtail.core.rich_text.rewriters along with the embed handlers / link handlers registered
 # with the feature registry
 
+FRONTEND_CONVERTER = None
 FRONTEND_REWRITER = None
 
 
@@ -20,7 +23,15 @@ def expand_db_html(html):
     """
     Expand database-representation HTML into proper HTML usable on front-end templates
     """
-    global FRONTEND_REWRITER
+    global FRONTEND_CONVERTER, FRONTEND_REWRITER
+
+    if FRONTEND_CONVERTER is None:
+        from wagtail.admin.rich_text.converters.contentstate import ContentstateConverter
+
+        # This converter should be able to handle content from any rich-text field or block
+        # so it needs to know about all the features.
+        all_existing_features = features.get_default_features()
+        FRONTEND_CONVERTER = ContentstateConverter(all_existing_features)
 
     if FRONTEND_REWRITER is None:
         embed_rules = features.get_embed_types()
@@ -30,6 +41,11 @@ def expand_db_html(html):
             EmbedRewriter({embedtype: handler.expand_db_attributes for embedtype, handler in embed_rules.items()})
         ])
 
+    # Run the DB to Content State to Frontend conversion step.
+    contentstate_json = FRONTEND_CONVERTER.from_database_format(html)
+    html = FRONTEND_CONVERTER.to_frontend_format(contentstate_json)
+
+    # Run the original link & embeds rewriter step.
     return FRONTEND_REWRITER(html)
 
 

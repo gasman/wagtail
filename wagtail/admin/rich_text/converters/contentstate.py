@@ -50,7 +50,26 @@ class ContentstateConverter():
         self.features = features
         self.html_to_contentstate_handler = HtmlToContentStateHandler(features)
 
-        exporter_config = {
+        db_exporter_config = {
+            'block_map': {
+                'unstyled': 'p',
+                'atomic': render_children,
+                'fallback': block_fallback,
+            },
+            'style_map': {},
+            'entity_decorators': {
+                'FALLBACK': entity_fallback,
+            },
+            'composite_decorators': [
+                {
+                    'strategy': re.compile(r'\n'),
+                    'component': br,
+                },
+            ],
+            'engine': DOM.STRING,
+        }
+
+        frontend_exporter_config = {
             'block_map': {
                 'unstyled': 'p',
                 'atomic': render_children,
@@ -72,12 +91,18 @@ class ContentstateConverter():
         for feature in self.features:
             rule = feature_registry.get_converter_rule('contentstate', feature)
             if rule is not None:
-                feature_config = rule['to_database_format']
-                exporter_config['block_map'].update(feature_config.get('block_map', {}))
-                exporter_config['style_map'].update(feature_config.get('style_map', {}))
-                exporter_config['entity_decorators'].update(feature_config.get('entity_decorators', {}))
+                db_feature_config = rule['to_database_format']
+                db_exporter_config['block_map'].update(db_feature_config.get('block_map', {}))
+                db_exporter_config['style_map'].update(db_feature_config.get('style_map', {}))
+                db_exporter_config['entity_decorators'].update(db_feature_config.get('entity_decorators', {}))
 
-        self.exporter = HTMLExporter(exporter_config)
+                frontend_feature_config = rule.get('to_frontend_format', rule['to_database_format'])
+                frontend_exporter_config['block_map'].update(frontend_feature_config.get('block_map', {}))
+                frontend_exporter_config['style_map'].update(frontend_feature_config.get('style_map', {}))
+                frontend_exporter_config['entity_decorators'].update(frontend_feature_config.get('entity_decorators', {}))
+
+        self.db_exporter = HTMLExporter(db_exporter_config)
+        self.frontend_exporter = HTMLExporter(frontend_exporter_config)
 
     def from_database_format(self, html):
         self.html_to_contentstate_handler.reset()
@@ -87,4 +112,7 @@ class ContentstateConverter():
         return self.html_to_contentstate_handler.contentstate.as_json(indent=4, separators=(',', ': '))
 
     def to_database_format(self, contentstate_json):
-        return self.exporter.render(json.loads(contentstate_json))
+        return self.db_exporter.render(json.loads(contentstate_json))
+
+    def to_frontend_format(self, contentstate_json):
+        return self.frontend_exporter.render(json.loads(contentstate_json))
