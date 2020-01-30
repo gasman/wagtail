@@ -86,6 +86,10 @@ class AbstractImage(CollectionMember, index.Indexed, models.Model):
 
     objects = ImageQuerySet.as_manager()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.contextual_alt_text = None
+
     def is_stored_locally(self):
         """
         Returns True if the image is hosted on the local filesystem
@@ -506,7 +510,7 @@ class AbstractRendition(models.Model):
 
     @property
     def alt(self):
-        return self.image.default_alt_text
+        return self.image.contextual_alt_text or self.image.default_alt_text
 
     @property
     def attrs(self):
