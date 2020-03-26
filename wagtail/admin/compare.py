@@ -62,6 +62,8 @@ def get_comparison_class_for_block(block):
         return block.get_comparison_class()
     elif isinstance(block, blocks.CharBlock):
         return CharBlockComparison
+    elif isinstance(block, blocks.RawHTMLBlock):
+        return RawHTMLBlockComparison
     elif isinstance(block, blocks.RichTextBlock):
         return RichTextBlockComparison
     elif isinstance(block, blocks.StructBlock):
@@ -130,6 +132,17 @@ class StructBlockComparison(BlockComparison):
 
         return format_html('<dl>\n{}\n</dl>', format_html_join(
             '\n', '    <dt>{}</dt>\n    <dd>{}</dd>', htmldiffs))
+
+
+class RawHTMLBlockComparison(BlockComparison):
+    def htmlvalue(self, val):
+        return escape(super().htmlvalue(val))
+
+    def htmldiff(self):
+        return diff_text(
+            force_str(self.val_a),
+            force_str(self.val_b)
+        ).to_html()
 
 
 class StreamBlockComparison(BlockComparison):
