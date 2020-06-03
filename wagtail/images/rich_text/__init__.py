@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
 
 from wagtail.core.rich_text import EmbedHandler
 from wagtail.images import get_image_model
@@ -27,3 +28,7 @@ class ImageEmbedHandler(EmbedHandler):
 
         image_format = get_image_format(attrs['format'])
         return image_format.image_to_html(image, attrs.get('alt', ''))
+
+    @classmethod
+    def rewrite_element(cls, name, attributes, content):
+        return mark_safe(cls.expand_db_attributes(attributes))

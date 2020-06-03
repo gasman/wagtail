@@ -21,3 +21,11 @@ class DocumentLinkHandler(LinkHandler):
             return '<a href="%s">' % escape(doc.url)
         except (ObjectDoesNotExist, KeyError):
             return "<a>"
+
+    @classmethod
+    def rewrite_attributes(cls, name, attributes):
+        try:
+            doc = cls.get_instance(attributes)
+            return {'href': doc.url}
+        except (ObjectDoesNotExist, KeyError):
+            return {}

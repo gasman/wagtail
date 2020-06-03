@@ -1,9 +1,10 @@
 from django.db.models import Model
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from wagtail.core.rich_text.feature_registry import FeatureRegistry
-from wagtail.core.rich_text.rewriters import EmbedRewriter, LinkRewriter, MultiRuleRewriter
+from wagtail.core.rich_text.html_rewriter import HTMLRewriter, ElementRewriter
 
 
 features = FeatureRegistry()
@@ -16,6 +17,16 @@ features = FeatureRegistry()
 FRONTEND_REWRITER = None
 
 
+class BoldRewriter(ElementRewriter):
+    def rewrite_element(self, name, attributes, content):
+        return format_html('<strong>{}</strong>', content)
+
+
+class ItalicRewriter(ElementRewriter):
+    def rewrite_element(self, name, attributes, content):
+        return format_html('<em>{}</em>', content)
+
+
 def expand_db_html(html):
     """
     Expand database-representation HTML into proper HTML usable on front-end templates
@@ -23,14 +34,17 @@ def expand_db_html(html):
     global FRONTEND_REWRITER
 
     if FRONTEND_REWRITER is None:
-        embed_rules = features.get_embed_types()
-        link_rules = features.get_link_types()
-        FRONTEND_REWRITER = MultiRuleRewriter([
-            LinkRewriter({linktype: handler.expand_db_attributes for linktype, handler in link_rules.items()}),
-            EmbedRewriter({embedtype: handler.expand_db_attributes for embedtype, handler in embed_rules.items()})
-        ])
+        rules = {
+            'b': BoldRewriter(), 'i': ItalicRewriter(),
+        }
+        for embedtype, handler in features.get_embed_types().items():
+            rules["embed[embedtype='%s']" % embedtype] = handler
+        for linktype, handler in features.get_link_types().items():
+            rules["a[linktype='%s']" % linktype] = handler
 
-    return FRONTEND_REWRITER(html)
+        FRONTEND_REWRITER = HTMLRewriter(rules)
+
+    return FRONTEND_REWRITER.rewrite(html)
 
 
 class RichText:

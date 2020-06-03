@@ -1,3 +1,5 @@
+from django.utils.safestring import mark_safe
+
 from wagtail.core.rich_text import EmbedHandler
 from wagtail.embeds import format
 from wagtail.embeds.embeds import get_embed
@@ -24,3 +26,7 @@ class MediaEmbedHandler(EmbedHandler):
         representation for use on the front-end.
         """
         return format.embed_to_frontend_html(attrs['url'])
+
+    @classmethod
+    def rewrite_element(cls, name, attributes, content):
+        return mark_safe(cls.expand_db_attributes(attributes))
