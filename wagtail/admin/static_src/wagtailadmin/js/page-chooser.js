@@ -4,6 +4,32 @@ function createPageChooser(id, pageTypes, openAtParentId, canChooseRoot, userPer
     var input = $('#' + id);
     var editLink = chooserElement.find('.edit-link');
 
+    var currentState = null;
+    if (input.val()) {
+        currentState = {
+            'id': input.val(),
+            'parentId': openAtParentId,
+            'title': pageTitle.text(),
+            'editUrl': editLink.attr('href')
+        };
+    }
+
+    function setState(state) {
+        if (state) {
+            input.val(state.id);
+            openAtParentId = state.parentId;
+            pageTitle.text(state.adminTitle);
+            chooserElement.removeClass('blank');
+            editLink.attr('href', state.editUrl);
+        } else {
+            input.val('');
+            openAtParentId = null;
+            chooserElement.addClass('blank');
+        }
+
+        currentState = state;
+    }
+
     $('.action-choose', chooserElement).on('click', function() {
         var initialUrl = chooserElement.data('chooserUrl');
         if (openAtParentId) {
@@ -23,20 +49,16 @@ function createPageChooser(id, pageTypes, openAtParentId, canChooseRoot, userPer
             urlParams: urlParams,
             onload: PAGE_CHOOSER_MODAL_ONLOAD_HANDLERS,
             responses: {
-                pageChosen: function(pageData) {
-                    input.val(pageData.id);
-                    openAtParentId = pageData.parentId;
-                    pageTitle.text(pageData.adminTitle);
-                    chooserElement.removeClass('blank');
-                    editLink.attr('href', pageData.editUrl);
-                }
+                pageChosen: setState
             }
         });
     });
 
-    $('.action-clear', chooserElement).on('click', function() {
-        input.val('');
-        openAtParentId = null;
-        chooserElement.addClass('blank');
-    });
+    $('.action-clear', chooserElement).on('click', function() {setState(null)});
+
+    return {
+        'setState': setState,
+        'getState': function() {return currentState;},
+        'getValue': function() {return input.val();}
+    };
 }

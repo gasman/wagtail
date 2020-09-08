@@ -84,7 +84,7 @@ class AdminPageChooser(AdminChooser):
 
         self.user_perms = user_perms
         self.target_models = list(target_models or [Page])
-        self.can_choose_root = can_choose_root
+        self.can_choose_root = bool(can_choose_root)
 
     def _get_lowest_common_page_class(self):
         """
@@ -112,6 +112,13 @@ class AdminPageChooser(AdminChooser):
             'page': instance,
         })
 
+    @property
+    def model_names(self):
+        return [
+            '{app}.{model}'.format(app=model._meta.app_label, model=model._meta.model_name)
+            for model in self.target_models
+        ]
+
     def render_js_init(self, id_, name, value):
         if isinstance(value, Page):
             page = value
@@ -124,14 +131,9 @@ class AdminPageChooser(AdminChooser):
 
         return "createPageChooser({id}, {model_names}, {parent}, {can_choose_root}, {user_perms});".format(
             id=json.dumps(id_),
-            model_names=json.dumps([
-                '{app}.{model}'.format(
-                    app=model._meta.app_label,
-                    model=model._meta.model_name)
-                for model in self.target_models
-            ]),
+            model_names=json.dumps(self.model_names),
             parent=json.dumps(parent.id if parent else None),
-            can_choose_root=('true' if self.can_choose_root else 'false'),
+            can_choose_root=json.dumps(self.can_choose_root),
             user_perms=json.dumps(self.user_perms),
         )
 
