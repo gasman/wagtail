@@ -1,3 +1,5 @@
+import json
+
 from django.core.management.base import BaseCommand
 from wagtail.core.models import PageLogEntry, PageRevision
 
@@ -26,22 +28,34 @@ class Command(BaseCommand):
             if is_new_page:
                 # reset previous revision when encountering a new page.
                 previous_revision = None
+                previous_revision_content = None
 
             has_content_changes = False
             current_page_id = revision.page_id
+            current_revision_content = json.loads(revision.content_json)
+            current_revision_live_revision = current_revision_content.get('live_revision')
+
+            # Discard metadata fields that are not related to content edits, as these may
+            # produce false positives when checking for changes
+            for field in [
+                'path', 'depth', 'numchild', 'url_path', 'draft_title', 'live',
+                'has_unpublished_changes', 'owner', 'locked', 'locked_at', 'locked_by',
+                'expired', 'first_published_at', 'last_published_at',
+                'latest_revision_created_at', 'live_revision',
+            ]:
+                current_revision_content.pop(field, None)
 
             if not PageLogEntry.objects.filter(revision=revision).exists():
-                current_revision_as_page = revision.as_page_object()
                 published = revision.id == revision.page.live_revision_id
 
                 if previous_revision is not None:
-                    # Must use .specific so the comparison picks up all fields, not just base Page ones.
-                    comparison = get_comparison(revision.page.specific, previous_revision.as_page_object(), current_revision_as_page)
-                    has_content_changes = len(comparison) > 0
-
-                    if current_revision_as_page.live_revision_id == previous_revision.id:
+                    if current_revision_live_revision == previous_revision.id:
                         # Log the previous revision publishing.
                         self.log_page_action('wagtail.publish', previous_revision, True)
+
+                    print("revision %d: %s" % (revision.id, json.dumps(current_revision_content)))
+
+                    has_content_changes = (current_revision_content != previous_revision_content)
 
                 if is_new_page or has_content_changes or published:
                     if is_new_page:
@@ -58,6 +72,7 @@ class Command(BaseCommand):
                     self.log_page_action(action, revision, has_content_changes)
 
             previous_revision = revision
+            previous_revision_content = current_revision_content
 
     def log_page_action(self, action, revision, has_content_changes):
         PageLogEntry.objects.log_action(
