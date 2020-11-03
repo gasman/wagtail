@@ -39,3 +39,5 @@ jobs:
         env:
           DATABASE_ENGINE: django.db.backends.${{ matrix.db }}
           DATABASE_HOST: localhost
+          DATABASE_USER: postgres
+          DATABASE_PASS: postgres
