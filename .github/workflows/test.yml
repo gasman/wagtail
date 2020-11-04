@@ -133,7 +133,7 @@ jobs:
         include:
           - python: 3.6
             django: "Django>=2.2,<3.0"
-            elasticsearch: 5.6.9
+            elasticsearch: 6.8.9
             elasticsearchpy: "elasticsearch>=5,<6"
             elasticsearchflag: "--elasticsearch5"
           - python: 3.9
@@ -183,7 +183,7 @@ jobs:
         include:
           - python: 3.7
             django: "Django>=3.0,<3.1"
-            elasticsearch: 6.8.9
+            elasticsearch: 5.6.9
             elasticsearchpy: "elasticsearch>=6,<7"
             elasticsearchflag: "--elasticsearch6"
           - python: 3.8
