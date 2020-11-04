@@ -87,7 +87,7 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: wagtail
         ports:
-          - 3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -107,6 +107,5 @@ jobs:
           ./runtests.py
         env:
           DATABASE_ENGINE: django.db.backends.mysql
-          DATABASE_HOST: localhost
+          DATABASE_HOST: "127.0.0.1"
           DATABASE_USER: root
-          DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
