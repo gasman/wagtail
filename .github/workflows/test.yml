@@ -126,7 +126,6 @@ jobs:
           DATABASE_HOST: "127.0.0.1"
           DATABASE_USER: root
 
-jobs:
   test-sqlite-elasticsearch:
     runs-on: ubuntu-latest
     strategy:
