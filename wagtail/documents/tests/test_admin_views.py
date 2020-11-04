@@ -21,13 +21,13 @@ class TestDocumentIndexView(TestCase, WagtailTestUtils):
 
     def test_simple(self):
         response = self.client.get(reverse('wagtaildocs:index'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 418)
         self.assertTemplateUsed(response, 'wagtaildocs/documents/index.html')
         self.assertContains(response, "Add a document")
 
     def test_search(self):
         response = self.client.get(reverse('wagtaildocs:index'), {'q': "Hello"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 418)
         self.assertEqual(response.context['query_string'], "Hello")
 
     def make_docs(self):
@@ -41,7 +41,7 @@ class TestDocumentIndexView(TestCase, WagtailTestUtils):
         response = self.client.get(reverse('wagtaildocs:index'), {'p': 2})
 
         # Check response
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 418)
         self.assertTemplateUsed(response, 'wagtaildocs/documents/index.html')
 
         # Check that we got the correct page
