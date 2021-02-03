@@ -153,18 +153,18 @@ export class StreamBlock {
     // StreamChild objects for the current (non-deleted) child blocks
     this.children = [];
 
-    // StreamBlockMenu objects - there are one more of these than there are children.
-    // The menu at index n will insert a block at index n
-    this.menus = [];
+    // Insertion controls - there are one more of these than there are children.
+    // The control at index n will insert a block at index n
+    this.inserters = [];
 
     // Incrementing counter used to generate block prefixes, also reflected in the
     // 'count' hidden input. This count includes deleted items
     this.blockCounter = 0;
     this.countInput = dom.find('[data-streamfield-stream-count]');
 
-    // Parent element of menu and block elements (potentially including deleted items,
-    // which are left behind as hidden elements with a '-deleted' input so that the
-    // server-side form handler knows to skip it)
+    // Parent element of insertion control and block elements (potentially including deleted items,
+    // which are left behind as hidden elements with a '-deleted' input so that the server-side
+    // form handler knows to skip it)
     this.streamContainer = dom.find('[data-streamfield-stream-container]');
     this.setState(initialState || []);
     this.container = dom;
@@ -182,7 +182,7 @@ export class StreamBlock {
 
     const placeholder = document.createElement('div');
     this.streamContainer.append(placeholder);
-    this.menus = [
+    this.inserters = [
       new StreamBlockMenu(
         placeholder, {
           index: 0,
@@ -203,24 +203,24 @@ export class StreamBlock {
     this.blockCounter++;
 
     /*
-    a new menu and block will be inserted AFTER the menu with the given index;
-    e.g if there are 3 blocks the children of streamContainer will be
-    [menu 0, block 0, menu 1, block 1, menu 2, block 2, menu 3]
-    and inserting a new block at index 1 will create a new block 1 and menu 2 after the
-    current menu 1, and increment everything after that point
+    a new block and insertion control will be inserted AFTER the insertion control with the given
+    index; e.g if there are 3 blocks the children of streamContainer will be
+    [inserter 0, block 0, inserter 1, block 1, inserter 2, block 2, inserter 3]
+    and inserting a new block at index 1 will create a new block 1 and inserter 2 after the
+    current inserter 1, and increment everything after that point
     */
-    const existingMenuElement = this.menus[index].element;
+    const existingInserter = this.inserters[index].element;
     const blockPlaceholder = document.createElement('div');
-    const menuPlaceholder = document.createElement('div');
-    $(blockPlaceholder).insertAfter(existingMenuElement);
-    $(menuPlaceholder).insertAfter(blockPlaceholder);
+    const inserterPlaceholder = document.createElement('div');
+    $(blockPlaceholder).insertAfter(existingInserter);
+    $(inserterPlaceholder).insertAfter(blockPlaceholder);
 
-    /* shuffle up indexes of all blocks / menus above this index */
+    /* shuffle up indexes of all blocks / inserters above this index */
     for (let i = index; i < this.children.length; i++) {
       this.children[i].setIndex(i + 1);
     }
-    for (let i = index + 1; i < this.menus.length; i++) {
-      this.menus[i].setIndex(i + 1);
+    for (let i = index + 1; i < this.inserters.length; i++) {
+      this.inserters[i].setIndex(i + 1);
     }
 
     const child = new StreamChild(blockDef, blockPlaceholder, prefix, index, id, value, {
@@ -232,8 +232,8 @@ export class StreamBlock {
     });
     this.children.splice(index, 0, child);
 
-    const menu = new StreamBlockMenu(
-      menuPlaceholder, {
+    const inserter = new StreamBlockMenu(
+      inserterPlaceholder, {
         index: index + 1,
         onRequestInsert: (newIndex, { type: blockType }) => {
           this.insertFromMenu(blockType, newIndex);
@@ -242,7 +242,7 @@ export class StreamBlock {
         groupedChildBlockDefs: this.blockDef.groupedChildBlockDefs,
       }
     );
-    this.menus.splice(index + 1, 0, menu);
+    this.inserters.splice(index + 1, 0, inserter);
 
     this.countInput.val(this.blockCounter);
 
@@ -279,17 +279,17 @@ export class StreamBlock {
 
   deleteBlock(index) {
     this.children[index].markDeleted({ animate: true });
-    this.menus[index].delete();
+    this.inserters[index].delete();
     this.children.splice(index, 1);
-    this.menus.splice(index, 1);
+    this.inserters.splice(index, 1);
 
-    /* index numbers of children / menus above this index now need updating to match
+    /* index numbers of children / inserters above this index now need updating to match
     their array indexes */
     for (let i = index; i < this.children.length; i++) {
       this.children[i].setIndex(i);
     }
-    for (let i = index; i < this.menus.length; i++) {
-      this.menus[i].setIndex(i);
+    for (let i = index; i < this.inserters.length; i++) {
+      this.inserters[i].setIndex(i);
     }
 
     if (index === 0  && this.children.length > 0) {
@@ -304,32 +304,32 @@ export class StreamBlock {
 
   moveBlock(oldIndex, newIndex) {
     if (oldIndex === newIndex) return;
-    const menuToMove = this.menus[oldIndex];
+    const inserterToMove = this.inserters[oldIndex];
     const childToMove = this.children[oldIndex];
 
     /* move HTML elements */
     if (newIndex > oldIndex) {
-      $(menuToMove.element).insertAfter(this.children[newIndex].element);
+      $(inserterToMove.element).insertAfter(this.children[newIndex].element);
     } else {
-      $(menuToMove.element).insertBefore(this.menus[newIndex].element);
+      $(inserterToMove.element).insertBefore(this.inserters[newIndex].element);
     }
-    $(childToMove.element).insertAfter(menuToMove.element);
+    $(childToMove.element).insertAfter(inserterToMove.element);
 
-    /* reorder items in the `menus` and `children` arrays */
-    this.menus.splice(oldIndex, 1);
-    this.menus.splice(newIndex, 0, menuToMove);
+    /* reorder items in the `inserters` and `children` arrays */
+    this.inserters.splice(oldIndex, 1);
+    this.inserters.splice(newIndex, 0, inserterToMove);
     this.children.splice(oldIndex, 1);
     this.children.splice(newIndex, 0, childToMove);
 
     /* update index properties of moved items */
     if (newIndex > oldIndex) {
       for (let i = oldIndex; i <= newIndex; i++) {
-        this.menus[i].setIndex(i);
+        this.inserters[i].setIndex(i);
         this.children[i].setIndex(i);
       }
     } else {
       for (let i = newIndex; i <= oldIndex; i++) {
-        this.menus[i].setIndex(i);
+        this.inserters[i].setIndex(i);
         this.children[i].setIndex(i);
       }
     }
@@ -361,7 +361,7 @@ export class StreamBlock {
     });
     if (values.length === 0) {
       /* for an empty list, begin with the menu open */
-      this.menus[0].open({ animate: false });
+      this.inserters[0].open({ animate: false });
     }
   }
 
