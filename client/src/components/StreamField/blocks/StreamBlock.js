@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 import { BaseSequenceChild, InsertionControl } from './BaseSequenceBlock';
 import { escapeHtml as h } from '../../../utils/text';
 
@@ -183,18 +185,31 @@ export class StreamBlock {
     const placeholder = document.createElement('div');
     this.streamContainer.append(placeholder);
     this.inserters = [
-      new StreamBlockMenu(
-        placeholder, {
-          index: 0,
-          onRequestInsert: (newIndex, { type: blockType }) => {
-            this.insertFromMenu(blockType, newIndex);
-          },
-          strings: this.blockDef.meta.strings,
-          groupedChildBlockDefs: this.blockDef.groupedChildBlockDefs,
-        }
-      )
+      this._createInsertionControl(placeholder, 0)
     ];
   }
+
+  _createInsertionControl(placeholder, index) {
+    /* Internal method called by insert(): render an insertion control object with the given index
+    at the given placeholder element */
+    return new StreamBlockMenu(
+      placeholder,
+      {
+        index: index,
+        onRequestInsert: (newIndex, { type: blockType }) => {
+          const newBlock = this.insert({
+            type: blockType,
+            value: this.blockDef.initialChildStates[blockType],
+          }, newIndex, { animate: true });
+          newBlock.focus();
+        },
+        strings: this.blockDef.meta.strings,
+        groupedChildBlockDefs: this.blockDef.groupedChildBlockDefs,
+      }
+    );
+  }
+
+  sequenceChildConstructor = StreamChild;
 
   insert({ type, value, id }, index, opts) {
     const blockDef = this.blockDef.childBlockDefsByName[type];
@@ -223,7 +238,7 @@ export class StreamBlock {
       this.inserters[i].setIndex(i + 1);
     }
 
-    const child = new StreamChild(blockDef, blockPlaceholder, prefix, index, id, value, {
+    const child = this.sequenceChildConstructor(blockDef, blockPlaceholder, prefix, index, id, value, {
       animate,
       onRequestDelete: (i) => { this.deleteBlock(i); },
       onRequestMoveUp: (i) => { this.moveBlock(i, i - 1); },
@@ -232,16 +247,7 @@ export class StreamBlock {
     });
     this.children.splice(index, 0, child);
 
-    const inserter = new StreamBlockMenu(
-      inserterPlaceholder, {
-        index: index + 1,
-        onRequestInsert: (newIndex, { type: blockType }) => {
-          this.insertFromMenu(blockType, newIndex);
-        },
-        strings: this.blockDef.meta.strings,
-        groupedChildBlockDefs: this.blockDef.groupedChildBlockDefs,
-      }
-    );
+    const inserter = self._createInsertionControl(inserterPlaceholder, index + 1);
     this.inserters.splice(index + 1, 0, inserter);
 
     this.countInput.val(this.blockCounter);
@@ -266,15 +272,6 @@ export class StreamBlock {
     }
 
     return child;
-  }
-
-  insertFromMenu(blockType, index) {
-    /* handle selecting an item from the 'add block' menu */
-    const newBlock = this.insert({
-      type: blockType,
-      value: this.blockDef.initialChildStates[blockType],
-    }, index, { animate: true });
-    newBlock.focus();
   }
 
   deleteBlock(index) {
