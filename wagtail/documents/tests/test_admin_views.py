@@ -159,6 +159,7 @@ class TestDocumentAddView(TestCase, WagtailTestUtils):
 
         # custom fields should be included
         self.assertContains(response, 'name="fancy_description"')
+        self.assertContains(response, 'name="content_type"')
 
         # form media should be imported
         self.assertContains(response, 'wagtailadmin/js/draftail.js')
@@ -1134,6 +1135,7 @@ class TestDocumentChooserView(TestCase, WagtailTestUtils):
 
         # custom form fields should be present
         self.assertIn('name="document-chooser-upload-fancy_description"', response_json['html'])
+        self.assertIn('name="document-chooser-upload-content_type"', response_json['html'])
 
         # form media imports should appear on the page
         self.assertIn('wagtailadmin/js/draftail.js', response_json['html'])

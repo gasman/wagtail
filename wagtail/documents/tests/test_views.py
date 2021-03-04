@@ -12,14 +12,14 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from wagtail.documents import models
+from wagtail.tests.testapp.models import CustomDocument
 
 
-@override_settings(WAGTAILDOCS_SERVE_METHOD=None)
-class TestServeView(TestCase):
+class BaseServeViewTests:
     def setUp(self):
-        self.document = models.Document(title="Test document", file_hash="123456")
+        self.document = self.document_model(title="Test document", file_hash="123456")
         self.document.file.save('example.doc', ContentFile("A boring example document"))
-        self.pdf_document = models.Document(title="Test document", file_hash="123456")
+        self.pdf_document = self.document_model(title="Test PDF document", file_hash="123456")
         self.pdf_document.file.save('example.pdf', ContentFile("A boring example document"))
 
     def tearDown(self):
@@ -138,7 +138,7 @@ class TestServeView(TestCase):
         self.get()
 
         self.assertEqual(mock_handler.call_count, 1)
-        self.assertEqual(mock_handler.mock_calls[0][2]['sender'], models.Document)
+        self.assertEqual(mock_handler.mock_calls[0][2]['sender'], self.document_model)
         self.assertEqual(mock_handler.mock_calls[0][2]['instance'], self.document)
 
     def test_with_nonexistent_document(self):
@@ -158,6 +158,16 @@ class TestServeView(TestCase):
     def clear_sendfile_cache(self):
         from wagtail.utils.sendfile import _get_sendfile
         _get_sendfile.clear()
+
+
+@override_settings(WAGTAILDOCS_SERVE_METHOD=None)
+class TestServeView(BaseServeViewTests, TestCase):
+    document_model = models.Document
+
+
+@override_settings(WAGTAILDOCS_SERVE_METHOD=None, WAGTAILDOCS_DOCUMENT_MODEL='tests.CustomDocument')
+class TestServeViewWithCustomDocumentModel(BaseServeViewTests, TestCase):
+    document_model = CustomDocument
 
 
 @override_settings(WAGTAILDOCS_SERVE_METHOD='redirect')
