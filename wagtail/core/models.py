@@ -3210,6 +3210,7 @@ class UserPagePermissionsProxy:
 
     def __init__(self, user):
         self.user = user
+        self._explorable_pages = None
 
         if user.is_active and not user.is_superuser:
             self.permissions = GroupPagePermission.objects.filter(group__user=self.user).select_related('page')
@@ -3259,11 +3260,16 @@ class UserPagePermissionsProxy:
         explorer (e.g. add/edit/publish permission). Includes all pages with
         specific group permissions and also the ancestors of those pages (in
         order to enable navigation in the explorer)"""
+        if self._explorable_pages is not None:
+            return self._explorable_pages
+
         # Deal with the trivial cases first...
         if not self.user.is_active:
-            return Page.objects.none()
+            self._explorable_pages = Page.objects.none()
+            return self._explorable_pages
         if self.user.is_superuser:
-            return Page.objects.all()
+            self._explorable_pages = Page.objects.all()
+            return self._explorable_pages
 
         explorable_pages = Page.objects.none()
 
@@ -3292,7 +3298,8 @@ class UserPagePermissionsProxy:
         fca_page = page_permissions.first_common_ancestor()
         explorable_pages = explorable_pages.filter(path__startswith=fca_page.path)
 
-        return explorable_pages
+        self._explorable_pages = explorable_pages
+        return self._explorable_pages
 
     def editable_pages(self):
         """Return a queryset of the pages that this user has permission to edit"""
