@@ -41,7 +41,7 @@ class PagesForModerationPanel:
 
     def __init__(self, request):
         self.request = request
-        user_perms = UserPagePermissionsProxy(request.user)
+        user_perms = UserPagePermissionsProxy.for_current_user(request)
         self.page_revisions_for_moderation = (user_perms.revisions_for_moderation()
                                               .select_related('page', 'user').order_by('-created_at'))
 
@@ -114,7 +114,7 @@ class LockedPagesPanel:
                 locked=True,
                 locked_by=self.request.user,
             ),
-            'can_remove_locks': UserPagePermissionsProxy(self.request.user).can_remove_locks()
+            'can_remove_locks': UserPagePermissionsProxy.for_current_user(self.request).can_remove_locks()
         }, request=self.request)
 
 

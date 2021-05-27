@@ -325,7 +325,7 @@ class PageActionMenu:
         self.request = request
         self.context = kwargs
         page = self.context.get('page')
-        user_page_permissions = UserPagePermissionsProxy(self.request.user)
+        user_page_permissions = UserPagePermissionsProxy.for_current_user(self.request)
         self.context['user_page_permissions'] = user_page_permissions
         if page:
             self.context['user_page_permissions_tester'] = user_page_permissions.for_page(page)

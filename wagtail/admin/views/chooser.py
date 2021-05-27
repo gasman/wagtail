@@ -103,7 +103,7 @@ def browse(request, parent_page_id=None):
     can_choose_root = request.GET.get('can_choose_root', False)
 
     # Do permission lookups for this user now, instead of for every page.
-    permission_proxy = UserPagePermissionsProxy(request.user)
+    permission_proxy = UserPagePermissionsProxy.for_current_user(request)
 
     # Parent page can be chosen if it is a instance of desired_classes
     parent_page.can_choose = can_choose_page(

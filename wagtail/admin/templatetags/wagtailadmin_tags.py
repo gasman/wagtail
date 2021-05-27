@@ -163,10 +163,7 @@ def widgettype(bound_field):
 def _get_user_page_permissions(context):
     # Create a UserPagePermissionsProxy object to represent the user's global permissions, and
     # cache it in the context for the duration of the page request, if one does not exist already
-    if 'user_page_permissions' not in context:
-        context['user_page_permissions'] = UserPagePermissionsProxy(context['request'].user)
-
-    return context['user_page_permissions']
+    return UserPagePermissionsProxy.for_current_user(context['request'])
 
 
 @register.simple_tag(takes_context=True)

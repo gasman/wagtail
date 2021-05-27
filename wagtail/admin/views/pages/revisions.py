@@ -156,7 +156,7 @@ def revisions_compare(request, page_id, revision_id_a, revision_id_b):
 def revisions_unschedule(request, page_id, revision_id):
     page = get_object_or_404(Page, id=page_id).specific
 
-    user_perms = UserPagePermissionsProxy(request.user)
+    user_perms = UserPagePermissionsProxy.for_current_user(request)
     if not user_perms.for_page(page).can_unschedule():
         raise PermissionDenied
 

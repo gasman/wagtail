@@ -240,7 +240,7 @@ class Disable(DeleteView):
 def usage(request, pk):
     workflow = get_object_or_404(Workflow, id=pk)
 
-    perms = UserPagePermissionsProxy(request.user)
+    perms = UserPagePermissionsProxy.for_current_user(request)
 
     pages = workflow.all_pages() & perms.editable_pages()
     paginator = Paginator(pages, per_page=10)

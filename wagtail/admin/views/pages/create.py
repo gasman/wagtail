@@ -300,7 +300,7 @@ class CreateView(TemplateResponseMixin, ContextMixin, HookResponseMixin, View):
                 ]
 
             else:
-                user_perms = UserPagePermissionsProxy(self.request.user)
+                user_perms = UserPagePermissionsProxy.for_current_user(self.request)
                 translations = [
                     {
                         'locale': translation.locale,

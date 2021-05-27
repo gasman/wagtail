@@ -767,7 +767,7 @@ class EditView(TemplateResponseMixin, ContextMixin, HookResponseMixin, View):
         })
 
         if getattr(settings, 'WAGTAIL_I18N_ENABLED', False):
-            user_perms = UserPagePermissionsProxy(self.request.user)
+            user_perms = UserPagePermissionsProxy.for_current_user(self.request)
 
             context.update({
                 'locale': self.page.locale,

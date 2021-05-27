@@ -3214,6 +3214,15 @@ class UserPagePermissionsProxy:
         if user.is_active and not user.is_superuser:
             self.permissions = GroupPagePermission.objects.filter(group__user=self.user).select_related('page')
 
+    @staticmethod
+    def for_current_user(request):
+        try:
+            return request._wagtail_user_page_permissions_proxy
+        except AttributeError:
+            proxy = UserPagePermissionsProxy(request.user)
+            request._wagtail_user_page_permissions_proxy = proxy
+            return proxy
+
     def revisions_for_moderation(self):
         """Return a queryset of page revisions awaiting moderation that this user has publish permission on"""
 

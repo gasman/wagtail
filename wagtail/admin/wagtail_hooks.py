@@ -619,7 +619,7 @@ class ReportsMenuItem(SubmenuMenuItem):
 
 class LockedPagesMenuItem(MenuItem):
     def is_shown(self, request):
-        return UserPagePermissionsProxy(request.user).can_remove_locks()
+        return UserPagePermissionsProxy.for_current_user(request).can_remove_locks()
 
 
 class WorkflowReportMenuItem(MenuItem):
@@ -629,7 +629,7 @@ class WorkflowReportMenuItem(MenuItem):
 
 class SiteHistoryReportMenuItem(MenuItem):
     def is_shown(self, request):
-        return UserPagePermissionsProxy(request.user).explorable_pages().exists()
+        return UserPagePermissionsProxy.for_current_user(request).explorable_pages().exists()
 
 
 @hooks.register('register_reports_menu_item')

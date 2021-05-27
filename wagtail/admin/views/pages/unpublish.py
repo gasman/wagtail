@@ -13,7 +13,7 @@ from wagtail.core.models import Page, UserPagePermissionsProxy
 def unpublish(request, page_id):
     page = get_object_or_404(Page, id=page_id).specific
 
-    user_perms = UserPagePermissionsProxy(request.user)
+    user_perms = UserPagePermissionsProxy.for_current_user(request)
     if not user_perms.for_page(page).can_unpublish():
         raise PermissionDenied
 
