@@ -1,13 +1,14 @@
 from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.auth.views import redirect_to_login
+from django.db import models
 from django.urls import reverse
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from wagtail.core import hooks
-from wagtail.core.models import PageViewRestriction
+from wagtail.core.models import ModelLogEntry, Page, PageLogEntry, PageViewRestriction
 from wagtail.core.rich_text.pages import PageLinkHandler
 from wagtail.core.utils import get_content_languages
 
@@ -99,6 +100,9 @@ def describe_collection_children(collection):
 
 @hooks.register('register_log_actions')
 def register_core_log_actions(actions):
+    actions.register_model(models.Model, ModelLogEntry)
+    actions.register_model(Page, PageLogEntry)
+
     actions.register_action('wagtail.create', _('Create'), _('Created'))
     actions.register_action('wagtail.edit', _('Save draft'), _('Draft saved'))
     actions.register_action('wagtail.delete', _('Delete'), _('Deleted'))
