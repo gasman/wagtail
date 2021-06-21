@@ -1,6 +1,46 @@
+from threading import local
+
 from django.utils.translation import gettext_lazy as _
 
 from wagtail.core import hooks
+
+
+_active = local()
+
+
+class LogContext:
+    """
+    Stores data about the environment in which a logged action happens -
+    e.g. the active user - to be stored in the log entry for that action.
+    """
+    def __init__(self, user=None):
+        self.user = user
+
+    def __enter__(self):
+        self._old_log_context = getattr(_active, 'value', None)
+        activate(self)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if self._old_log_context:
+            activate(self._old_log_context)
+        else:
+            deactivate()
+
+
+empty_log_context = LogContext()
+
+
+def activate(log_context):
+    _active.value = log_context
+
+
+def deactivate():
+    del _active.value
+
+
+def get_active_log_context():
+    return getattr(_active, 'value', empty_log_context)
 
 
 class LogActionRegistry:
@@ -86,7 +126,7 @@ class LogActionRegistry:
     def get_action_label(self, action):
         return self.get_actions()[action][0]
 
-    def log(self, instance, action, **kwargs):
+    def log(self, instance, action, user=None, **kwargs):
         self.scan_for_actions()
 
         # find the log entry model for the given object type
@@ -100,7 +140,8 @@ class LogActionRegistry:
             # no logger registered for this object type - silently bail
             return
 
-        return log_entry_model.objects.log_action(instance, action, **kwargs)
+        user = user or get_active_log_context().user
+        return log_entry_model.objects.log_action(instance, action, user=user, **kwargs)
 
 
 registry = LogActionRegistry()
