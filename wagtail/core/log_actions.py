@@ -1,11 +1,14 @@
-from threading import local
+try:
+    from asgiref.local import Local
+except ImportError:  # fallback for Django <3.0
+    from threading import local as Local
 
 from django.utils.translation import gettext_lazy as _
 
 from wagtail.core import hooks
 
 
-_active = local()
+_active = Local()
 
 
 class LogContext:
