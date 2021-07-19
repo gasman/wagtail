@@ -68,7 +68,10 @@ class LogActionRegistry:
         self.comments = {}
 
         # Tracks which LogEntry model should be used for a given object class
-        self.log_entry_models = {}
+        self.log_entry_models_by_type = {}
+
+        # All distinct log entry models registered with register_model
+        self.log_entry_models = set()
 
     def scan_for_actions(self):
         if not self.has_scanned_for_actions:
@@ -83,7 +86,8 @@ class LogActionRegistry:
         return self.scan_for_actions()
 
     def register_model(self, cls, log_entry_model):
-        self.log_entry_models[cls] = log_entry_model
+        self.log_entry_models_by_type[cls] = log_entry_model
+        self.log_entry_models.add(log_entry_model)
 
     def register_action(self, action, label, message, comment=None):
         self.actions[action] = (label, message)
@@ -103,6 +107,10 @@ class LogActionRegistry:
     def get_comments(self):
         self.scan_for_actions()
         return self.comments
+
+    def get_log_entry_models(self):
+        self.scan_for_actions()
+        return self.log_entry_models
 
     def format_message(self, log_entry):
         message = self.get_messages().get(log_entry.action, _('Unknown %(action)s') % {'action': log_entry.action})
@@ -135,7 +143,7 @@ class LogActionRegistry:
         # find the log entry model for the given object type
         log_entry_model = None
         for cls in type(instance).__mro__:
-            log_entry_model = self.log_entry_models.get(cls)
+            log_entry_model = self.log_entry_models_by_type.get(cls)
             if log_entry_model:
                 break
 
