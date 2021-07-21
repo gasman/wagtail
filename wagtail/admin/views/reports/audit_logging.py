@@ -157,7 +157,7 @@ class LogEntriesView(ReportView):
         for log_model_index, pks in pks_by_log_model_index.items():
             log_entries = (
                 self.log_models[log_model_index].objects
-                .prefetch_related('user__wagtail_userprofile')
+                .prefetch_related('user__wagtail_userprofile', 'content_type')
                 .prefetch_instances()
                 .in_bulk(pks)
             )
