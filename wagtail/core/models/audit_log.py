@@ -46,6 +46,12 @@ class LogEntryQuerySet(models.QuerySet):
         # instances (e.g. PageLogEntry, which treats all page types as a single Page type)
         return self.filter(content_type_id=content_type.id)
 
+    def prefetch_instances(self):
+        # Apply any prefetching clauses to this queryset that will avoid further queries when
+        # retrieving the instance that an action is logged against. This may not be possible
+        # (e.g. it may be a generic foreign key), in which case this remains a no-op
+        return self
+
 
 class BaseLogEntryManager(models.Manager):
     def get_queryset(self):

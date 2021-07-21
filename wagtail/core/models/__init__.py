@@ -3984,6 +3984,9 @@ class PageLogEntryQuerySet(LogEntryQuerySet):
         else:
             return self.none()
 
+    def prefetch_instances(self):
+        return self.prefetch_related('page')
+
 
 class PageLogEntryManager(BaseLogEntryManager):
     def get_queryset(self):
