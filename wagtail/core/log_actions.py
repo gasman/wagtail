@@ -151,6 +151,8 @@ class LogActionRegistry:
         return self.formatters[action].label
 
     def get_log_model_for_model(self, model):
+        self.scan_for_actions()
+
         for cls in model.__mro__:
             log_entry_model = self.log_entry_models_by_type.get(cls)
             if log_entry_model:
