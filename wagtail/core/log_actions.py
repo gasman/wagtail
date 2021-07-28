@@ -138,6 +138,8 @@ class LogActionRegistry:
         return self.get_actions()[action][0]
 
     def get_log_model_for_model(self, model):
+        self.scan_for_actions()
+
         for cls in model.__mro__:
             log_entry_model = self.log_entry_models_by_type.get(cls)
             if log_entry_model:
