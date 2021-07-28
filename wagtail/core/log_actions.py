@@ -137,22 +137,35 @@ class LogActionRegistry:
     def get_action_label(self, action):
         return self.get_actions()[action][0]
 
+    def get_log_model_for_model(self, model):
+        for cls in model.__mro__:
+            log_entry_model = self.log_entry_models_by_type.get(cls)
+            if log_entry_model:
+                return log_entry_model
+
+    def get_log_model_for_instance(self, instance):
+        return self.get_log_model_for_model(type(instance))
+
     def log(self, instance, action, user=None, **kwargs):
         self.scan_for_actions()
 
         # find the log entry model for the given object type
-        log_entry_model = None
-        for cls in type(instance).__mro__:
-            log_entry_model = self.log_entry_models_by_type.get(cls)
-            if log_entry_model:
-                break
-
+        log_entry_model = self.get_log_model_for_instance(instance)
         if log_entry_model is None:
             # no logger registered for this object type - silently bail
             return
 
         user = user or get_active_log_context().user
         return log_entry_model.objects.log_action(instance, action, user=user, **kwargs)
+
+    def get_logs_for_instance(self, instance):
+        log_entry_model = self.get_log_model_for_instance(instance)
+        if log_entry_model is None:
+            # this model has no logs; return an empty queryset of the basic log model
+            from wagtail.core.models import ModelLogEntry
+            return ModelLogEntry.objects.none()
+
+        return log_entry_model.objects.for_instance(instance)
 
 
 registry = LogActionRegistry()
