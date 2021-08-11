@@ -17,6 +17,7 @@ from django.views.generic import TemplateView
 from wagtail.admin import messages
 from wagtail.admin.edit_handlers import ObjectList, extract_panel_definitions_from_model_class
 from wagtail.admin.forms.search import SearchForm
+from wagtail.admin.ui.tables import Column, DateColumn
 from wagtail.admin.views.generic.models import IndexView
 from wagtail.core import hooks
 from wagtail.core.log_actions import log
@@ -445,6 +446,11 @@ class HistoryView(IndexView):
     page_title = gettext_lazy('Snippet history')
     header_icon = 'history'
     paginate_by = 50
+    columns = [
+        Column('format_message', label=gettext_lazy("Action")),
+        Column('user_display_name'),
+        DateColumn('timestamp', label=gettext_lazy("Date")),
+    ]
 
     def dispatch(self, request, app_label, model_name, pk):
         self.app_label = app_label
@@ -461,5 +467,4 @@ class HistoryView(IndexView):
         return reverse('wagtailsnippets:history', args=(self.app_label, self.model_name, quote(self.object.pk)))
 
     def get_queryset(self):
-        print(repr(self.object), log_registry.get_logs_for_instance(self.object))
         return log_registry.get_logs_for_instance(self.object)
