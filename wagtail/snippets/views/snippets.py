@@ -17,7 +17,7 @@ from django.views.generic import TemplateView
 from wagtail.admin import messages
 from wagtail.admin.edit_handlers import ObjectList, extract_panel_definitions_from_model_class
 from wagtail.admin.forms.search import SearchForm
-from wagtail.admin.ui.tables import Column, DateColumn
+from wagtail.admin.ui.tables import Column, DateColumn, UserColumn
 from wagtail.admin.views.generic.models import IndexView
 from wagtail.core import hooks
 from wagtail.core.log_actions import log
@@ -448,7 +448,7 @@ class HistoryView(IndexView):
     paginate_by = 50
     columns = [
         Column('format_message', label=gettext_lazy("Action")),
-        Column('user_display_name'),
+        UserColumn('user'),  # TODO: handle deleted users / falling back on 'system' for null user
         DateColumn('timestamp', label=gettext_lazy("Date")),
     ]
 
@@ -467,4 +467,4 @@ class HistoryView(IndexView):
         return reverse('wagtailsnippets:history', args=(self.app_label, self.model_name, quote(self.object.pk)))
 
     def get_queryset(self):
-        return log_registry.get_logs_for_instance(self.object)
+        return log_registry.get_logs_for_instance(self.object).prefetch_related('user__wagtail_userprofile')
