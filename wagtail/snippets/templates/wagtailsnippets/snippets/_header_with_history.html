@@ -1,0 +1,18 @@
+{% extends "wagtailadmin/shared/header_with_locale_selector.html" %}
+{% load wagtailadmin_tags i18n %}
+
+{% block extra_rows %}
+    {% if latest_log_entry %}
+        <div class="row">
+            {# TODO check this works when user is null / 'system' #}
+            <span class="avatar small" data-wagtail-tooltip="{{ latest_log_entry.user_display_name }}"><img src="{% avatar_url latest_log_entry.user size=25 %}" alt="" /></span>
+            {% trans "Last updated" %}
+            {% include "wagtailadmin/shared/last_updated.html" with last_updated=latest_log_entry.timestamp time_prefix="at" %}
+
+            <a href="{% url 'wagtailsnippets:history' model_opts.app_label model_opts.model_name instance.pk|admin_urlquote %}">
+                {% icon "history" class_name="default" %}
+                History
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
