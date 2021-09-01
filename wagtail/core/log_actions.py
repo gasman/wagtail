@@ -46,6 +46,25 @@ def get_active_log_context():
     return getattr(_active, 'value', empty_log_context)
 
 
+class NullAdminURLFinder:
+    """
+    An admin url finder takes the current user as an argument to its constructor, and
+    provides a `get_edit_url` method that accepts a log entry and returns the URL to the
+    admin view for editing the logged item, or None if no URL exists or the user lacks
+    permission for it. Where possible, database lookups for the permission check should
+    be done up-front in the constructor, so that multiple calls to get_edit_url can be
+    performed without repeated queries.
+
+    This is the null admin URL finder used when no edit URL exists; get_edit_url always
+    returns None.
+    """
+    def __init__(self, user):
+        pass
+
+    def get_edit_url(self, log_entry):
+        return None
+
+
 class LogActionRegistry:
     """
     A central store for log actions.
@@ -68,10 +87,13 @@ class LogActionRegistry:
         self.comments = {}
 
         # Tracks which LogEntry model should be used for a given object class
-        self.log_entry_models_by_type = {}
+        self.log_entry_models_by_model = {}
 
         # All distinct log entry models registered with register_model
         self.log_entry_models = set()
+
+        # Tracks which admin url finder class should be used for a given object class.
+        self.admin_url_finders_by_model = {}
 
     def scan_for_actions(self):
         if not self.has_scanned_for_actions:
@@ -86,7 +108,7 @@ class LogActionRegistry:
         return self.scan_for_actions()
 
     def register_model(self, cls, log_entry_model):
-        self.log_entry_models_by_type[cls] = log_entry_model
+        self.log_entry_models_by_model[cls] = log_entry_model
         self.log_entry_models.add(log_entry_model)
 
     def register_action(self, action, label, message, comment=None):
@@ -95,6 +117,9 @@ class LogActionRegistry:
         if comment:
             self.comments[action] = comment
         self.choices.append((action, label))
+
+    def register_admin_url_finder(self, model, finder):
+        self.admin_url_finders_by_model[model] = finder
 
     def get_choices(self):
         self.scan_for_actions()
@@ -141,12 +166,22 @@ class LogActionRegistry:
         self.scan_for_actions()
 
         for cls in model.__mro__:
-            log_entry_model = self.log_entry_models_by_type.get(cls)
+            log_entry_model = self.log_entry_models_by_model.get(cls)
             if log_entry_model:
                 return log_entry_model
 
     def get_log_model_for_instance(self, instance):
         return self.get_log_model_for_model(type(instance))
+
+    def get_admin_url_finder(self, model, user):
+        self.scan_for_actions()
+
+        for cls in model.__mro__:
+            finder = self.admin_url_finders_by_model.get(cls)
+            if finder:
+                return finder(user)
+
+        return NullAdminURLFinder(user)
 
     def log(self, instance, action, user=None, **kwargs):
         self.scan_for_actions()
