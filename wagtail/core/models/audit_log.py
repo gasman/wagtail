@@ -46,16 +46,19 @@ class LogEntryQuerySet(models.QuerySet):
         # instances (e.g. PageLogEntry, which treats all page types as a single Page type)
         return self.filter(content_type_id=content_type.id)
 
-    def prefetch_instances(self):
+    def prefetch_for_reports(self):
         # Apply any prefetching clauses to this queryset that will avoid further queries when
-        # retrieving the instance that an action is logged against. This may not be possible
-        # (e.g. it may be a generic foreign key), in which case this remains a no-op
-        return self
+        # rendering log entries in reports (e.g. page or collection objects needed for checking
+        # permissions when retrieving edit URLs)
+        return self.prefetch_related('user__wagtail_userprofile', 'content_type')
 
 
 class BaseLogEntryManager(models.Manager):
     def get_queryset(self):
         return LogEntryQuerySet(self.model, using=self._db)
+
+    def prefetch_for_reports(self):
+        return self.get_queryset().prefetch_for_reports()
 
     def get_instance_title(self, instance):
         return str(instance)
@@ -158,6 +161,8 @@ class BaseLogEntry(models.Model):
             self.pk, self.action, self.object_verbose_name()
         )
 
+    edit_action_text = _("Edit this item")
+
     @cached_property
     def user_display_name(self):
         """
@@ -192,8 +197,12 @@ class BaseLogEntry(models.Model):
             return {}
 
     @cached_property
+    def object_model_class(self):
+        return self.content_type.model_class()
+
+    @cached_property
     def object_verbose_name(self):
-        model_class = self.content_type.model_class()
+        model_class = self.object_model_class
         if model_class is None:
             return self.content_type_id
 

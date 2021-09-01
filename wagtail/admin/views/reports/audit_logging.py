@@ -164,18 +164,41 @@ class LogEntriesView(ReportView):
         for log_model_index, pks in pks_by_log_model_index.items():
             log_entries = (
                 self.log_models[log_model_index].objects
-                .prefetch_related('user__wagtail_userprofile', 'content_type')
-                .prefetch_instances()
+                .prefetch_for_reports()
                 .in_bulk(pks)
             )
             for pk, log_entry in log_entries.items():
                 object_lookup[(log_model_index, pk)] = log_entry
 
-        # return items from our lookup table in the order of the original queryset
-        return [
-            object_lookup[(row['log_model_index'], row['pk'])]
-            for row in queryset
-        ]
+        # return items from our lookup table in the order of the original queryset.
+        # As we go over them, annotate them with the edit URLs obtained through the
+        # admin URL finders corresponding to the logged models
+        url_finders_by_model = {}
+
+        results = []
+        for row in queryset:
+            log_entry = object_lookup[(row['log_model_index'], row['pk'])]
+            logged_model = log_entry.object_model_class
+            try:
+                url_finder = url_finders_by_model[logged_model]
+            except KeyError:
+                url_finder = log_action_registry.get_admin_url_finder(logged_model, self.request.user)
+                url_finders_by_model[logged_model] = url_finder
+
+            # only look up the edit URL if the log entry is the type expected for the model,
+            # e.g. PageLogEntry for Page, as the finder may rely on fields that only exist on that
+            # log model. It's possible that there could be a mismatch if we are viewing historic
+            # logs from before a more specific log model was introduced - e.g. images were
+            # originally logged under ModelLogEntry but were later changed to MediaLogEntry which
+            # is what the URL finder expects.
+            if isinstance(log_entry, log_action_registry.get_log_model_for_model(logged_model)):
+                log_entry.edit_url = url_finder.get_edit_url(log_entry)
+            else:
+                log_entry.edit_url = None
+
+            results.append(log_entry)
+
+        return results
 
     def get_action_label(self, action):
         return force_str(log_action_registry.get_action_label(action))

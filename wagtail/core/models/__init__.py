@@ -3984,8 +3984,8 @@ class PageLogEntryQuerySet(LogEntryQuerySet):
         else:
             return self.none()
 
-    def prefetch_instances(self):
-        return self.prefetch_related('page')
+    def prefetch_for_reports(self):
+        return super().prefetch_for_reports().prefetch_related('page')
 
 
 class PageLogEntryManager(BaseLogEntryManager):
@@ -4045,6 +4045,8 @@ class PageLogEntry(BaseLogEntry):
         return "PageLogEntry %d: '%s' on '%s' with id %s" % (
             self.pk, self.action, self.object_verbose_name(), self.page_id
         )
+
+    edit_action_text = _("Edit this page")
 
     @cached_property
     def object_id(self):
