@@ -8,7 +8,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from wagtail.core import hooks
-from wagtail.core.models import ModelLogEntry, Page, PageLogEntry, PageViewRestriction
+from wagtail.core.models import (
+    ModelLogEntry, Page, PageLogEntry, PageViewRestriction, UserPagePermissionsProxy)
 from wagtail.core.rich_text.pages import PageLinkHandler
 from wagtail.core.utils import get_content_languages
 
@@ -98,10 +99,30 @@ def describe_collection_children(collection):
         }
 
 
+class PageAdminURLFinder:
+    """
+    Returns the URL to the edit page for a given page log entry, applying permission check
+    """
+    def __init__(self, user):
+        self.user_perms = UserPagePermissionsProxy(user)
+
+    def get_edit_url(self, log_entry):
+        try:
+            page = log_entry.page
+        except Page.DoesNotExist:
+            return None
+
+        if page and self.user_perms.for_page(page).can_edit():
+            return reverse('wagtailadmin_pages:edit', args=(page.id, ))
+        else:
+            return None
+
+
 @hooks.register('register_log_actions')
 def register_core_log_actions(actions):
     actions.register_model(models.Model, ModelLogEntry)
     actions.register_model(Page, PageLogEntry)
+    actions.register_admin_url_finder(Page, PageAdminURLFinder)
 
     actions.register_action('wagtail.create', _('Create'), _('Created'))
     actions.register_action('wagtail.edit', _('Save draft'), _('Draft saved'))
