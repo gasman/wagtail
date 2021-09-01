@@ -1,4 +1,5 @@
 from django.contrib.admin import site as default_django_admin_site
+from django.contrib.admin.utils import quote
 from django.contrib.auth.models import Permission
 from django.core import checks
 from django.core.exceptions import ImproperlyConfigured
@@ -9,6 +10,7 @@ from django.utils.safestring import mark_safe
 from wagtail.admin.checks import check_panels_in_model
 from wagtail.admin.edit_handlers import ObjectList, extract_panel_definitions_from_model_class
 from wagtail.core import hooks
+from wagtail.core.log_actions import registry as log_action_registry
 from wagtail.core.models import Page
 
 from .helpers import (
@@ -54,6 +56,11 @@ class WagtailRegisterable:
             def construct_explorer_page_queryset(parent_page, queryset, request):
                 return self.modify_explorer_page_queryset(
                     parent_page, queryset, request)
+
+        self.register_log_action_url_finders()
+
+    def register_log_action_url_finders(self):
+        pass
 
     def will_modify_explorer_page_queryset(self):
         return False
@@ -578,6 +585,28 @@ class ModelAdmin(WagtailRegisterable):
             errors = check_panels_in_model(self.model, 'modeladmin')
             return errors
 
+    def register_log_action_url_finders(self):
+        if not self.is_pagemodel:
+            # register the edit view with log_action_registry so that we know how to link to it from reports
+            permission_helper = self.permission_helper
+            url_helper = self.url_helper
+
+            class ModelAdminURLFinder:
+                def __init__(self, user):
+                    # FIXME: this won't accommodate permission helpers that have overridden user_can_edit_obj
+                    # (because we need the model instance for that, which we don't have for log entries in reports)
+                    self.user_can_edit = permission_helper.user_has_specific_permission(
+                        user, permission_helper.get_perm_codename('change')
+                    )
+
+                def get_edit_url(self, log_entry):
+                    # FIXME: ensure that we correctly handle models that have a log entry model other than ModelLogEntry
+                    # (and thus may not have an object_id field)
+                    if self.user_can_edit:
+                        return url_helper.get_action_url('edit', quote(log_entry.object_id))
+
+            log_action_registry.register_admin_url_finder(self.model, ModelAdminURLFinder)
+
 
 class ModelAdminGroup(WagtailRegisterable):
     """
@@ -674,6 +703,10 @@ class ModelAdminGroup(WagtailRegisterable):
             for modeladmin_class in self.items:
                 errors.extend(check_panels_in_model(modeladmin_class.model))
             return errors
+
+    def register_log_action_url_finders(self):
+        for instance in self.modeladmin_instances:
+            instance.register_log_action_url_finders()
 
 
 def modeladmin_register(modeladmin_class):
