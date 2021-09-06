@@ -6,10 +6,25 @@ from wagtail.admin.menu import MenuItem
 from wagtail.contrib.redirects import urls
 from wagtail.contrib.redirects.permissions import permission_policy
 from wagtail.core import hooks
+from wagtail.core.log_actions import registry as log_action_registry
+
+from .models import Redirect
+
+
+class RedirectAdminURLFinder:
+    def __init__(self, user):
+        self.user_can_edit = permission_policy.user_has_permission(user, 'change')
+
+    def get_edit_url(self, log_entry):
+        if self.user_can_edit:
+            return reverse('wagtailredirects:edit', args=(log_entry.object_id, ))
+        else:
+            return None
 
 
 @hooks.register('register_admin_urls')
 def register_admin_urls():
+    log_action_registry.register_admin_url_finder(Redirect, RedirectAdminURLFinder)
     return [
         path('redirects/', include(urls, namespace='wagtailredirects')),
     ]
