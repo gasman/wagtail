@@ -1,8 +1,9 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.forms.models import modelform_factory
-from django.urls import path
+from django.urls import path, reverse
 
 from wagtail.admin.views import generic
+from wagtail.core.log_actions import registry as log_action_registry
 from wagtail.core.permissions import ModelPermissionPolicy
 
 from .base import ViewSet
@@ -92,3 +93,23 @@ class ModelViewSet(ViewSet):
             path('<int:pk>/', self.edit_view, name='edit'),
             path('<int:pk>/delete/', self.delete_view, name='delete'),
         ]
+
+    def on_register(self):
+        super().on_register()
+
+        viewset = self
+
+        class GenericAdminURLFinder:
+            def __init__(self, user):
+                # FIXME: won't handle permission policies where permission varies per-instance
+                self.user_can_edit = viewset.permission_policy.user_has_permission(user, 'change')
+
+            def get_edit_url(self, log_entry):
+                # FIXME: ensure that we correctly handle models that have a log entry model other than ModelLogEntry
+                # (and thus may not have an object_id field)
+                if self.user_can_edit:
+                    return reverse(viewset.get_url_name('edit'), args=(log_entry.object_id, ))
+                else:
+                    return None
+
+        log_action_registry.register_admin_url_finder(self.model, GenericAdminURLFinder)
