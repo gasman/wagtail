@@ -10,6 +10,7 @@ from wagtail.admin import messages
 from wagtail.admin.auth import any_permission_required, permission_required
 from wagtail.admin.forms.search import SearchForm
 from wagtail.contrib.search_promotions import forms
+from wagtail.core.log_actions import log
 from wagtail.search import forms as search_forms
 from wagtail.search.models import Query
 
@@ -99,6 +100,8 @@ def add(request):
             # Save search picks
             searchpicks_formset = forms.SearchPromotionsFormSet(request.POST, instance=query)
             if save_searchpicks(query, query, searchpicks_formset):
+                for search_pick in searchpicks_formset.new_objects:
+                    log(search_pick, 'wagtail.create')
                 messages.success(request, _("Editor's picks for '{0}' created.").format(query), buttons=[
                     messages.button(reverse('wagtailsearchpromotions:edit', args=(query.id,)), _('Edit'))
                 ])
@@ -138,6 +141,13 @@ def edit(request, query_id):
 
             # Save search picks
             if save_searchpicks(query, new_query, searchpicks_formset):
+                for search_pick in searchpicks_formset.new_objects:
+                    log(search_pick, 'wagtail.create')
+                for search_pick in searchpicks_formset.changed_objects:
+                    log(search_pick, 'wagtail.edit')
+                for search_pick in searchpicks_formset.deleted_objects:
+                    log(search_pick, 'wagtail.delete')
+
                 messages.success(request, _("Editor's picks for '{0}' updated.").format(new_query), buttons=[
                     messages.button(reverse('wagtailsearchpromotions:edit', args=(query.id,)), _('Edit'))
                 ])
@@ -167,7 +177,10 @@ def delete(request, query_id):
     query = get_object_or_404(Query, id=query_id)
 
     if request.method == 'POST':
-        query.editors_picks.all().delete()
+        editors_picks = query.editors_picks.all()
+        for search_pick in editors_picks:
+            log(search_pick, 'wagtail.delete')
+        editors_picks.delete()
         messages.success(request, _("Editor's picks deleted."))
         return redirect('wagtailsearchpromotions:index')
 
