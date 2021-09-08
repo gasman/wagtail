@@ -8,6 +8,8 @@ try:
 except ImportError:  # fallback for Django <3.0
     from threading import local as Local
 
+from django.utils.functional import LazyObject
+
 from wagtail.core import hooks
 from wagtail.utils.deprecation import RemovedInWagtail217Warning
 
@@ -165,6 +167,10 @@ class LogActionRegistry:
                 return log_entry_model
 
     def get_log_model_for_instance(self, instance):
+        if isinstance(instance, LazyObject):
+            # for LazyObject instances such as request.user, ensure we're looking up the real type
+            instance = instance._wrapped
+
         return self.get_log_model_for_model(type(instance))
 
     def log(self, instance, action, user=None, uuid=None, **kwargs):
