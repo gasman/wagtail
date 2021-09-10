@@ -1651,7 +1651,7 @@ class TestTaskChooserView(TestCase, WagtailTestUtils):
     def test_post_with_create_model_selected(self):
         response = self.client.post(reverse('wagtailadmin_workflows:task_chooser') + '?create_model=wagtailcore.GroupApprovalTask', self.get_post_data())
 
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
 
         # Check that the task was created
         task = Task.objects.get(name="Editor approval task", active=True)
@@ -1673,7 +1673,7 @@ class TestTaskChooserView(TestCase, WagtailTestUtils):
 
         response = self.client.post(reverse('wagtailadmin_workflows:task_chooser'), self.get_post_data())
 
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
 
         # Check that the task was created
         task = Task.objects.get(name="Editor approval task", active=True)
