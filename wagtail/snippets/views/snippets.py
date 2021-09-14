@@ -448,7 +448,7 @@ class HistoryView(IndexView):
     paginate_by = 50
     columns = [
         Column('message', label=gettext_lazy("Action")),
-        UserColumn('user'),  # TODO: handle deleted users / falling back on 'system' for null user
+        UserColumn('user', blank_display_name='system'),
         DateColumn('timestamp', label=gettext_lazy("Date")),
     ]
 
