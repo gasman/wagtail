@@ -1,0 +1,12 @@
+{% load wagtailadmin_tags i18n %}
+{% if latest_log_entry %}
+<div class="row">
+    <span class="avatar small" data-wagtail-tooltip="{{ latest_log_entry.user_display_name }}"><img src="{% avatar_url latest_log_entry.user size=25 %}" alt="" /></span>
+    {% trans "Last updated" %}
+    {% include "wagtailadmin/shared/last_updated.html" with last_updated=latest_log_entry.timestamp time_prefix="at" %}
+
+    {% if history_url %}
+        <a href="{{ history_url }}">{% icon "history" class_name="default" %} History</a>
+    {% endif %}
+</div>
+{% endif %}
