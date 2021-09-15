@@ -1585,7 +1585,7 @@ class TestTaskChooserView(TestCase, WagtailTestUtils):
         self.assertFalse(response.context['searchform'].is_searching())
 
     def test_search(self):
-        response = self.client.get(reverse('wagtailadmin_workflows:task_chooser') + '?q=foo')
+        response = self.client.get(reverse('wagtailadmin_workflows:task_chooser_results') + '?q=foo')
 
         self.assertEqual(response.status_code, 200)
 
@@ -1594,7 +1594,7 @@ class TestTaskChooserView(TestCase, WagtailTestUtils):
         self.assertTrue(response.context['searchform'].is_searching())
 
     def test_pagination(self):
-        response = self.client.get(reverse('wagtailadmin_workflows:task_chooser') + '?p=2')
+        response = self.client.get(reverse('wagtailadmin_workflows:task_chooser_results') + '?p=2')
 
         self.assertEqual(response.status_code, 200)
 
