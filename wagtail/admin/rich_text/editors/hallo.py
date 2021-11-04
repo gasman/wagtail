@@ -4,7 +4,6 @@ from collections import OrderedDict
 from django.forms import Media, widgets
 from django.utils.functional import cached_property
 
-from wagtail.admin.edit_handlers import RichTextFieldPanel
 from wagtail.admin.rich_text.converters.editor_html import EditorHTMLConverter
 from wagtail.admin.staticfiles import versioned_static
 from wagtail.core.rich_text import features
@@ -110,9 +109,6 @@ class HalloRichTextArea(widgets.Textarea):
 
     # this class's constructor accepts a 'features' kwarg
     accepts_features = True
-
-    def get_panel(self):
-        return RichTextFieldPanel
 
     def __init__(self, *args, **kwargs):
         self.options = kwargs.pop("options", None)
