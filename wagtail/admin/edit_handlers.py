@@ -15,11 +15,13 @@ from django.template.loader import render_to_string
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy
+from modelcluster.forms import ClusterForm
 from modelcluster.models import get_serializable_data_for_fields
 
-from wagtail.admin import compare, widgets
+from wagtail.admin import compare
 from wagtail.admin.forms.comments import CommentForm, CommentReplyForm
 from wagtail.admin.templatetags.wagtailadmin_tags import avatar_url, user_display_name
+from wagtail.admin.widgets import AdminPageChooser
 from wagtail.core.blocks import BlockField
 from wagtail.core.models import COMMENTS_RELATION_NAME, Page
 from wagtail.core.utils import camelcase_to_underscore
@@ -47,12 +49,38 @@ def get_form_for_model(
     form_class=WagtailAdminModelForm,
     **kwargs,
 ):
-    # django's modelform_factory, but accepting arbitrary kwargs to pass to
-    # the form's Meta class to support additions such as ClusterForm's `formsets`
-    # attribute
+    """
+    Construct a ModelForm subclass using the given model and base form class. Any additional
+    keyword arguments are used to populate the form's Meta class.
+    """
+
+    # This is really just Django's modelform_factory, tweaked to accept arbitrary kwargs.
 
     meta_class_attrs = kwargs
     meta_class_attrs["model"] = model
+
+    # The kwargs passed here are expected to come from EditHandler.get_form_options, which collects
+    # them by descending the tree of child edit handlers. If there are no edit handlers that
+    # specify form fields, this can legitimately result in both 'fields' and 'exclude' being
+    # absent, which ModelForm doesn't normally allow. In this case, explicitly set fields to [].
+    if "fields" not in meta_class_attrs and "exclude" not in meta_class_attrs:
+        meta_class_attrs["fields"] = []
+
+    # As of django-modelcluster 5.2, ClusterForm's formsets / exclude_formsets options STILL
+    # follow the precedent of ModelForm's fields / exclude prior to Django 1.6, where omitting them
+    # results in a form with all possible fields / formsets included.
+    # This quirk has never affected EditHandler-based forms because they always implemented the
+    # required_formsets method and passed an explicit `formsets` argument.
+    # We can no longer count on EditHandler.get_form_options to do this, so we have to patch it
+    # here instead.
+    # FIXME: release a django-modelcluster 6.0 to change the default to 'no formsets' and clear up
+    # this ungodly mess once and for all
+    if issubclass(form_class, ClusterForm):
+        if (
+            "formsets" not in meta_class_attrs
+            and "exclude_formsets" not in meta_class_attrs
+        ):
+            meta_class_attrs["formsets"] = []
 
     # Give this new form class a reasonable name.
     class_name = model.__name__ + "Form"
@@ -152,15 +180,6 @@ class EditHandler:
             )
             options["formsets"] = self.required_formsets()
 
-        if not getattr(self.field_permissions, "is_original_method", False):
-            warn(
-                "The `field_permissions` method (on %r) is deprecated; "
-                "these should be returned from `get_form_options` as a "
-                "`field_permissions` item instead." % type(self),
-                category=RemovedInWagtail219Warning,
-            )
-            options["field_permissions"] = self.field_permissions()
-
         return options
 
     # return list of widget overrides that this EditHandler wants to be in place
@@ -186,13 +205,6 @@ class EditHandler:
         return {}
 
     required_formsets.is_original_method = True
-
-    # return a dict mapping field name to the permission codename that a user must have for that
-    # field to be included in the form
-    def field_permissions(self):
-        return {}
-
-    field_permissions.is_original_method = True
 
     # return any HTML that needs to be output on the edit page once per edit handler definition.
     # Typically this will be used to define snippets of HTML within <script type="text/x-template"></script> blocks
@@ -296,7 +308,11 @@ class EditHandler:
         (If they aren't actually hidden fields, then they will appear as ugly unstyled / label-less fields
         outside of the panel furniture. But there's not much we can do about that.)
         """
-        rendered_fields = self.required_fields()
+        # FIXME: is this actually needed, or can we rely on the set of fields not explicitly accounted for
+        # by an edit handler to be empty (or at least predictable)?
+        # In principle custom forms (https://docs.wagtail.org/en/stable/advanced_topics/customisation/page_editing_interface.html#customising-generated-forms)
+        # could insert unaccounted-for fields, so it probably needs a deprecation period at least.
+        rendered_fields = self.get_form_options().get("fields", [])
         missing_fields_html = [
             str(self.form[field_name])
             for field_name in self.form.fields
@@ -331,32 +347,53 @@ class BaseCompositeEditHandler(EditHandler):
         kwargs["children"] = self.children
         return kwargs
 
-    def widget_overrides(self):
-        # build a collated version of all its children's widget lists
-        widgets = {}
-        for handler_class in self.children:
-            widgets.update(handler_class.widget_overrides())
-        widget_overrides = widgets
+    def get_form_options(self):
+        if self.model is None:
+            raise AttributeError(
+                "%s is not bound to a model yet. Use `.bind_to(model=model)` "
+                "before using this method." % self.__class__.__name__
+            )
 
-        return widget_overrides
+        options = {}
 
-    def required_fields(self):
-        fields = []
-        for handler in self.children:
-            fields.extend(handler.required_fields())
-        return fields
+        # Merge in form options from each child in turn, combining values that are types that we
+        # know how to combine (i.e. lists, dicts and sets)
+        for child in self.children:
+            child_options = child.get_form_options()
+            for key, new_val in child_options.items():
+                if key not in options:
+                    # if val is a known mutable container type that we're going to merge subsequent
+                    # child values into, create a copy so that we don't risk that change leaking
+                    # back into the child's internal state
+                    if (
+                        isinstance(new_val, list)
+                        or isinstance(new_val, dict)
+                        or isinstance(new_val, set)
+                    ):
+                        options[key] = new_val.copy()
+                    else:
+                        options[key] = new_val
+                else:
+                    current_val = options[key]
+                    if isinstance(current_val, list) and isinstance(
+                        new_val, (list, tuple)
+                    ):
+                        current_val.extend(new_val)
+                    elif isinstance(current_val, tuple) and isinstance(
+                        new_val, (list, tuple)
+                    ):
+                        options[key] = list(current_val).extend(new_val)
+                    elif isinstance(current_val, dict) and isinstance(new_val, dict):
+                        current_val.update(new_val)
+                    elif isinstance(current_val, set) and isinstance(new_val, set):
+                        current_val.update(new_val)
+                    else:
+                        raise ValueError(
+                            "Don't know how to merge values %r and %r for form option %r"
+                            % (current_val, new_val, key)
+                        )
 
-    def required_formsets(self):
-        formsets = {}
-        for handler_class in self.children:
-            formsets.update(handler_class.required_formsets())
-        return formsets
-
-    def field_permissions(self):
-        field_permissions = {}
-        for handler_class in self.children:
-            field_permissions.update(handler_class.field_permissions())
-        return field_permissions
+        return options
 
     @property
     def visible_children(self):
@@ -421,11 +458,8 @@ class BaseFormEditHandler(BaseCompositeEditHandler):
         Construct a form class that has all the fields and formsets named in
         the children of this edit handler.
         """
-        if self.model is None:
-            raise AttributeError(
-                "%s is not bound to a model yet. Use `.bind_to(model=model)` "
-                "before using this method." % self.__class__.__name__
-            )
+        form_options = self.get_form_options()
+
         # If a custom form class was passed to the EditHandler, use it.
         # Otherwise, use the base_form_class from the model.
         # If that is not defined, use WagtailAdminModelForm.
@@ -435,7 +469,7 @@ class BaseFormEditHandler(BaseCompositeEditHandler):
         return get_form_for_model(
             self.model,
             form_class=base_form_class,
-            **self.get_form_options(),
+            **form_options,
         )
 
 
@@ -443,19 +477,39 @@ class TabbedInterface(BaseFormEditHandler):
     template = "wagtailadmin/edit_handlers/tabbed_interface.html"
 
     def __init__(self, *args, show_comments_toggle=None, **kwargs):
+        # FIXME: BaseFormEditHandler should be doing this (if we don't ditch the BaseFormEditHandler
+        # mechanism entirely), so that ObjectList doesn't have to spuriously inherit from TabbedInterface
         self.base_form_class = kwargs.pop("base_form_class", None)
         super().__init__(*args, **kwargs)
-        if show_comments_toggle is not None:
-            self.show_comments_toggle = show_comments_toggle
-        else:
-            self.show_comments_toggle = (
-                "comment_notifications" in self.required_fields()
+
+        # the readable final value of `show_comments_toggle` is now a property, because we derive it from
+        # get_form_options which is only legal to call after we've bound the EditHandler to a model
+        self.explicit_show_comments_toggle = show_comments_toggle
+
+    @cached_property
+    def show_comments_toggle(self):
+        if not self.model:
+            raise ImproperlyConfigured(
+                "%r must be bound to a model before accessing show_comments_toggle"
+                % self
             )
+
+        if self.explicit_show_comments_toggle is not None:
+            return self.explicit_show_comments_toggle
+
+        # FIXME: implement a more direct / lightweight way to say "do I indirectly contain a CommentPanel",
+        # or reconsider whether CommentPanel should exist at all given its decidedly non-panel-ish nature
+        fields = self.get_form_options().get("fields", [])
+        return "comment_notifications" in fields
 
     def get_form_class(self):
         form_class = super().get_form_class()
 
         # Set show_comments_toggle attribute on form class
+        # FIXME: find some alternative to patching the form class here, as we really want edit handlers
+        # to be more hands-off than that.
+        # Move show_comments_toggle into form.Meta so that it can be passed in get_form_options?
+        # Set it via model.base_form_class on any model that should be commentable?
         return type(
             form_class.__name__,
             (form_class,),
@@ -465,7 +519,7 @@ class TabbedInterface(BaseFormEditHandler):
     def clone_kwargs(self):
         kwargs = super().clone_kwargs()
         kwargs["base_form_class"] = self.base_form_class
-        kwargs["show_comments_toggle"] = self.show_comments_toggle
+        kwargs["show_comments_toggle"] = self.explicit_show_comments_toggle
         return kwargs
 
 
@@ -542,17 +596,19 @@ class FieldPanel(EditHandler):
         )
         return kwargs
 
-    def widget_overrides(self):
-        """check if a specific widget has been defined for this field"""
+    def get_form_options(self):
+        opts = {
+            "fields": [self.field_name],
+        }
+        # FIXME: surely we can self.widget unconditionally in __init__ and make this
+        # if self.widget is not None?
         if hasattr(self, "widget"):
-            return {self.field_name: self.widget}
-        return {}
+            opts["widgets"] = {self.field_name: self.widget}
 
-    def field_permissions(self):
         if self.permission:
-            return {self.field_name: self.permission}
-        else:
-            return {}
+            opts["field_permissions"] = {self.field_name: self.permission}
+
+        return opts
 
     def is_shown(self):
         if self.permission and not self.request.user.has_perm(self.permission):
@@ -627,12 +683,13 @@ class FieldPanel(EditHandler):
             )
         )
 
-    def required_fields(self):
-        return [self.field_name]
-
     def get_comparison_class(self):
         # Hide fields with hidden widget
-        widget_override = self.widget_overrides().get(self.field_name, None)
+        # FIXME: surely we should have a more robust system for deciding whether a given FieldPanel
+        # should be part of the comparison, rather than "does it set an explicit widget override
+        # that's a hidden field"
+        widgets = self.get_form_options().get("widgets", {})
+        widget_override = widgets.get(self.field_name, None)
         if widget_override and widget_override.is_hidden:
             return
 
@@ -725,15 +782,16 @@ class PageChooserPanel(BaseChooserPanel):
             "can_choose_root": self.can_choose_root,
         }
 
-    def widget_overrides(self):
+    def get_form_options(self):
+        opts = super().get_form_options()
+
         if self.page_type or self.can_choose_root:
-            return {
-                self.field_name: widgets.AdminPageChooser(
-                    target_models=self.page_type, can_choose_root=self.can_choose_root
-                )
-            }
-        else:
-            return {}
+            widgets = opts.setdefault("widgets", {})
+            widgets[self.field_name] = AdminPageChooser(
+                target_models=self.page_type, can_choose_root=self.can_choose_root
+            )
+
+        return opts
 
 
 class InlinePanel(EditHandler):
@@ -781,16 +839,20 @@ class InlinePanel(EditHandler):
         child_edit_handler = MultiFieldPanel(panels, heading=self.heading)
         return child_edit_handler.bind_to(model=self.db_field.related_model)
 
-    def required_formsets(self):
+    def get_form_options(self):
         child_edit_handler = self.get_child_edit_handler()
+        child_form_opts = child_edit_handler.get_form_options()
         return {
-            self.relation_name: {
-                "fields": child_edit_handler.required_fields(),
-                "widgets": child_edit_handler.widget_overrides(),
-                "min_num": self.min_num,
-                "validate_min": self.min_num is not None,
-                "max_num": self.max_num,
-                "validate_max": self.max_num is not None,
+            "formsets": {
+                self.relation_name: {
+                    # FIXME: is it safe to merge child_form_opts directly into this dict?
+                    "fields": child_form_opts.get("fields", []),
+                    "widgets": child_form_opts.get("widgets", {}),
+                    "min_num": self.min_num,
+                    "validate_min": self.min_num is not None,
+                    "max_num": self.max_num,
+                    "validate_max": self.max_num is not None,
+                }
             }
         }
 
@@ -922,12 +984,7 @@ class PrivacyModalPanel(EditHandler):
 
 
 class CommentPanel(EditHandler):
-    def required_fields(self):
-        # Adds the comment notifications field to the form.
-        # Note, this field is defined directly on WagtailAdminPageForm.
-        return ["comment_notifications"]
-
-    def required_formsets(self):
+    def get_form_options(self):
         # add the comments formset
         # we need to pass in the current user for validation on the formset
         # this could alternatively be done on the page form itself if we added the
@@ -944,11 +1001,16 @@ class CommentPanel(EditHandler):
                 formsets = {"replies": {"form": CommentReplyFormWithRequest}}
 
         return {
-            COMMENTS_RELATION_NAME: {
-                "form": CommentFormWithRequest,
-                "fields": ["text", "contentpath", "position"],
-                "formset_name": "comments",
-            }
+            # Adds the comment notifications field to the form.
+            # Note, this field is defined directly on WagtailAdminPageForm.
+            "fields": ["comment_notifications"],
+            "formsets": {
+                COMMENTS_RELATION_NAME: {
+                    "form": CommentFormWithRequest,
+                    "fields": ["text", "contentpath", "position"],
+                    "formset_name": "comments",
+                }
+            },
         }
 
     template = "wagtailadmin/edit_handlers/comments/comment_panel.html"
