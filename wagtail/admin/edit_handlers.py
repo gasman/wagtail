@@ -1,5 +1,6 @@
 import functools
 import re
+from warnings import warn
 
 from django import forms
 from django.apps import apps
@@ -23,6 +24,7 @@ from wagtail.core.blocks import BlockField
 from wagtail.core.models import COMMENTS_RELATION_NAME, Page
 from wagtail.core.utils import camelcase_to_underscore
 from wagtail.utils.decorators import cached_classmethod
+from wagtail.utils.deprecation import RemovedInWagtail219Warning
 
 # DIRECT_FORM_FIELD_OVERRIDES, FORM_FIELD_OVERRIDES are imported for backwards
 # compatibility, as people are likely importing them from here and then
@@ -113,20 +115,68 @@ class EditHandler:
             "help_text": self.help_text,
         }
 
+    def get_form_options(self):
+        """
+        Return a dictionary of attributes such as 'fields', 'formsets' and 'widgets'
+        which should be incorporated into the form class definition to generate a form
+        that this EditHandler can use.
+
+        This will only be called after binding to a model (i.e. self.model is available).
+        """
+        options = {}
+
+        if not getattr(self.widget_overrides, "is_original_method", False):
+            warn(
+                "The `widget_overrides` method (on %r) is deprecated; "
+                "these should be returned from `get_form_options` as a "
+                "`widgets` item instead." % type(self),
+                category=RemovedInWagtail219Warning,
+            )
+            options["widgets"] = self.widget_overrides()
+
+        if not getattr(self.required_fields, "is_original_method", False):
+            warn(
+                "The `required_fields` method (on %r) is deprecated; "
+                "these should be returned from `get_form_options` as a "
+                "`fields` item instead." % type(self),
+                category=RemovedInWagtail219Warning,
+            )
+            options["fields"] = self.required_fields()
+
+        if not getattr(self.required_formsets, "is_original_method", False):
+            warn(
+                "The `required_formsets` method (on %r) is deprecated; "
+                "these should be returned from `get_form_options` as a "
+                "`formsets` item instead." % type(self),
+                category=RemovedInWagtail219Warning,
+            )
+            options["formsets"] = self.required_formsets()
+
+        return options
+
     # return list of widget overrides that this EditHandler wants to be in place
     # on the form it receives
+    # RemovedInWagtail219Warning - edit handlers should override get_form_options instead
     def widget_overrides(self):
         return {}
 
+    widget_overrides.is_original_method = True
+
     # return list of fields that this EditHandler expects to find on the form
+    # RemovedInWagtail219Warning - edit handlers should override get_form_options instead
     def required_fields(self):
         return []
+
+    required_fields.is_original_method = True
 
     # return a dict of formsets that this EditHandler requires to be present
     # as children of the ClusterForm; the dict is a mapping from relation name
     # to parameters to be passed as part of get_form_for_model's 'formsets' kwarg
+    # RemovedInWagtail219Warning - edit handlers should override get_form_options instead
     def required_formsets(self):
         return {}
+
+    required_formsets.is_original_method = True
 
     # return any HTML that needs to be output on the edit page once per edit handler definition.
     # Typically this will be used to define snippets of HTML within <script type="text/x-template"></script> blocks
@@ -353,9 +403,7 @@ class BaseFormEditHandler(BaseCompositeEditHandler):
         return get_form_for_model(
             self.model,
             form_class=base_form_class,
-            fields=self.required_fields(),
-            formsets=self.required_formsets(),
-            widgets=self.widget_overrides(),
+            **self.get_form_options(),
         )
 
 
