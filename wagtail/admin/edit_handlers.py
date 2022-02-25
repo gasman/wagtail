@@ -573,20 +573,21 @@ class HelpPanel(EditHandler):
 class FieldPanel(EditHandler):
     TEMPLATE_VAR = "field_panel"
 
-    def __init__(self, field_name, *args, **kwargs):
-        widget = kwargs.pop("widget", None)
-        if widget is not None:
-            self.widget = widget
-        self.permission = kwargs.pop("permission", None)
-        self.disable_comments = kwargs.pop("disable_comments", None)
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self, field_name, widget=None, disable_comments=None, permission=None, **kwargs
+    ):
+        super().__init__(**kwargs)
         self.field_name = field_name
+        self.widget = widget
+        self.disable_comments = disable_comments
+        self.permission = permission
 
     def clone_kwargs(self):
         kwargs = super().clone_kwargs()
         kwargs.update(
             field_name=self.field_name,
-            widget=self.widget if hasattr(self, "widget") else None,
+            widget=self.widget,
+            disable_comments=self.disable_comments,
             permission=self.permission,
         )
         return kwargs
@@ -595,9 +596,7 @@ class FieldPanel(EditHandler):
         opts = {
             "fields": [self.field_name],
         }
-        # FIXME: surely we can self.widget unconditionally in __init__ and make this
-        # if self.widget is not None?
-        if hasattr(self, "widget"):
+        if self.widget:
             opts["widgets"] = {self.field_name: self.widget}
 
         if self.permission:
