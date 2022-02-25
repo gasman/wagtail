@@ -682,15 +682,6 @@ class FieldPanel(EditHandler):
         )
 
     def get_comparison_class(self):
-        # Hide fields with hidden widget
-        # FIXME: surely we should have a more robust system for deciding whether a given FieldPanel
-        # should be part of the comparison, rather than "does it set an explicit widget override
-        # that's a hidden field"
-        widgets = self.get_form_options().get("widgets", {})
-        widget_override = widgets.get(self.field_name, None)
-        if widget_override and widget_override.is_hidden:
-            return
-
         try:
             field = self.db_field
 
