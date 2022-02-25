@@ -453,6 +453,14 @@ class BaseFormEditHandler(BaseCompositeEditHandler):
     # WagtailAdminModelForm
     base_form_class = None
 
+    def __init__(self, *args, show_comments_toggle=None, **kwargs):
+        self.base_form_class = kwargs.pop("base_form_class", None)
+        super().__init__(*args, **kwargs)
+
+        # the readable final value of `show_comments_toggle` is now a property, because we derive it from
+        # get_form_options which is only legal to call after we've bound the EditHandler to a model
+        self.explicit_show_comments_toggle = show_comments_toggle
+
     def get_form_class(self):
         """
         Construct a form class that has all the fields and formsets named in
@@ -466,25 +474,22 @@ class BaseFormEditHandler(BaseCompositeEditHandler):
         model_form_class = getattr(self.model, "base_form_class", WagtailAdminModelForm)
         base_form_class = self.base_form_class or model_form_class
 
-        return get_form_for_model(
+        form_class = get_form_for_model(
             self.model,
             form_class=base_form_class,
             **form_options,
         )
 
-
-class TabbedInterface(BaseFormEditHandler):
-    template = "wagtailadmin/edit_handlers/tabbed_interface.html"
-
-    def __init__(self, *args, show_comments_toggle=None, **kwargs):
-        # FIXME: BaseFormEditHandler should be doing this (if we don't ditch the BaseFormEditHandler
-        # mechanism entirely), so that ObjectList doesn't have to spuriously inherit from TabbedInterface
-        self.base_form_class = kwargs.pop("base_form_class", None)
-        super().__init__(*args, **kwargs)
-
-        # the readable final value of `show_comments_toggle` is now a property, because we derive it from
-        # get_form_options which is only legal to call after we've bound the EditHandler to a model
-        self.explicit_show_comments_toggle = show_comments_toggle
+        # Set show_comments_toggle attribute on form class
+        # FIXME: find some alternative to patching the form class here, as we really want edit handlers
+        # to be more hands-off than that.
+        # Move show_comments_toggle into form.Meta so that it can be passed in get_form_options?
+        # Set it via model.base_form_class on any model that should be commentable?
+        return type(
+            form_class.__name__,
+            (form_class,),
+            {"show_comments_toggle": self.show_comments_toggle},
+        )
 
     @cached_property
     def show_comments_toggle(self):
@@ -502,20 +507,6 @@ class TabbedInterface(BaseFormEditHandler):
         fields = self.get_form_options().get("fields", [])
         return "comment_notifications" in fields
 
-    def get_form_class(self):
-        form_class = super().get_form_class()
-
-        # Set show_comments_toggle attribute on form class
-        # FIXME: find some alternative to patching the form class here, as we really want edit handlers
-        # to be more hands-off than that.
-        # Move show_comments_toggle into form.Meta so that it can be passed in get_form_options?
-        # Set it via model.base_form_class on any model that should be commentable?
-        return type(
-            form_class.__name__,
-            (form_class,),
-            {"show_comments_toggle": self.show_comments_toggle},
-        )
-
     def clone_kwargs(self):
         kwargs = super().clone_kwargs()
         kwargs["base_form_class"] = self.base_form_class
@@ -523,7 +514,11 @@ class TabbedInterface(BaseFormEditHandler):
         return kwargs
 
 
-class ObjectList(TabbedInterface):
+class TabbedInterface(BaseFormEditHandler):
+    template = "wagtailadmin/edit_handlers/tabbed_interface.html"
+
+
+class ObjectList(BaseFormEditHandler):
     template = "wagtailadmin/edit_handlers/object_list.html"
 
 
