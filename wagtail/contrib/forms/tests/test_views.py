@@ -45,7 +45,8 @@ class TestFormResponsesPanel(TestCase):
             FormPage, form_class=WagtailAdminPageForm
         )
 
-        self.panel = FormSubmissionsPanel().bind_to(
+        panel = FormSubmissionsPanel().bind_to(model=FormPage)
+        self.panel = panel.bind_to(
             instance=self.form_page, form=self.FormPageForm(), request=self.request
         )
 
@@ -89,7 +90,8 @@ class TestFormResponsesPanelWithCustomSubmissionClass(TestCase, WagtailTestUtils
 
         self.test_user = self.create_user(username="user-n1kola", password="123")
 
-        self.panel = FormSubmissionsPanel().bind_to(
+        panel = FormSubmissionsPanel().bind_to(model=FormPageWithCustomSubmission)
+        self.panel = panel.bind_to(
             instance=self.form_page, form=self.FormPageForm(), request=self.request
         )
 
