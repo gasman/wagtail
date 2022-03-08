@@ -867,7 +867,7 @@ class TestPageChooserPanel(TestCase):
         self.edit_handler = ObjectList([PageChooserPanel("page")]).bind_to_model(
             PageChooserModel
         )
-        self.my_page_chooser_panel = self.edit_handler.children[0]
+        self.my_page_chooser_panel = self.edit_handler.model_bound_children[0]
 
         # build a form class containing the fields that MyPageChooserPanel wants
         self.PageChooserForm = self.edit_handler.get_form_class()
@@ -899,7 +899,7 @@ class TestPageChooserPanel(TestCase):
         my_page_object_list = ObjectList(
             [PageChooserPanel("page", can_choose_root=True)]
         ).bind_to_model(PageChooserModel)
-        my_page_chooser_panel = my_page_object_list.children[0]
+        my_page_chooser_panel = my_page_object_list.model_bound_children[0]
         PageChooserForm = my_page_object_list.get_form_class()
 
         form = PageChooserForm(instance=self.test_instance)
@@ -953,7 +953,7 @@ class TestPageChooserPanel(TestCase):
         my_page_object_list = ObjectList(
             [PageChooserPanel("page", "tests.EventPage")]
         ).bind_to_model(EventPageChooserModel)
-        my_page_chooser_panel = my_page_object_list.children[0]
+        my_page_chooser_panel = my_page_object_list.model_bound_children[0]
         PageChooserForm = my_page_object_list.get_form_class()
         form = PageChooserForm(instance=self.test_instance)
         page_chooser_panel = my_page_chooser_panel.get_bound_panel(
@@ -973,7 +973,7 @@ class TestPageChooserPanel(TestCase):
         my_page_object_list = ObjectList([PageChooserPanel("page")]).bind_to_model(
             EventPageChooserModel,
         )
-        my_page_chooser_panel = my_page_object_list.children[0]
+        my_page_chooser_panel = my_page_object_list.model_bound_children[0]
         PageChooserForm = my_page_object_list.get_form_class()
         form = PageChooserForm(instance=self.test_instance)
         page_chooser_panel = my_page_chooser_panel.get_bound_panel(
@@ -1090,7 +1090,7 @@ class TestInlinePanel(TestCase, WagtailTestUtils):
                 ),
             ]
         ).bind_to_model(EventPage)
-        speaker_inline_panel = speaker_object_list.children[0]
+        speaker_inline_panel = speaker_object_list.model_bound_children[0]
         EventPageForm = speaker_object_list.get_form_class()
 
         # speaker_inline_panel should instruct the form class to include a 'speakers' formset
@@ -1170,7 +1170,7 @@ class TestInlinePanel(TestCase, WagtailTestUtils):
                 ),
             ]
         ).bind_to_model(EventPage)
-        speaker_inline_panel = speaker_object_list.children[0]
+        speaker_inline_panel = speaker_object_list.model_bound_children[0]
         EventPageForm = speaker_object_list.get_form_class()
         event_page = EventPage.objects.get(slug="christmas")
         form = EventPageForm(instance=event_page)

@@ -417,17 +417,21 @@ class EditHandler:
 class BaseCompositeEditHandler(EditHandler):
     """
     Abstract class for EditHandlers that manage a set of sub-EditHandlers.
-    Concrete subclasses must attach a 'children' property
     """
 
     def __init__(self, children=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.children = children
+        self.unbound_children = children
 
     def clone_kwargs(self):
         kwargs = super().clone_kwargs()
-        kwargs["children"] = self.children
+        kwargs["children"] = self.unbound_children
         return kwargs
+
+    def on_model_bound(self):
+        self.model_bound_children = [
+            child.bind_to_model(self.model) for child in self.unbound_children
+        ]
 
     def get_form_options(self):
         if self.model is None:
@@ -440,7 +444,7 @@ class BaseCompositeEditHandler(EditHandler):
 
         # Merge in form options from each child in turn, combining values that are types that we
         # know how to combine (i.e. lists, dicts and sets)
-        for child in self.children:
+        for child in self.model_bound_children:
             child_options = child.get_form_options()
             for key, new_val in child_options.items():
                 if key not in options:
@@ -477,6 +481,14 @@ class BaseCompositeEditHandler(EditHandler):
 
         return options
 
+    def _bind_to(self, instance=None, request=None, form=None):
+        new = super()._bind_to(instance, request, form)
+        new.children = [
+            child._bind_to(instance=instance, request=request, form=form)
+            for child in self.model_bound_children
+        ]
+        return new
+
     @property
     def visible_children(self):
         return [child for child in self.children if child.is_shown()]
@@ -486,22 +498,6 @@ class BaseCompositeEditHandler(EditHandler):
 
     def html_declarations(self):
         return mark_safe("".join([c.html_declarations() for c in self.children]))
-
-    def on_model_bound(self):
-        self.children = [child.bind_to_model(self.model) for child in self.children]
-
-    def on_instance_bound(self):
-        self.children = [
-            child._bind_to(instance=self.instance) for child in self.children
-        ]
-
-    def on_request_bound(self):
-        self.children = [
-            child._bind_to(request=self.request) for child in self.children
-        ]
-
-    def on_form_bound(self):
-        self.children = [child._bind_to(form=self.form) for child in self.children]
 
     def render(self):
         return render_to_string(self.template, {"self": self})

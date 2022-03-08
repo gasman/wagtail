@@ -112,10 +112,12 @@ def check_panels_in_model(cls, context="model"):
     if hasattr(cls, "get_edit_handler"):
         # must check the InlinePanel related models
         edit_handler = cls.get_edit_handler()
-        for tab in edit_handler.children:
+        for tab in edit_handler.model_bound_children:
             if isinstance(tab, BaseCompositeEditHandler):
                 inline_panel_children = [
-                    panel for panel in tab.children if isinstance(panel, InlinePanel)
+                    panel
+                    for panel in tab.model_bound_children
+                    if isinstance(panel, InlinePanel)
                 ]
                 for inline_panel_child in inline_panel_children:
                     errors.extend(

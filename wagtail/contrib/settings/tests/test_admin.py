@@ -290,23 +290,23 @@ class TestEditHandlers(TestCase):
     def test_default_model_introspection(self):
         handler = get_setting_edit_handler(TestSetting)
         self.assertIsInstance(handler, ObjectList)
-        self.assertEqual(len(handler.children), 2)
-        first = handler.children[0]
+        self.assertEqual(len(handler.model_bound_children), 2)
+        first = handler.model_bound_children[0]
         self.assertIsInstance(first, FieldPanel)
         self.assertEqual(first.field_name, "title")
-        second = handler.children[1]
+        second = handler.model_bound_children[1]
         self.assertIsInstance(second, FieldPanel)
         self.assertEqual(second.field_name, "email")
 
     def test_with_custom_panels(self):
         handler = get_setting_edit_handler(PanelSettings)
         self.assertIsInstance(handler, ObjectList)
-        self.assertEqual(len(handler.children), 1)
-        first = handler.children[0]
+        self.assertEqual(len(handler.model_bound_children), 1)
+        first = handler.model_bound_children[0]
         self.assertIsInstance(first, FieldPanel)
         self.assertEqual(first.field_name, "title")
 
     def test_with_custom_edit_handler(self):
         handler = get_setting_edit_handler(TabbedSettings)
         self.assertIsInstance(handler, TabbedInterface)
-        self.assertEqual(len(handler.children), 2)
+        self.assertEqual(len(handler.model_bound_children), 2)
