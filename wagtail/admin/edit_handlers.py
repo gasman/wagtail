@@ -510,7 +510,7 @@ class BaseCompositeEditHandler(EditHandler):
         self.children = [child._bind_to(form=self.form) for child in self.children]
 
     def render(self):
-        return mark_safe(render_to_string(self.template, {"self": self}))
+        return render_to_string(self.template, {"self": self})
 
     def get_comparison(self):
         comparators = []
@@ -656,7 +656,7 @@ class HelpPanel(EditHandler):
         return kwargs
 
     def render(self):
-        return mark_safe(render_to_string(self.template, {"self": self}))
+        return render_to_string(self.template, {"self": self})
 
 
 class FieldPanel(EditHandler):
@@ -742,36 +742,32 @@ class FieldPanel(EditHandler):
     object_template = "wagtailadmin/edit_handlers/single_field_panel.html"
 
     def render_as_object(self):
-        return mark_safe(
-            render_to_string(
-                self.object_template,
-                {
-                    "self": self,
-                    self.TEMPLATE_VAR: self,
-                    "field": self.bound_field,
-                    "show_add_comment_button": self.comments_enabled
-                    and getattr(
-                        self.bound_field.field.widget, "show_add_comment_button", True
-                    ),
-                },
-            )
+        return render_to_string(
+            self.object_template,
+            {
+                "self": self,
+                self.TEMPLATE_VAR: self,
+                "field": self.bound_field,
+                "show_add_comment_button": self.comments_enabled
+                and getattr(
+                    self.bound_field.field.widget, "show_add_comment_button", True
+                ),
+            },
         )
 
     field_template = "wagtailadmin/edit_handlers/field_panel_field.html"
 
     def render_as_field(self):
-        return mark_safe(
-            render_to_string(
-                self.field_template,
-                {
-                    "field": self.bound_field,
-                    "field_type": self.field_type(),
-                    "show_add_comment_button": self.comments_enabled
-                    and getattr(
-                        self.bound_field.field.widget, "show_add_comment_button", True
-                    ),
-                },
-            )
+        return render_to_string(
+            self.field_template,
+            {
+                "field": self.bound_field,
+                "field_type": self.field_type(),
+                "show_add_comment_button": self.comments_enabled
+                and getattr(
+                    self.bound_field.field.widget, "show_add_comment_button", True
+                ),
+            },
         )
 
     def get_comparison_class(self):
@@ -1012,14 +1008,12 @@ class InlinePanel(EditHandler):
     js_template = "wagtailadmin/edit_handlers/inline_panel.js"
 
     def render_js_init(self):
-        return mark_safe(
-            render_to_string(
-                self.js_template,
-                {
-                    "self": self,
-                    "can_order": self.formset.can_order,
-                },
-            )
+        return render_to_string(
+            self.js_template,
+            {
+                "self": self,
+                "can_order": self.formset.can_order,
+            },
         )
 
 
