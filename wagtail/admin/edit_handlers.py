@@ -507,17 +507,7 @@ class BaseCompositeEditHandler(EditHandler):
         ]
 
     def on_form_bound(self):
-        children = []
-        for child in self.children:
-            if isinstance(child, FieldPanel):
-                if self.form._meta.exclude:
-                    if child.field_name in self.form._meta.exclude:
-                        continue
-                if self.form._meta.fields:
-                    if child.field_name not in self.form._meta.fields:
-                        continue
-            children.append(child._bind_to(form=self.form))
-        self.children = children
+        self.children = [child._bind_to(form=self.form) for child in self.children]
 
     def render(self):
         return mark_safe(render_to_string(self.template, {"self": self}))
@@ -704,6 +694,10 @@ class FieldPanel(EditHandler):
         return opts
 
     def is_shown(self):
+        if self.form is not None and self.bound_field is None:
+            # this field is missing from the form
+            return False
+
         if (
             self.permission
             and self.request
@@ -827,6 +821,7 @@ class FieldPanel(EditHandler):
         try:
             self.bound_field = self.form[self.field_name]
         except KeyError:
+            self.bound_field = None
             return
 
         if self.heading:
