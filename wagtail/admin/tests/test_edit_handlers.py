@@ -370,7 +370,7 @@ class TestTabbedInterface(TestCase):
         event = EventPage(title="Abergavenny sheepdog trials")
         form = EventPageForm(instance=event)
 
-        tabbed_interface = self.event_page_tabbed_interface.bind_to(
+        tabbed_interface = self.event_page_tabbed_interface.get_bound_panel(
             instance=event,
             form=form,
             request=self.request,
@@ -414,7 +414,7 @@ class TestTabbedInterface(TestCase):
         event = EventPage(title="Abergavenny sheepdog trials")
         form = EventPageForm(instance=event)
 
-        tabbed_interface = self.event_page_tabbed_interface.bind_to(
+        tabbed_interface = self.event_page_tabbed_interface.get_bound_panel(
             instance=event,
             form=form,
             request=self.request,
@@ -460,7 +460,7 @@ class TestObjectList(TestCase):
         event = EventPage(title="Abergavenny sheepdog trials")
         form = EventPageForm(instance=event)
 
-        object_list = self.event_page_object_list.bind_to(
+        object_list = self.event_page_object_list.get_bound_panel(
             instance=event,
             form=form,
             request=self.request,
@@ -521,7 +521,7 @@ class TestFieldPanel(TestCase):
     def test_override_heading(self):
         # unless heading is specified in keyword arguments, an edit handler with bound form should take its
         # heading from the bound field label
-        bound_panel = self.end_date_panel.bind_to(
+        bound_panel = self.end_date_panel.get_bound_panel(
             form=self.EventPageForm(), request=self.request, instance=self.event
         )
         self.assertEqual(bound_panel.heading, bound_panel.bound_field.label)
@@ -532,7 +532,7 @@ class TestFieldPanel(TestCase):
             "date_to", classname="full-width", heading="New heading"
         ).bind_to_model(EventPage)
         end_date_panel_with_overridden_heading = (
-            end_date_panel_with_overridden_heading.bind_to(
+            end_date_panel_with_overridden_heading.get_bound_panel(
                 request=self.request, form=self.EventPageForm(), instance=self.event
             )
         )
@@ -553,7 +553,7 @@ class TestFieldPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.end_date_panel.bind_to(
+        field_panel = self.end_date_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -586,7 +586,7 @@ class TestFieldPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.end_date_panel.bind_to(
+        field_panel = self.end_date_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -622,7 +622,7 @@ class TestFieldPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.end_date_panel.bind_to(
+        field_panel = self.end_date_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -634,7 +634,7 @@ class TestFieldPanel(TestCase):
 
     def test_repr(self):
         form = self.EventPageForm()
-        field_panel = self.end_date_panel.bind_to(
+        field_panel = self.end_date_panel.get_bound_panel(
             form=form,
             instance=self.event,
             request=self.request,
@@ -687,7 +687,7 @@ class TestFieldRowPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.dates_panel.bind_to(
+        field_panel = self.dates_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -712,7 +712,7 @@ class TestFieldRowPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.dates_panel.bind_to(
+        field_panel = self.dates_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -747,7 +747,7 @@ class TestFieldRowPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.dates_panel.bind_to(
+        field_panel = self.dates_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -769,7 +769,7 @@ class TestFieldRowPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.dates_panel.bind_to(
+        field_panel = self.dates_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -791,7 +791,7 @@ class TestFieldRowPanel(TestCase):
 
         form.is_valid()
 
-        field_panel = self.dates_panel.bind_to(
+        field_panel = self.dates_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -839,7 +839,7 @@ class TestFieldRowPanelWithChooser(TestCase):
 
         form.is_valid()
 
-        field_panel = self.dates_panel.bind_to(
+        field_panel = self.dates_panel.get_bound_panel(
             instance=self.event,
             form=form,
             request=self.request,
@@ -878,7 +878,7 @@ class TestPageChooserPanel(TestCase):
         self.test_instance = model.objects.create(page=self.christmas_page)
 
         self.form = self.PageChooserForm(instance=self.test_instance)
-        self.page_chooser_panel = self.my_page_chooser_panel.bind_to(
+        self.page_chooser_panel = self.my_page_chooser_panel.get_bound_panel(
             instance=self.test_instance, form=self.form, request=self.request
         )
 
@@ -903,7 +903,7 @@ class TestPageChooserPanel(TestCase):
         PageChooserForm = my_page_object_list.get_form_class()
 
         form = PageChooserForm(instance=self.test_instance)
-        page_chooser_panel = my_page_chooser_panel.bind_to(
+        page_chooser_panel = my_page_chooser_panel.get_bound_panel(
             instance=self.test_instance, form=form, request=self.request
         )
         result = page_chooser_panel.render_as_field()
@@ -927,7 +927,7 @@ class TestPageChooserPanel(TestCase):
     def test_render_as_empty_field(self):
         test_instance = PageChooserModel()
         form = self.PageChooserForm(instance=test_instance)
-        page_chooser_panel = self.my_page_chooser_panel.bind_to(
+        page_chooser_panel = self.my_page_chooser_panel.get_bound_panel(
             instance=test_instance, form=form, request=self.request
         )
         result = page_chooser_panel.render_as_field()
@@ -940,7 +940,7 @@ class TestPageChooserPanel(TestCase):
         form = self.PageChooserForm({"page": ""}, instance=self.test_instance)
         self.assertFalse(form.is_valid())
 
-        page_chooser_panel = self.my_page_chooser_panel.bind_to(
+        page_chooser_panel = self.my_page_chooser_panel.get_bound_panel(
             instance=self.test_instance, form=form, request=self.request
         )
         self.assertIn(
@@ -956,7 +956,7 @@ class TestPageChooserPanel(TestCase):
         my_page_chooser_panel = my_page_object_list.children[0]
         PageChooserForm = my_page_object_list.get_form_class()
         form = PageChooserForm(instance=self.test_instance)
-        page_chooser_panel = my_page_chooser_panel.bind_to(
+        page_chooser_panel = my_page_chooser_panel.get_bound_panel(
             instance=self.test_instance, form=form, request=self.request
         )
 
@@ -976,7 +976,7 @@ class TestPageChooserPanel(TestCase):
         my_page_chooser_panel = my_page_object_list.children[0]
         PageChooserForm = my_page_object_list.get_form_class()
         form = PageChooserForm(instance=self.test_instance)
-        page_chooser_panel = my_page_chooser_panel.bind_to(
+        page_chooser_panel = my_page_chooser_panel.get_bound_panel(
             instance=self.test_instance, form=form, request=self.request
         )
 
@@ -1033,7 +1033,7 @@ class TestInlinePanel(TestCase, WagtailTestUtils):
         event_page = EventPage.objects.get(slug="christmas")
 
         form = EventPageForm(instance=event_page)
-        panel = speaker_object_list.bind_to(
+        panel = speaker_object_list.get_bound_panel(
             instance=event_page, form=form, request=self.request
         )
 
@@ -1099,7 +1099,7 @@ class TestInlinePanel(TestCase, WagtailTestUtils):
         event_page = EventPage.objects.get(slug="christmas")
 
         form = EventPageForm(instance=event_page)
-        panel = speaker_inline_panel.bind_to(
+        panel = speaker_inline_panel.get_bound_panel(
             instance=event_page, form=form, request=self.request
         )
 
@@ -1174,7 +1174,7 @@ class TestInlinePanel(TestCase, WagtailTestUtils):
         EventPageForm = speaker_object_list.get_form_class()
         event_page = EventPage.objects.get(slug="christmas")
         form = EventPageForm(instance=event_page)
-        panel = speaker_inline_panel.bind_to(
+        panel = speaker_inline_panel.get_bound_panel(
             instance=event_page, form=form, request=self.request
         )
 
@@ -1341,7 +1341,7 @@ class TestCommentPanel(TestCase, WagtailTestUtils):
         Test that the context contains the data about existing comments necessary to initialize the commenting app
         """
         form = self.EventPageForm(instance=self.event_page)
-        panel = self.object_list.bind_to(
+        panel = self.object_list.get_bound_panel(
             request=self.request, instance=self.event_page, form=form
         ).children[0]
         data = panel.get_context()["comments_data"]

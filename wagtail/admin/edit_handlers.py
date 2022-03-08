@@ -222,16 +222,16 @@ class EditHandler:
         return new
 
     def bind_to(self, model=None, instance=None, request=None, form=None):
+        raise ImproperlyConfigured(
+            "%s.bind_to() has been replaced by bind_to_model(model) and get_bound_panel(instance, request, form)"
+            % type(self).__name__
+        )
+
+    def _bind_to(self, instance=None, request=None, form=None):
         if self.model is None:
             raise ImproperlyConfigured(
                 "%s.bind_to_model(model) must be called before bind_to"
                 % type(self).__name__
-            )
-        if model is not None:
-            warn(
-                "The model argument to %s.bind_to() has no effect and will be removed"
-                % type(self).__name__,
-                category=RemovedInWagtail219Warning,
             )
 
         new = self.clone()
@@ -252,6 +252,9 @@ class EditHandler:
             new.on_form_bound()
 
         return new
+
+    def get_bound_panel(self, instance=None, request=None, form=None):
+        return self._bind_to(instance=instance, request=request, form=form)
 
     def on_model_bound(self):
         pass
@@ -424,11 +427,13 @@ class BaseCompositeEditHandler(EditHandler):
 
     def on_instance_bound(self):
         self.children = [
-            child.bind_to(instance=self.instance) for child in self.children
+            child._bind_to(instance=self.instance) for child in self.children
         ]
 
     def on_request_bound(self):
-        self.children = [child.bind_to(request=self.request) for child in self.children]
+        self.children = [
+            child._bind_to(request=self.request) for child in self.children
+        ]
 
     def on_form_bound(self):
         children = []
@@ -440,7 +445,7 @@ class BaseCompositeEditHandler(EditHandler):
                 if self.form._meta.fields:
                     if child.field_name not in self.form._meta.fields:
                         continue
-            children.append(child.bind_to(form=self.form))
+            children.append(child._bind_to(form=self.form))
         self.children = children
 
     def render(self):
@@ -903,7 +908,7 @@ class InlinePanel(EditHandler):
 
             child_edit_handler = self.get_child_edit_handler()
             self.children.append(
-                child_edit_handler.bind_to(
+                child_edit_handler._bind_to(
                     instance=subform.instance, request=self.request, form=subform
                 )
             )
@@ -921,7 +926,7 @@ class InlinePanel(EditHandler):
             empty_form.fields[ORDERING_FIELD_NAME].widget = forms.HiddenInput()
 
         self.empty_child = self.get_child_edit_handler()
-        self.empty_child = self.empty_child.bind_to(
+        self.empty_child = self.empty_child._bind_to(
             instance=empty_form.instance, request=self.request, form=empty_form
         )
 
