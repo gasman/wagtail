@@ -118,11 +118,75 @@ def extract_panel_definitions_from_model_class(model, exclude=None):
     return panels
 
 
+class BoundPanel:
+    def __init__(self, panel, instance, request, form):
+        self.panel = panel
+        self.instance = instance
+        self.request = request
+        self.form = form
+        self._bound_panel = panel._bind_to(
+            instance=instance, request=request, form=form
+        )
+
+    def classes(self):
+        return self._bound_panel.classes()
+
+    def field_type(self):
+        return self._bound_panel.field_type()
+
+    def id_for_label(self):
+        return self._bound_panel.id_for_label()
+
+    def render_as_object(self):
+        return self._bound_panel.render_as_object()
+
+    def render_as_field(self):
+        return self._bound_panel.render_as_field()
+
+    def render(self):
+        return self._bound_panel.render()
+
+    def render_js_init(self):
+        return self._bound_panel.render_js_init()
+
+    def render_missing_fields(self):
+        return self._bound_panel.render_missing_fields()
+
+    def render_form_content(self):
+        return self._bound_panel.render_form_content()
+
+    def get_comparison(self):
+        return self._bound_panel.get_comparison()
+
+    @property
+    def children(self):
+        return self._bound_panel.children
+
+    @property
+    def heading(self):
+        return self._bound_panel.heading
+
+    @property
+    def bound_field(self):
+        return self._bound_panel.bound_field
+
+    def __repr__(self):
+        return "<%s with model=%s instance=%s request=%s form=%s>" % (
+            self.__class__.__name__,
+            self.panel.model,
+            self.instance,
+            self.request,
+            self.form.__class__.__name__,
+        )
+
+
 class EditHandler:
     """
     Abstract class providing sensible default behaviours for objects implementing
     the EditHandler API
     """
+
+    bound_panel_class = BoundPanel
 
     def __init__(self, heading="", classname="", help_text=""):
         self.heading = heading
@@ -228,6 +292,11 @@ class EditHandler:
         )
 
     def _bind_to(self, instance=None, request=None, form=None):
+        # TEMP: for now, BoundPanel delegates its functionality to an EditHandler with
+        # instance, request and form bound. Once BoundPanel has reimplemented that functionality
+        # based on its own instance / request / form attributes, and eliminated all reliance on
+        # the bound EditHandler object, this can be dropped.
+
         if self.model is None:
             raise ImproperlyConfigured(
                 "%s.bind_to_model(model) must be called before bind_to"
@@ -254,7 +323,9 @@ class EditHandler:
         return new
 
     def get_bound_panel(self, instance=None, request=None, form=None):
-        return self._bind_to(instance=instance, request=request, form=form)
+        return self.bound_panel_class(
+            panel=self, instance=instance, request=request, form=form
+        )
 
     def on_model_bound(self):
         pass
