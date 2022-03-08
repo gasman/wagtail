@@ -970,7 +970,7 @@ class InlinePanel(EditHandler):
 
             child_edit_handler = self.get_child_edit_handler()
             self.children.append(
-                child_edit_handler._bind_to(
+                child_edit_handler.get_bound_panel(
                     instance=subform.instance, request=self.request, form=subform
                 )
             )
@@ -987,8 +987,8 @@ class InlinePanel(EditHandler):
         if self.formset.can_order:
             empty_form.fields[ORDERING_FIELD_NAME].widget = forms.HiddenInput()
 
-        self.empty_child = self.get_child_edit_handler()
-        self.empty_child = self.empty_child._bind_to(
+        empty_child_handler = self.get_child_edit_handler()
+        self.empty_child = empty_child_handler.get_bound_panel(
             instance=empty_form.instance, request=self.request, form=empty_form
         )
 
