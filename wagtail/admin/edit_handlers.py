@@ -150,10 +150,33 @@ class BoundPanel:
         return self._bound_panel.render_js_init()
 
     def render_missing_fields(self):
-        return self._bound_panel.render_missing_fields()
+        """
+        Helper function: render all of the fields that are defined on the form but not "claimed" by
+        any panels via required_fields. These fields are most likely to be hidden fields introduced
+        by the forms framework itself, such as ORDER / DELETE fields on formset members.
+
+        (If they aren't actually hidden fields, then they will appear as ugly unstyled / label-less fields
+        outside of the panel furniture. But there's not much we can do about that.)
+        """
+        # FIXME: is this actually needed, or can we rely on the set of fields not explicitly accounted for
+        # by an edit handler to be empty (or at least predictable)?
+        # In principle custom forms (https://docs.wagtail.org/en/stable/advanced_topics/customisation/page_editing_interface.html#customising-generated-forms)
+        # could insert unaccounted-for fields, so it probably needs a deprecation period at least.
+        rendered_fields = self.panel.get_form_options().get("fields", [])
+        missing_fields_html = [
+            str(self.form[field_name])
+            for field_name in self.form.fields
+            if field_name not in rendered_fields
+        ]
+
+        return mark_safe("".join(missing_fields_html))
 
     def render_form_content(self):
-        return self._bound_panel.render_form_content()
+        """
+        Render this as an 'object', ensuring that all fields necessary for a valid form
+        submission are included
+        """
+        return mark_safe(self.render_as_object() + self.render_missing_fields())
 
     def get_comparison(self):
         return self._bound_panel.get_comparison()
@@ -386,35 +409,6 @@ class EditHandler:
         """
         # by default, assume that the subclass provides a catch-all render() method
         return self.render()
-
-    def render_missing_fields(self):
-        """
-        Helper function: render all of the fields that are defined on the form but not "claimed" by
-        any panels via required_fields. These fields are most likely to be hidden fields introduced
-        by the forms framework itself, such as ORDER / DELETE fields on formset members.
-
-        (If they aren't actually hidden fields, then they will appear as ugly unstyled / label-less fields
-        outside of the panel furniture. But there's not much we can do about that.)
-        """
-        # FIXME: is this actually needed, or can we rely on the set of fields not explicitly accounted for
-        # by an edit handler to be empty (or at least predictable)?
-        # In principle custom forms (https://docs.wagtail.org/en/stable/advanced_topics/customisation/page_editing_interface.html#customising-generated-forms)
-        # could insert unaccounted-for fields, so it probably needs a deprecation period at least.
-        rendered_fields = self.get_form_options().get("fields", [])
-        missing_fields_html = [
-            str(self.form[field_name])
-            for field_name in self.form.fields
-            if field_name not in rendered_fields
-        ]
-
-        return mark_safe("".join(missing_fields_html))
-
-    def render_form_content(self):
-        """
-        Render this as an 'object', ensuring that all fields necessary for a valid form
-        submission are included
-        """
-        return mark_safe(self.render_as_object() + self.render_missing_fields())
 
     def get_comparison(self):
         return []
