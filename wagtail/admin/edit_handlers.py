@@ -592,11 +592,6 @@ class FieldPanel(EditHandler):
         return [self.field_name]
 
     def get_comparison_class(self):
-        # Hide fields with hidden widget
-        widget_override = self.widget_overrides().get(self.field_name, None)
-        if widget_override and widget_override.is_hidden:
-            return
-
         try:
             field = self.db_field
 
