@@ -20,7 +20,8 @@ except ImportError:
 
 install_requires = [
     "Django>=3.2,<4.1",
-    "django-modelcluster>=5.2,<6.0",
+    # TODO: release django-modelcluster 6 with https://github.com/wagtail/django-modelcluster/pull/158
+    "django-modelcluster@git+https://github.com/gasman/django-modelcluster.git@feature/no-formsets-default",
     "django-permissionedforms>=0.1,<1.0",
     "django-taggit>=2.0,<3.0",
     "django-treebeard>=4.5.1,<5.0",
