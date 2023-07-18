@@ -436,6 +436,7 @@ class TestImageListingResultsView(WagtailTestUtils, TransactionTestCase):
 
     def setUp(self):
         self.login()
+        self.update_search_index()
 
     def get(self, params={}):
         return self.client.get(reverse("wagtailimages:listing_results"), params)
@@ -1593,11 +1594,6 @@ class TestImageChooserView(WagtailTestUtils, TestCase):
         # form media imports should appear on the page
         self.assertIn("wagtailadmin/js/draftail.js", response_json["html"])
 
-    def test_search(self):
-        response = self.get({"q": "Hello"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["search_query"], "Hello")
-
     def test_pagination(self):
         # page numbers in range should be accepted
         response = self.get({"p": 1})
@@ -1675,9 +1671,15 @@ class TestImageChooserViewSearch(WagtailTestUtils, TransactionTestCase):
 
     def setUp(self):
         self.user = self.login()
+        self.update_search_index()
 
     def get(self, params={}):
         return self.client.get(reverse("wagtailimages_chooser:choose"), params)
+
+    def test_search(self):
+        response = self.get({"q": "Hello"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["search_query"], "Hello")
 
     def test_construct_queryset_hook_search(self):
         image = Image.objects.create(
@@ -3452,7 +3454,7 @@ class TestPreviewView(WagtailTestUtils, TestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
+class BaseTestEditOnlyPermissions(WagtailTestUtils, TestCase):
     def setUp(self):
         # Create an image to edit
         self.image = Image.objects.create(
@@ -3482,6 +3484,8 @@ class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
         user.groups.add(image_changers_group)
         self.login(username="changeonly", password="password")
 
+
+class TestEditOnlyPermissions(BaseTestEditOnlyPermissions):
     def test_get_index(self):
         response = self.client.get(reverse("wagtailimages:index"))
         self.assertEqual(response.status_code, 200)
@@ -3492,11 +3496,6 @@ class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
 
         # user should be able to see images not owned by them
         self.assertContains(response, "Test image")
-
-    def test_search(self):
-        response = self.client.get(reverse("wagtailimages:index"), {"q": "Hello"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["query_string"], "Hello")
 
     def test_get_add(self):
         response = self.client.get(reverse("wagtailimages:add"))
@@ -3519,6 +3518,17 @@ class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
         response = self.client.get(reverse("wagtailimages:add_multiple"))
         # permission should be denied
         self.assertRedirects(response, reverse("wagtailadmin_home"))
+
+
+class TestEditOnlyPermissionsSearch(BaseTestEditOnlyPermissions):
+    def setUp(self):
+        super().setUp()
+        self.update_search_index()
+
+    def test_search(self):
+        response = self.client.get(reverse("wagtailimages:index"), {"q": "Hello"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["query_string"], "Hello")
 
 
 class TestImageAddMultipleView(WagtailTestUtils, TestCase):

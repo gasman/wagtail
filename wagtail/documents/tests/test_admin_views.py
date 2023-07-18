@@ -1583,13 +1583,6 @@ class TestDocumentChooserView(WagtailTestUtils, TestCase):
         # form media imports should appear on the page
         self.assertIn("wagtailadmin/js/draftail.js", response_json["html"])
 
-    def test_search(self):
-        response = self.client.get(
-            reverse("wagtaildocs_chooser:choose_results"), {"q": "Hello"}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["search_query"], "Hello")
-
     def make_docs(self):
         for i in range(50):
             document = models.Document(title="Test " + str(i))
@@ -1673,6 +1666,14 @@ class TestDocumentChooserViewSearch(WagtailTestUtils, TransactionTestCase):
 
     def setUp(self):
         self.user = self.login()
+        self.update_search_index()
+
+    def test_search(self):
+        response = self.client.get(
+            reverse("wagtaildocs_chooser:choose_results"), {"q": "Hello"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["search_query"], "Hello")
 
     def test_construct_queryset_hook_search(self):
         document = models.Document.objects.create(
@@ -1988,7 +1989,7 @@ class TestGetUsage(WagtailTestUtils, TestCase):
         self.assertEqual(response.status_code, 302)
 
 
-class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
+class BaseTestEditOnlyPermissions(WagtailTestUtils, TestCase):
     def setUp(self):
         # Build a fake file
         fake_file = get_test_document_file()
@@ -2023,6 +2024,8 @@ class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
         user.user_permissions.add(admin_permission)
         self.login(username="changeonly", password="password")
 
+
+class TestEditOnlyPermissions(BaseTestEditOnlyPermissions):
     def test_get_index(self):
         response = self.client.get(reverse("wagtaildocs:index"))
         self.assertEqual(response.status_code, 200)
@@ -2033,11 +2036,6 @@ class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
 
         # user should be able to see documents not owned by them
         self.assertContains(response, "Test document")
-
-    def test_search(self):
-        response = self.client.get(reverse("wagtaildocs:index"), {"q": "Hello"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["query_string"], "Hello")
 
     def test_get_add(self):
         response = self.client.get(reverse("wagtaildocs:add"))
@@ -2138,3 +2136,14 @@ class TestEditOnlyPermissions(WagtailTestUtils, TestCase):
         response = self.client.get(reverse("wagtaildocs:add_multiple"))
         # permission should be denied
         self.assertRedirects(response, reverse("wagtailadmin_home"))
+
+
+class TestEditOnlyPermissionsSearch(BaseTestEditOnlyPermissions):
+    def setUp(self):
+        super().setUp()
+        self.update_search_index()
+
+    def test_search(self):
+        response = self.client.get(reverse("wagtaildocs:index"), {"q": "Hello"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["query_string"], "Hello")
