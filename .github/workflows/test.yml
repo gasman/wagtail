@@ -222,7 +222,7 @@ jobs:
           pip install certifi
       - name: Test
         run: |
-          coverage run --parallel-mode --source wagtail runtests.py wagtail.search wagtail.documents wagtail.images --elasticsearch5
+          coverage run --parallel-mode --source wagtail runtests.py --elasticsearch5
         env:
           DATABASE_ENGINE: django.db.backends.sqlite3
       - name: Upload coverage data
@@ -268,7 +268,7 @@ jobs:
           pip install certifi
       - name: Test
         run: |
-          coverage run --parallel-mode --source wagtail runtests.py wagtail.search wagtail.documents wagtail.images --elasticsearch8
+          coverage run --parallel-mode --source wagtail runtests.py --elasticsearch8
         env:
           DATABASE_ENGINE: django.db.backends.sqlite3
           USE_EMAIL_USER_MODEL: ${{ matrix.emailuser }}
@@ -322,7 +322,7 @@ jobs:
           pip install certifi
       - name: Test
         run: |
-          coverage run --parallel-mode --source wagtail runtests.py wagtail.search wagtail.documents wagtail.images --elasticsearch6
+          coverage run --parallel-mode --source wagtail runtests.py --elasticsearch6
         env:
           DATABASE_ENGINE: django.db.backends.postgresql
           DATABASE_HOST: localhost
@@ -379,7 +379,7 @@ jobs:
           pip install certifi
       - name: Test
         run: |
-          coverage run --parallel-mode --source wagtail runtests.py wagtail.search wagtail.documents wagtail.images --elasticsearch7
+          coverage run --parallel-mode --source wagtail runtests.py --elasticsearch7
         env:
           DATABASE_ENGINE: django.db.backends.postgresql
           DATABASE_HOST: localhost
