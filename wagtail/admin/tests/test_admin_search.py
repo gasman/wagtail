@@ -23,7 +23,6 @@ class BaseSearchAreaTestCase(WagtailTestUtils, TestCase):
 class TestSearchAreas(BaseSearchAreaTestCase):
     def setUp(self):
         super().setUp()
-        self.update_search_index()
         self.user = self.login()
 
     def test_other_searches(self):
