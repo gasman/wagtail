@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from wagtail.api.v2 import signal_handlers
 from wagtail.images import get_image_model
+from wagtail.test.utils import WagtailTestUtils
 
 
 class TestImageListing(TestCase):
@@ -363,8 +364,12 @@ class TestImageListing(TestCase):
         self.assertEqual(content, {"message": "offset must be a positive integer"})
 
 
-class TestImageListingSearch(TransactionTestCase):
+class TestImageListingSearch(WagtailTestUtils, TransactionTestCase):
     fixtures = ["demosite.json"]
+
+    def setUp(self):
+        super().setUp()
+        self.update_search_index()
 
     def get_response(self, **params):
         return self.client.get(reverse("wagtailapi_v2:images:listing"), params)

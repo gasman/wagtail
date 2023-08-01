@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from wagtail.api.v2 import signal_handlers
 from wagtail.documents import get_document_model
+from wagtail.test.utils import WagtailTestUtils
 
 
 class TestDocumentListing(TestCase):
@@ -360,8 +361,12 @@ class TestDocumentListing(TestCase):
         self.assertEqual(content, {"message": "offset must be a positive integer"})
 
 
-class TestDocumentListingSearch(TransactionTestCase):
+class TestDocumentListingSearch(WagtailTestUtils, TransactionTestCase):
     fixtures = ["demosite.json"]
+
+    def setUp(self):
+        super().setUp()
+        self.update_search_index()
 
     def get_response(self, **params):
         return self.client.get(reverse("wagtailapi_v2:documents:listing"), params)
