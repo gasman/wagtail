@@ -22,8 +22,10 @@ concurrency:
 # Current configuration:
 # - django 4.2, python 3.8, postgres:12, parallel
 # - django 4.2, python 3.9, mysql:8.0
+# - django 4.2, python 3.9, mariadb:10.11
 # - django 4.2, python 3.10, sqlite
 # - django 5.0, python 3.12, mysql:8.1, parallel
+# - django 5.0, python 3.12, mariadb:10.11, parallel
 # - django 5.0, python 3.11, postgres:12, parallel, USE_EMAIL_USER_MODEL=yes
 # - django 5.0, python 3.12, postgres:15, parallel, DISABLE_TIMEZONE=yes
 # - django stable/5.0.x, python 3.10, postgres (allow failures)
@@ -165,6 +167,56 @@ jobs:
     services:
       mysql:
         image: ${{ matrix.mysql || 'mysql:8.0' }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: wagtail
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3 --cap-add=sys_nice
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "mysqlclient>=1.4,<2"
+          pip install -e '.[testing]' --config-settings editable_mode=strict
+          pip install "${{ matrix.django }}"
+      - name: Test
+        run: |
+          WAGTAIL_FAIL_ON_VERSIONED_STATIC=1 DJANGO_SETTINGS_MODULE=wagtail.test.settings django-admin check
+          coverage run --parallel-mode --source wagtail runtests.py ${{ matrix.parallel }}
+        env:
+          DATABASE_ENGINE: django.db.backends.mysql
+          DATABASE_HOST: '127.0.0.1'
+          DATABASE_USER: root
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-data
+          path: .coverage.*
+
+  test-mariadb:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        include:
+          - python: '3.9'
+            django: 'Django>=4.2,<4.3'
+            experimental: false
+          - python: '3.12'
+            django: 'Django>=5.0,<5.1'
+            experimental: false
+            parallel: '--parallel'
+    services:
+      mariadb:
+        image: 'mariadb:10.11'
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: wagtail
