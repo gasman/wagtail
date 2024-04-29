@@ -11,7 +11,7 @@ from modelcluster.models import ClusterableModel, get_all_child_relations
 from taggit.models import ItemBase
 
 from wagtail.blocks import StreamBlock
-from wagtail.fields import StreamField
+from wagtail.fields import Char32UUIDField, StreamField
 
 
 class ReferenceGroups:
@@ -149,7 +149,7 @@ class ReferenceIndex(models.Model):
 
     # We need a separate hash field for content_path in order to use it in a unique key because
     # MySQL has a limit to the size of fields that are included in unique keys
-    content_path_hash = models.UUIDField()
+    content_path_hash = Char32UUIDField()
 
     objects = ReferenceIndexQuerySet.as_manager()
 

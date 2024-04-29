@@ -16,6 +16,7 @@ from wagtail.coreutils import (
     get_content_languages,
     get_supported_content_language_variant,
 )
+from wagtail.fields import Char32UUIDField
 from wagtail.signals import pre_validate_delete
 
 
@@ -175,7 +176,7 @@ class Locale(models.Model):
 
 
 class TranslatableMixin(models.Model):
-    translation_key = models.UUIDField(default=uuid.uuid4, editable=False)
+    translation_key = Char32UUIDField(default=uuid.uuid4, editable=False)
     locale = models.ForeignKey(
         Locale, on_delete=models.PROTECT, related_name="+", editable=False
     )
@@ -425,7 +426,7 @@ class BootstrapTranslatableMixin(TranslatableMixin):
      - Migrate!
     """
 
-    translation_key = models.UUIDField(null=True, editable=False)
+    translation_key = Char32UUIDField(null=True, editable=False)
     locale = models.ForeignKey(
         Locale, on_delete=models.PROTECT, null=True, related_name="+", editable=False
     )

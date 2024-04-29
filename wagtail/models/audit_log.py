@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+from wagtail.fields import Char32UUIDField
 from wagtail.log_actions import registry as log_action_registry
 from wagtail.users.utils import get_deleted_user_display_name
 
@@ -200,7 +201,7 @@ class BaseLogEntry(models.Model):
     action = models.CharField(max_length=255, blank=True, db_index=True)
     data = models.JSONField(blank=True, default=dict, encoder=DjangoJSONEncoder)
     timestamp = models.DateTimeField(verbose_name=_("timestamp (UTC)"), db_index=True)
-    uuid = models.UUIDField(
+    uuid = Char32UUIDField(
         blank=True,
         null=True,
         editable=False,
