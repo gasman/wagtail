@@ -1584,7 +1584,7 @@ class Page(AbstractPage, index.Indexed, ClusterableModel, metaclass=PageBase):
 
     @transaction.atomic
     # ensure that changes are only committed when we have updated all descendant URL paths, to preserve consistency
-    def save(self, clean=True, user=None, log_action=False, **kwargs):
+    def save(self, clean=False, user=None, log_action=False, **kwargs):
         """
         Overrides default method behavior to make additional updates unique to pages,
         such as updating the ``url_path`` value of descendant page to reflect changes
