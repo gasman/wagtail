@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="head_count_relations",
-                to="wagtailcore.page",
+                to="basepage.BasePage",
             ),
         ),
     ]

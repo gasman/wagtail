@@ -183,7 +183,7 @@ class Migration(migrations.Migration):
                         parent_link=True,
                         primary_key=True,
                         serialize=False,
-                        to="wagtailcore.page",
+                        to="basepage.basepage",
                     ),
                 ),
                 (
@@ -332,6 +332,6 @@ class Migration(migrations.Migration):
             options={
                 "abstract": False,
             },
-            bases=("wagtailcore.page",),
+            bases=("basepage.basepage",),
         ),
     ]

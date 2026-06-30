@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                         parent_link=True,
                         primary_key=True,
                         serialize=False,
-                        to="wagtailcore.Page",
+                        to="basepage.BasePage",
                     ),
                 ),
             ],
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             },
             bases=(
                 wagtail.contrib.routable_page.models.RoutablePageMixin,
-                "wagtailcore.page",
+                "basepage.basepage",
             ),
         ),
     ]

@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ComplexDefaultStreamPage',
             fields=[
-                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.page')),
+                ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='basepage.BasePage')),
                 ('body', wagtail.fields.StreamField([('text', wagtail.blocks.CharBlock()), ('rich_text', wagtail.blocks.RichTextBlock()), ('books', wagtail.blocks.StreamBlock([('title', wagtail.blocks.CharBlock()), ('author', wagtail.blocks.CharBlock())]))], default=[('rich_text', '<p>My <i>lovely</i> books</p>'), ('books', [('title', 'The Great Gatsby'), ('author', 'F. Scott Fitzgerald')])])),
             ],
             options={
                 'abstract': False,
             },
-            bases=('wagtailcore.page',),
+            bases=('basepage.basepage',),
         ),
     ]

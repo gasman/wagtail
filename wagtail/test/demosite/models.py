@@ -23,7 +23,7 @@ from wagtail.test.basepage.models import BasePage as Page
 class AbstractLinkFields(models.Model):
     link_external = models.URLField("External link", blank=True)
     link_page = models.ForeignKey(
-        "wagtailcore.Page",
+        "basepage.BasePage",
         null=True,
         blank=True,
         related_name="+",
