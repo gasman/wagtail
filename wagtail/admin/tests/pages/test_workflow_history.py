@@ -9,7 +9,7 @@ from django.utils.formats import localize
 from freezegun import freeze_time
 
 from wagtail.admin.utils import get_user_display_name
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.test.utils.template_tests import AdminTemplateTestUtils
 

@@ -6,7 +6,8 @@ from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 
-from wagtail.models import Page, ReferenceIndex
+from wagtail.models import ReferenceIndex
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     Advert,
     DraftStateModel,

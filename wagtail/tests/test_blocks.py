@@ -29,8 +29,8 @@ from wagtail.blocks.struct_block import (
     StructBlockAdapter,
     StructBlockValidationError,
 )
-from wagtail.models import Page
 from wagtail.rich_text import RichText
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.blocks import LinkBlock as CustomLinkBlock
 from wagtail.test.testapp.blocks import SectionBlock
 from wagtail.test.testapp.models import EventPage, SimplePage

@@ -44,7 +44,8 @@ from wagtail.contrib.forms.models import FormSubmission
 from wagtail.contrib.forms.panels import FormSubmissionsPanel
 from wagtail.coreutils import get_dummy_request
 from wagtail.images import get_image_model
-from wagtail.models import Comment, CommentReply, Page, Site
+from wagtail.models import Comment, CommentReply, Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.forms import ValidatedPageForm
 from wagtail.test.testapp.models import (
     Advert,

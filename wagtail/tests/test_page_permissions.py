@@ -9,11 +9,11 @@ from wagtail.models import (
     GroupApprovalTask,
     GroupPagePermission,
     Locale,
-    Page,
     Workflow,
     WorkflowTask,
 )
 from wagtail.permission_policies.pages import PagePermissionPolicy
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     BusinessSubIndex,
     CustomPermissionPage,

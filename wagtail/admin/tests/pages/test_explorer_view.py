@@ -8,7 +8,8 @@ from django.utils.http import urlencode
 from wagtail import hooks
 from wagtail.admin.staticfiles import versioned_static
 from wagtail.admin.widgets import Button
-from wagtail.models import GroupPagePermission, Locale, Page, Site, Workflow
+from wagtail.models import GroupPagePermission, Locale, Site, Workflow
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     CustomPermissionPage,
     SimpleChildPage,

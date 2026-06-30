@@ -29,8 +29,8 @@ from wagtail.models import (
     GroupCollectionPermission,
     GroupPagePermission,
     LockableMixin,
-    Page,
 )
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.customuser.forms import CustomUserCreationForm, CustomUserEditForm
 from wagtail.test.customuser.viewsets import CustomUserViewSet
 from wagtail.test.testapp.models import VariousOnDeleteModel

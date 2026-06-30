@@ -8,7 +8,8 @@ from django.urls import reverse
 from freezegun import freeze_time
 
 from wagtail.admin.staticfiles import versioned_static
-from wagtail.models import GroupPagePermission, Page
+from wagtail.models import GroupPagePermission
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     DefaultStreamPage,
     EventPage,

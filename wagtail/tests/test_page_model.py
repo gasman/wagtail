@@ -23,7 +23,6 @@ from wagtail.models import (
     Comment,
     GroupApprovalTask,
     Locale,
-    Page,
     PageLogEntry,
     PageManager,
     PageViewRestriction,
@@ -34,6 +33,7 @@ from wagtail.models import (
     get_translatable_models,
 )
 from wagtail.signals import page_published
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     AbstractPage,
     Advert,

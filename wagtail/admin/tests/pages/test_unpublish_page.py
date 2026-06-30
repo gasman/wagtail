@@ -6,8 +6,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from wagtail.models import Page
 from wagtail.signals import page_unpublished
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import SimplePage
 from wagtail.test.utils import WagtailTestUtils
 

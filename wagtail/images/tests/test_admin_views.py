@@ -38,10 +38,10 @@ from wagtail.images.views.images import BulkActionsColumn, ImagesFilterSet
 from wagtail.models import (
     Collection,
     GroupCollectionPermission,
-    Page,
     UploadedFile,
     get_root_collection_id,
 )
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     CustomImage,
     CustomImageWithAuthor,

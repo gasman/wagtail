@@ -13,9 +13,9 @@ from wagtail.blocks import StreamBlockValidationError, StreamValue
 from wagtail.fields import StreamField
 from wagtail.images.models import Image
 from wagtail.images.tests.utils import get_test_image_file
-from wagtail.models import Page
 from wagtail.rich_text import RichText
 from wagtail.signal_handlers import disable_reference_index_auto_update
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     ComplexDefaultStreamPage,
     JSONBlockCountsStreamModel,

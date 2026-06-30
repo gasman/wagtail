@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from wagtail.admin.forms.auth import PasswordResetForm
 from wagtail.admin.tests.test_forms import CustomLoginForm, CustomPasswordResetForm
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.users.models import UserProfile
 

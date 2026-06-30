@@ -2,7 +2,8 @@ from django.db import models
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 
-from wagtail.models import Orderable, Page, TranslatableMixin
+from wagtail.models import Orderable, TranslatableMixin
+from wagtail.test.basepage.models import BasePage as Page
 
 
 class TestPage(Page):

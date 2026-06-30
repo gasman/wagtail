@@ -11,8 +11,8 @@ from openpyxl import load_workbook
 
 from wagtail.admin.viewsets.pages import PageViewSet, page_viewset_registry
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import Page
 from wagtail.models.workflows import Workflow
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     BusinessChild,
     BusinessSubIndex,

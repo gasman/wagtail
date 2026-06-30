@@ -13,7 +13,6 @@ from freezegun import freeze_time
 from wagtail.log_actions import LogActionRegistry
 from wagtail.log_actions import registry as log_registry
 from wagtail.models import (
-    Page,
     PageLogEntry,
     PageViewRestriction,
     Task,
@@ -21,6 +20,7 @@ from wagtail.models import (
     WorkflowTask,
 )
 from wagtail.models.audit_log import ModelLogEntry
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import FullFeaturedSnippet, SimplePage
 from wagtail.test.utils import WagtailTestUtils
 

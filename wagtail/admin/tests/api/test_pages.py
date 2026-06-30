@@ -15,7 +15,8 @@ from wagtail.api.v2.tests.test_pages import (
     TestPageListing,
     TestPageListingSearch,
 )
-from wagtail.models import GroupPagePermission, Locale, Page, PageLogEntry
+from wagtail.models import GroupPagePermission, Locale, PageLogEntry
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.demosite import models
 from wagtail.test.i18n.models import TestPage
 from wagtail.test.testapp.models import (

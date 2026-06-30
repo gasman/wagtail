@@ -4,7 +4,8 @@ from django.test import TestCase, override_settings
 from wagtail.contrib.frontend_cache.tests import PURGED_URLS
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import Page, Site
+from wagtail.models import Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.routablepage.models import RoutablePageTest
 from wagtail.test.testapp.models import EventIndex
 from wagtail.test.utils import WagtailTestUtils

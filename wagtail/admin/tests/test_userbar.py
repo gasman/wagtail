@@ -12,7 +12,8 @@ from wagtail.admin.staticfiles import versioned_static
 from wagtail.admin.ui.components import Component
 from wagtail.admin.userbar import AccessibilityItem, ContentCheckerItem, Userbar
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import PAGE_TEMPLATE_VAR, Locale, Page, Site
+from wagtail.models import PAGE_TEMPLATE_VAR, Locale, Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.context_processors import get_call_count, reset_call_count
 from wagtail.test.testapp.models import BusinessChild, BusinessIndex, SimplePage
 from wagtail.test.utils import WagtailTestUtils

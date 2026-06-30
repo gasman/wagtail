@@ -3,7 +3,7 @@
 
 from django.db import models
 
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 
 
 class EarlyPage(Page):

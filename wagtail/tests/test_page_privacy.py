@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase, override_settings
 
-from wagtail.models import Page, PageViewRestriction
+from wagtail.models import PageViewRestriction
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.utils import WagtailTestUtils
 
 

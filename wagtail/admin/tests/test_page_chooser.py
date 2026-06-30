@@ -8,7 +8,8 @@ from django.utils.html import escape
 from django.utils.http import urlencode
 
 from wagtail.admin.views.chooser import can_choose_page
-from wagtail.models import Locale, Page
+from wagtail.models import Locale
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     EventIndex,
     EventPage,

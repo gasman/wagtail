@@ -9,9 +9,9 @@ from wagtail.documents.models import Document
 from wagtail.models import (
     Collection,
     GroupCollectionPermission,
-    Page,
     get_root_collection_id,
 )
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.utils import WagtailTestUtils
 
 

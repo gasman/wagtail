@@ -30,7 +30,6 @@ from wagtail.locks import BasicLock
 from wagtail.models import (
     GroupApprovalTask,
     GroupPagePermission,
-    Page,
     PageViewRestriction,
     Task,
     TaskState,
@@ -41,6 +40,7 @@ from wagtail.models import (
     WorkflowTask,
 )
 from wagtail.signals import page_published, published
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     CustomLockTask,
     CustomWorkflowLock,

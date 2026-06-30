@@ -21,10 +21,10 @@ from wagtail.models import (
     GroupPagePermission,
     Locale,
     ModelLogEntry,
-    Page,
     PageLogEntry,
     Site,
 )
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     Advert,
     EventPage,

@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import EventPage
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.test.utils.template_tests import AdminTemplateTestUtils

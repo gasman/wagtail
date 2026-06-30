@@ -2,7 +2,7 @@ from unittest import mock
 
 from django.conf import settings
 
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.routablepage.models import RoutablePageTest
 from wagtail.test.utils import WagtailPageTestCase
 

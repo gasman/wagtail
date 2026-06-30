@@ -13,7 +13,6 @@ from django.utils import timezone
 from wagtail.embeds.models import Embed
 from wagtail.models import (
     Collection,
-    Page,
     PageLogEntry,
     Revision,
     Task,
@@ -21,6 +20,7 @@ from wagtail.models import (
     WorkflowTask,
 )
 from wagtail.signals import page_published, page_unpublished, published, unpublished
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     DraftStateModel,
     EventPage,

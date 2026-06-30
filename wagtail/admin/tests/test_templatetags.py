@@ -23,7 +23,8 @@ from wagtail.admin.templatetags.wagtailadmin_tags import (
 )
 from wagtail.coreutils import get_dummy_request
 from wagtail.images.tests.utils import get_test_image_file
-from wagtail.models import Locale, Page
+from wagtail.models import Locale
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.test.utils.template_tests import AdminTemplateTestUtils
 from wagtail.users.models import UserProfile

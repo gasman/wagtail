@@ -7,8 +7,8 @@ from django.http import HttpRequest, HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
-from wagtail.models import Page
 from wagtail.signals import post_page_move, pre_page_move
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     BusinessSubIndex,
     SimpleChildPage,

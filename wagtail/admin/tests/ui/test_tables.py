@@ -9,7 +9,8 @@ from wagtail.admin.ui.tables import (
     Table,
     TitleColumn,
 )
-from wagtail.models import Page, Site
+from wagtail.models import Site
+from wagtail.test.basepage.models import BasePage as Page
 
 
 class TestTable(TestCase):

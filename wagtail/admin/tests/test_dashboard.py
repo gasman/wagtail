@@ -13,7 +13,8 @@ from wagtail.admin.views.home import (
     WorkflowObjectsToModeratePanel,
 )
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import GroupPagePermission, Page, Workflow, WorkflowContentType
+from wagtail.models import GroupPagePermission, Workflow, WorkflowContentType
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import FullFeaturedSnippet, SimplePage
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.users.models import UserProfile

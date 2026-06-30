@@ -8,7 +8,8 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from openpyxl import load_workbook
 
-from wagtail.models import GroupPagePermission, Page
+from wagtail.models import GroupPagePermission
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import EventPage
 from wagtail.test.utils import WagtailTestUtils
 

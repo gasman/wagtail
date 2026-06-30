@@ -2,7 +2,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from wagtail.models import Page, Site
+from wagtail.models import Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.benchmark import Benchmark
 from wagtail.test.testapp.models import SingleEventPage, StreamPage
 from wagtail.test.utils import WagtailTestUtils

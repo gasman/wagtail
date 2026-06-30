@@ -3,7 +3,8 @@ from django.http import HttpRequest, HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
-from wagtail.models import GroupPagePermission, Page
+from wagtail.models import GroupPagePermission
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     CustomCopyFormPage,
     EventPage,

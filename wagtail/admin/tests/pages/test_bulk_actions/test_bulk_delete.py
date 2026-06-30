@@ -9,8 +9,8 @@ from django.urls import reverse
 from django.utils.http import urlencode
 
 from wagtail.admin.views.pages.bulk_actions.page_bulk_action import PageBulkAction
-from wagtail.models import Page
 from wagtail.signals import page_unpublished
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import SimplePage, VariousOnDeleteModel
 from wagtail.test.utils import WagtailTestUtils
 

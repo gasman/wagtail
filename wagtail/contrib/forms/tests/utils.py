@@ -1,4 +1,4 @@
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     FormField,
     FormFieldWithCustomSubmission,

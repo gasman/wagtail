@@ -12,8 +12,9 @@ from wagtail.api import APIField
 from wagtail.contrib.forms.models import AbstractForm, AbstractFormField
 from wagtail.fields import RichTextField
 from wagtail.images.api.fields import ImageRenditionField
-from wagtail.models import Orderable, Page
+from wagtail.models import Orderable
 from wagtail.search import index
+from wagtail.test.basepage.models import BasePage as Page
 
 # ABSTRACT MODELS
 # =============================

@@ -11,7 +11,8 @@ from freezegun import freeze_time
 
 from wagtail.admin.models import FormState
 from wagtail.admin.staticfiles import versioned_static
-from wagtail.models import Page, Site
+from wagtail.models import Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     CustomPreviewSizesPage,
     EventCategory,

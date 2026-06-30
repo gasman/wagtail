@@ -7,9 +7,10 @@ from django.core import management
 from django.db.models import Count, Q
 from django.test import TestCase, TransactionTestCase, tag
 
-from wagtail.models import Locale, Page, PageViewRestriction, Site, Workflow
+from wagtail.models import Locale, PageViewRestriction, Site, Workflow
 from wagtail.search.query import MATCH_ALL
 from wagtail.signals import page_unpublished
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     EventPage,
     SimplePage,

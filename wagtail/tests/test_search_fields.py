@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from django.core import checks
 from django.test import TestCase
 
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     TaggedChildPage,
     TaggedGrandchildPage,

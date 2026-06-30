@@ -10,7 +10,8 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from wagtail.admin.models import EditingSession
-from wagtail.models import GroupPagePermission, Page, Workflow, WorkflowContentType
+from wagtail.models import GroupPagePermission, Workflow, WorkflowContentType
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     Advert,
     AdvertWithCustomPrimaryKey,

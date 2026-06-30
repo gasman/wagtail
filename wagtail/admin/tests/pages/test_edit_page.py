@@ -22,7 +22,6 @@ from wagtail.models import (
     CommentReply,
     GroupPagePermission,
     Locale,
-    Page,
     PageLogEntry,
     PageSubscription,
     Revision,
@@ -30,6 +29,7 @@ from wagtail.models import (
     get_default_page_content_type,
 )
 from wagtail.signals import page_published
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     EVENT_AUDIENCE_CHOICES,
     Advert,

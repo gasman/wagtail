@@ -2,7 +2,7 @@ from django.db import models
 
 from wagtail.blocks import CharBlock, ListBlock, StreamBlock, StructBlock
 from wagtail.fields import StreamField
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 
 
 class SimpleStructBlock(StructBlock):

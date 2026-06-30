@@ -3,7 +3,8 @@ from django.test import TestCase, override_settings
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
-from wagtail.models import Locale, Page
+from wagtail.models import Locale
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.i18n.models import TestPage
 
 

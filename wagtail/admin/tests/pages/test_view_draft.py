@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
 from django.urls import reverse
 
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import MultiPreviewModesPage, SimplePage, StreamPage
 from wagtail.test.utils import WagtailTestUtils
 

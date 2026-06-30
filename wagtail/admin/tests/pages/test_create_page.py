@@ -12,11 +12,11 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.models import (
     GroupPagePermission,
     Locale,
-    Page,
     PageViewRestriction,
     Revision,
 )
 from wagtail.signals import init_new_page, page_published
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     Advert,
     BusinessChild,

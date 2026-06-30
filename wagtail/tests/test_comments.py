@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from wagtail.models import Comment, Page
+from wagtail.models import Comment
+from wagtail.test.basepage.models import BasePage as Page
 
 
 class CommentTestingUtils:

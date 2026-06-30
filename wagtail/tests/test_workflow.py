@@ -13,7 +13,6 @@ from freezegun import freeze_time
 
 from wagtail.models import (
     GroupApprovalTask,
-    Page,
     Task,
     TaskState,
     Workflow,
@@ -22,6 +21,7 @@ from wagtail.models import (
     WorkflowState,
     WorkflowTask,
 )
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     FullFeaturedSnippet,
     ModeratedModel,

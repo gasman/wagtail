@@ -72,7 +72,6 @@ from wagtail.models import (
     DraftStateMixin,
     LockableMixin,
     Orderable,
-    Page,
     PageManager,
     PagePermissionTester,
     PageQuerySet,
@@ -86,6 +85,7 @@ from wagtail.models import (
 from wagtail.search import index
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
+from wagtail.test.basepage.models import BasePage as Page
 
 from ...locks import WorkflowLock
 from .fields import CommentableJSONField

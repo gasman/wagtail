@@ -1,8 +1,9 @@
 from django.contrib.auth.models import AnonymousUser, Group, Permission
 from django.test import TestCase
 
-from wagtail.models import GroupPagePermission, Page, get_default_page_content_type
+from wagtail.models import GroupPagePermission, get_default_page_content_type
 from wagtail.permission_policies.pages import PagePermissionPolicy
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.tests.permission_policies.test_permission_policies import (
     PermissionPolicyTestUtils,

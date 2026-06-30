@@ -13,8 +13,9 @@ from rest_framework.test import APIClient
 
 from wagtail.api.v2 import signal_handlers
 from wagtail.api.v2.views import PagesAPIViewSet
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Site
 from wagtail.models.view_restrictions import BaseViewRestriction
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.demosite import models
 from wagtail.test.testapp.models import StreamPage
 from wagtail.test.utils import WagtailTestUtils

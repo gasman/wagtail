@@ -21,7 +21,8 @@ from wagtail.contrib.forms.tests.utils import (
     make_form_page_with_custom_submission,
 )
 from wagtail.contrib.forms.utils import get_form_types
-from wagtail.models import Locale, Page
+from wagtail.models import Locale
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.demosite.models import FormPage as FormPageDemo
 from wagtail.test.testapp.models import (
     CustomFormPageSubmission,

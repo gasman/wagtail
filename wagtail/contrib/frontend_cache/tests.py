@@ -17,7 +17,7 @@ from wagtail.contrib.frontend_cache.backends import (
     HTTPBackend,
 )
 from wagtail.contrib.frontend_cache.utils import get_backends
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import EventIndex, EventPage
 
 from .utils import (

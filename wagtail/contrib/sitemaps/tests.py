@@ -6,7 +6,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
 
-from wagtail.models import Page, PageViewRestriction, Site
+from wagtail.models import PageViewRestriction, Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import EventIndex, SimplePage
 
 from .sitemap_generator import Sitemap

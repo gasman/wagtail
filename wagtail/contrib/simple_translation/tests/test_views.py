@@ -19,7 +19,8 @@ from wagtail.contrib.simple_translation.views import (
     SubmitTranslationView,
 )
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import GroupPagePermission, Locale, Page
+from wagtail.models import GroupPagePermission, Locale
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.i18n.models import TestPage
 from wagtail.test.snippets.models import TranslatableSnippet
 from wagtail.test.testapp.models import FullFeaturedSnippet

@@ -22,10 +22,10 @@ from wagtail.documents.tests.utils import get_test_document_file
 from wagtail.models import (
     Collection,
     GroupCollectionPermission,
-    Page,
     ReferenceIndex,
     UploadedFile,
 )
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     CustomDocument,
     CustomDocumentWithAuthor,

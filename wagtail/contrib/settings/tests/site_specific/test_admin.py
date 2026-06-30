@@ -8,7 +8,8 @@ from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.contrib.settings.registry import SettingMenuItem
 from wagtail.contrib.settings.views import get_setting_edit_handler
-from wagtail.models import GroupSitePermission, Page, Site
+from wagtail.models import GroupSitePermission, Site
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.test.testapp.models import (
     FileSiteSetting,
     IconSiteSetting,

@@ -1,7 +1,7 @@
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.utils.deprecation import MiddlewareMixin
 
-from wagtail.models import Page
+from wagtail.test.basepage.models import BasePage as Page
 from wagtail.views import serve
 
 
