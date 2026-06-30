@@ -150,7 +150,7 @@ class ContactFieldsMixin(models.Model):
 
 
 class HomePage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     body = RichTextField(blank=True)
@@ -192,7 +192,7 @@ HomePage.content_panels = Page.content_panels + [
 
 
 class StandardPage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     intro = RichTextField(blank=True)
@@ -246,7 +246,7 @@ StandardPage.promote_panels = [
 
 
 class StandardIndexPage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     intro = RichTextField(blank=True)
@@ -291,7 +291,7 @@ StandardIndexPage.promote_panels = [
 
 
 class BlogEntryPage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     body = RichTextField()
@@ -361,7 +361,7 @@ BlogEntryPage.promote_panels = [
 
 
 class BlogIndexPage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     intro = RichTextField(blank=True)
@@ -418,7 +418,7 @@ BlogIndexPage.content_panels = Page.content_panels + [
 
 
 class EventPage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     AUDIENCE_CHOICES = (
@@ -536,7 +536,7 @@ EventPage.promote_panels = [
 
 
 class EventIndexPage(Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     intro = RichTextField(blank=True)
@@ -580,7 +580,7 @@ EventIndexPage.content_panels = Page.content_panels + [
 
 
 class PersonPage(Page, ContactFieldsMixin):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     first_name = models.CharField(max_length=255)
@@ -647,7 +647,7 @@ PersonPage.promote_panels = [
 
 
 class ContactPage(Page, ContactFieldsMixin):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     body = RichTextField(blank=True)
@@ -686,7 +686,7 @@ class FormField(AbstractFormField):
 
 
 class FormPage(FormMixin, Page):
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
     api_fields = [APIField("form_fields")]

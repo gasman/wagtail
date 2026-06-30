@@ -2068,7 +2068,7 @@ class OneToOnePage(Page):
     """
 
     body = RichTextBlock(blank=True)
-    page_ptr = models.OneToOneField(
+    basepage_ptr = models.OneToOneField(
         Page, parent_link=True, related_name="+", on_delete=models.CASCADE
     )
 

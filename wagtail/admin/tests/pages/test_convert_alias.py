@@ -85,6 +85,6 @@ class TestConvertAlias(WagtailTestUtils, TestCase):
                 }
             },
         )
-        self.assertEqual(log.page, self.alias_page.page_ptr)
+        self.assertEqual(log.page, self.alias_page.basepage_ptr)
         self.assertEqual(log.revision, revision)
         self.assertEqual(log.user, self.user)

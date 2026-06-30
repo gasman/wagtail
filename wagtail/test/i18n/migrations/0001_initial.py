@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             name="TestPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         auto_created=True,
                         on_delete=django.db.models.deletion.CASCADE,

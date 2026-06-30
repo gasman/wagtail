@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name="BlogEntryPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
             name="BlogIndexPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -239,7 +239,7 @@ class Migration(migrations.Migration):
                 ("country", models.CharField(blank=True, max_length=255)),
                 ("post_code", models.CharField(blank=True, max_length=10)),
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -270,7 +270,7 @@ class Migration(migrations.Migration):
             name="EventIndexPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -329,7 +329,7 @@ class Migration(migrations.Migration):
             name="EventPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -532,7 +532,7 @@ class Migration(migrations.Migration):
             name="HomePage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -647,7 +647,7 @@ class Migration(migrations.Migration):
                 ("country", models.CharField(blank=True, max_length=255)),
                 ("post_code", models.CharField(blank=True, max_length=10)),
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -729,7 +729,7 @@ class Migration(migrations.Migration):
             name="StandardIndexPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -798,7 +798,7 @@ class Migration(migrations.Migration):
             name="StandardPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=models.CASCADE,
                         to="basepage.BasePage",
@@ -1207,7 +1207,7 @@ class Migration(migrations.Migration):
             name="FormPage",
             fields=[
                 (
-                    "page_ptr",
+                    "basepage_ptr",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         parent_link=True,
