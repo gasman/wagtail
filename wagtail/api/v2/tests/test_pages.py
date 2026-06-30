@@ -334,20 +334,17 @@ class TestPageListing(WagtailTestUtils, TestCase):
                 {
                     "type",
                     "detail_url",
-                    "show_in_menus",
                     "first_published_at",
                     "alias_of",
-                    "seo_title",
                     "slug",
                     "html_url",
-                    "search_description",
                     "locale",
                 },
             )
 
     def test_all_fields_then_remove_something(self):
         response = self.get_response(
-            type="demosite.BlogEntryPage", fields="*,-title,-date,-seo_title"
+            type="demosite.BlogEntryPage", fields="*,-title,-date"
         )
         content = json.loads(response.content.decode("UTF-8"))
 
@@ -370,12 +367,10 @@ class TestPageListing(WagtailTestUtils, TestCase):
                 {
                     "type",
                     "detail_url",
-                    "show_in_menus",
                     "first_published_at",
                     "alias_of",
                     "slug",
                     "html_url",
-                    "search_description",
                     "locale",
                 },
             )
@@ -1423,9 +1418,6 @@ class TestPageDetail(TestCase):
             "detail_url",
             "html_url",
             "slug",
-            "show_in_menus",
-            "seo_title",
-            "search_description",
             "first_published_at",
             "alias_of",
             "parent",
@@ -1524,7 +1516,7 @@ class TestPageDetail(TestCase):
     def test_remove_all_meta_fields(self):
         response = self.get_response(
             16,
-            fields="-type,-detail_url,-slug,-first_published_at,-alias_of,-html_url,-search_description,-show_in_menus,-parent,-seo_title",
+            fields="-type,-detail_url,-slug,-first_published_at,-alias_of,-html_url,-parent",
         )
         content = json.loads(response.content.decode("UTF-8"))
 

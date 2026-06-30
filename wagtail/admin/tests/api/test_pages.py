@@ -270,13 +270,10 @@ class TestAdminPageListing(AdminAPITestCase, TestPageListing):
                 {
                     "type",
                     "detail_url",
-                    "show_in_menus",
                     "first_published_at",
-                    "seo_title",
                     "slug",
                     "parent",
                     "html_url",
-                    "search_description",
                     "locale",
                     "alias_of",
                     "children",
@@ -291,7 +288,7 @@ class TestAdminPageListing(AdminAPITestCase, TestPageListing):
     def test_all_fields_then_remove_something(self):
         response = self.get_response(
             type="demosite.BlogEntryPage",
-            fields="*,-title,-admin_display_title,-date,-seo_title,-status",
+            fields="*,-title,-admin_display_title,-date,-status",
         )
         content = json.loads(response.content.decode("UTF-8"))
 
@@ -314,12 +311,10 @@ class TestAdminPageListing(AdminAPITestCase, TestPageListing):
                 {
                     "type",
                     "detail_url",
-                    "show_in_menus",
                     "first_published_at",
                     "slug",
                     "parent",
                     "html_url",
-                    "search_description",
                     "locale",
                     "alias_of",
                     "children",
@@ -1080,7 +1075,7 @@ class TestAdminPageDetail(AdminAPITestCase, TestPageDetail):
     def test_remove_all_meta_fields(self):
         response = self.get_response(
             16,
-            fields="-type,-detail_url,-slug,-first_published_at,-html_url,-descendants,-latest_revision_created_at,-alias_of,-children,-ancestors,-show_in_menus,-seo_title,-parent,-status,-search_description",
+            fields="-type,-detail_url,-slug,-first_published_at,-html_url,-descendants,-latest_revision_created_at,-alias_of,-children,-ancestors,-parent,-status",
         )
         content = json.loads(response.content.decode("UTF-8"))
 
