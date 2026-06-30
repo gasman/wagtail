@@ -18,7 +18,7 @@
   },
   {
     "pk": 1,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Root",
       "draft_title": "Root",
@@ -28,7 +28,7 @@
       "seo_title": "",
       "depth": 1,
       "search_description": "",
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "has_unpublished_changes": false,
       "owner": null,
       "path": "0001",
@@ -39,7 +39,7 @@
   },
   {
     "pk": 2,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Home page",
       "draft_title": "Home page",
@@ -60,7 +60,7 @@
   },
   {
     "pk": 4,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Events index",
       "draft_title": "Events index",
@@ -81,7 +81,7 @@
   },
   {
     "pk": 5,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Blog index",
       "draft_title": "Blog index",
@@ -102,7 +102,7 @@
   },
   {
     "pk": 6,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Standard index",
       "draft_title": "Standard index",
@@ -123,7 +123,7 @@
   },
   {
     "pk": 8,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Event 1",
       "draft_title": "Event 1",
@@ -144,7 +144,7 @@
   },
   {
     "pk": 9,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Event 2",
       "draft_title": "Event 2",
@@ -165,7 +165,7 @@
   },
   {
     "pk": 10,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Standard page 1",
       "draft_title": "Standard page 1",
@@ -186,7 +186,7 @@
   },
   {
     "pk": 12,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Contact page",
       "draft_title": "Contact page",
@@ -207,7 +207,7 @@
   },
   {
     "pk": 13,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "James Joyce",
       "draft_title": "James Joyce",
@@ -228,7 +228,7 @@
   },
   {
     "pk": 14,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "David Mitchell",
       "draft_title": "David Mitchell",
@@ -249,7 +249,7 @@
   },
   {
     "pk": 15,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Standard page 2",
       "draft_title": "Standard page 2",
@@ -270,7 +270,7 @@
   },
   {
     "pk": 16,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Blog post",
       "draft_title": "Blog post",
@@ -291,7 +291,7 @@
   },
   {
     "pk": 17,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Photo credits",
       "draft_title": "Photo credits",
@@ -312,7 +312,7 @@
   },
   {
     "pk": 18,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Blog post about elephants",
       "draft_title": "Blog post about elephants",
@@ -333,7 +333,7 @@
   },
   {
     "pk": 19,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Another blog post",
       "draft_title": "Another blog post",
@@ -354,7 +354,7 @@
   },
   {
     "pk": 20,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "People",
       "draft_title": "People",
@@ -375,7 +375,7 @@
   },
   {
     "pk": 21,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "A deeper menu level",
       "draft_title": "A deeper menu level",
@@ -396,7 +396,7 @@
   },
   {
     "pk": 22,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "A grandchild page",
       "draft_title": "A grandchild page",
@@ -417,7 +417,7 @@
   },
   {
     "pk": 23,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Another grandchild page",
       "draft_title": "Another grandchild page",
@@ -438,7 +438,7 @@
   },
   {
     "pk": 24,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Home page multi-site",
       "draft_title": "Home page multi-site",
@@ -459,7 +459,7 @@
   },
   {
     "pk": 25,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Events index multi-site",
       "draft_title": "Events index multi-site",

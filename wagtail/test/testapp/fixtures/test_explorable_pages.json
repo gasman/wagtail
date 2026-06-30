@@ -1,7 +1,7 @@
 [
   {
     "pk": 1,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Root",
       "draft_title": "Root",
@@ -9,7 +9,7 @@
       "show_in_menus": false,
       "live": true,
       "depth": 1,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "path": "0001",
       "url_path": "/",
       "locale_id": 1,
@@ -19,7 +19,7 @@
 
   {
     "pk": 2,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Welcome to testserver!",
       "draft_title": "Welcome to testserver!",
@@ -48,7 +48,7 @@
 
   {
     "pk": 3,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "About us",
       "draft_title": "About us",
@@ -77,7 +77,7 @@
 
   {
     "pk": 4,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Welcome to example.com!",
       "draft_title": "Welcome to example.com!",
@@ -106,7 +106,7 @@
 
   {
     "pk": 5,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Content",
       "draft_title": "Content",
@@ -136,7 +136,7 @@
 
   {
     "pk": 6,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Page 1",
       "draft_title": "Page 1",
@@ -166,7 +166,7 @@
 
   {
     "pk": 7,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Page 2",
       "draft_title": "Page 2",
@@ -196,7 +196,7 @@
 
   {
     "pk": 8,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Other Content",
       "draft_title": "Other Content",
@@ -226,7 +226,7 @@
 
   {
     "pk": 9,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Child 1 of Page 2",
       "draft_title": "Child 1 of Page 2",
@@ -256,7 +256,7 @@
 
   {
     "pk": 10,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Welcome to example2.com!",
       "draft_title": "Welcome to example2.com!",

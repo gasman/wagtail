@@ -18,7 +18,7 @@
   },
   {
     "pk": 1,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Root",
       "draft_title": "Root",
@@ -26,7 +26,7 @@
       "show_in_menus": false,
       "live": true,
       "depth": 1,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "locale_id": 1,
       "path": "0001",
       "url_path": "/",
@@ -36,7 +36,7 @@
 
   {
     "pk": 2,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Welcome to the Wagtail test site!",
       "draft_title": "Welcome to the Wagtail test site!",
@@ -44,7 +44,7 @@
       "show_in_menus": false,
       "live": true,
       "depth": 2,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "locale_id": 1,
       "path": "00010001",
       "url_path": "/home/",

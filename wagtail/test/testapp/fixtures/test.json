@@ -18,7 +18,7 @@
   },
   {
     "pk": 1,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Root",
       "draft_title": "Root",
@@ -26,7 +26,7 @@
       "show_in_menus": false,
       "live": true,
       "depth": 1,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "path": "0001",
       "url_path": "/",
       "locale_id": 1,
@@ -36,7 +36,7 @@
 
   {
     "pk": 2,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Welcome to the Wagtail test site!",
       "draft_title": "Welcome to the Wagtail test site!",
@@ -44,7 +44,7 @@
       "show_in_menus": false,
       "live": true,
       "depth": 2,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "path": "00010001",
       "url_path": "/home/",
       "locale_id": 1,
@@ -55,7 +55,7 @@
   },
   {
     "pk": 3,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Events",
       "draft_title": "Events",
@@ -80,7 +80,7 @@
 
   {
     "pk": 4,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Christmas",
       "draft_title": "Christmas",
@@ -111,7 +111,7 @@
 
   {
     "pk": 13,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Saint Patrick",
       "draft_title": "Saint Patrick",
@@ -160,7 +160,7 @@
 
   {
     "pk": 5,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Tentative Unpublished Event",
       "draft_title": "Tentative Unpublished Event",
@@ -190,7 +190,7 @@
 
   {
     "pk": 6,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Someone Else's Event",
       "draft_title": "Someone Else's Event",
@@ -220,7 +220,7 @@
 
   {
     "pk": 7,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "About us",
       "draft_title": "About us",
@@ -247,7 +247,7 @@
 
   {
     "pk": 8,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Contact us",
       "draft_title": "Contact us",
@@ -274,7 +274,7 @@
 
   {
     "pk": 9,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Ameristralia Day",
       "draft_title": "Ameristralia Day",
@@ -350,7 +350,7 @@
 
   {
     "pk": 10,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Old style route method",
       "draft_title": "Old style route method",
@@ -375,7 +375,7 @@
 
   {
     "pk": 11,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Secret plans",
       "draft_title": "Secret plans",
@@ -400,7 +400,7 @@
 
   {
     "pk": 12,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Steal underpants",
       "draft_title": "Steal underpants",
@@ -428,7 +428,7 @@
   },
   {
     "pk": 14,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "My locked page",
       "draft_title": "My locked page",
@@ -436,7 +436,7 @@
       "show_in_menus": true,
       "live": true,
       "depth": 3,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "path": "000100010006",
       "locale_id": 1,
       "url_path": "/home/my-locked-page/",
@@ -446,7 +446,7 @@
   },
   {
     "pk": 15,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Businessy events",
       "draft_title": "Businessy events",
@@ -470,7 +470,7 @@
 
   {
     "pk": 16,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Board meetings",
       "draft_title": "Board meetings",
@@ -494,7 +494,7 @@
 
   {
     "pk": 17,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Contact us one more time",
       "draft_title": "Contact us one more time",
@@ -591,7 +591,7 @@
   },
   {
     "pk": 18,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Secret event editor plans",
       "draft_title": "Secret event editor plans",
@@ -615,7 +615,7 @@
   },
   {
     "pk": 19,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "Secret login plans",
       "draft_title": "Secret login plans",
@@ -639,7 +639,7 @@
   },
   {
     "pk": 20,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "This page doesn't get served",
       "draft_title": "This page doesn't get served",
@@ -647,7 +647,7 @@
       "show_in_menus": false,
       "live": true,
       "depth": 2,
-      "content_type": ["wagtailcore", "page"],
+      "content_type": ["basepage", "basepage"],
       "path": "00010002",
       "locale_id": 1,
       "url_path": "/does-not-exist/",
@@ -656,7 +656,7 @@
   },
   {
     "pk": 21,
-    "model": "wagtailcore.page",
+    "model": "basepage.basepage",
     "fields": {
       "title": "This page has a field that shouldn't be copied",
       "draft_title": "This page has a field that shouldn't be copied",
