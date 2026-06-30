@@ -13,8 +13,8 @@ class TestBulkActionDispatcher(WagtailTestUtils, TestCase):
         url = reverse(
             "wagtail_bulk_action",
             args=(
-                "wagtailcore",
-                "page",
+                "basepage",
+                "basepage",
                 "ships",
             ),
         )

@@ -33,8 +33,8 @@ class TestBulkUnpublish(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "unpublish",
                 ),
             )
@@ -69,8 +69,8 @@ class TestBulkUnpublish(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "unpublish",
                 ),
             )
@@ -239,8 +239,8 @@ class TestBulkUnpublishIncludingDescendants(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "unpublish",
                 ),
             )

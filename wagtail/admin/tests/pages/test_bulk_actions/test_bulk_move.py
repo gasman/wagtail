@@ -78,8 +78,8 @@ class TestBulkMove(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "move",
                 ),
             )
@@ -149,8 +149,8 @@ class TestBulkMove(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "move",
                 ),
             )
@@ -328,8 +328,8 @@ class TestBulkMove(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "move",
                 ),
             )

@@ -735,7 +735,7 @@
     "fields": {
       "group": ["Event editors"],
       "page": 3,
-      "permission": ["add_page", "wagtailcore", "page"]
+      "permission": ["add_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -744,7 +744,7 @@
     "fields": {
       "group": ["Event moderators"],
       "page": 3,
-      "permission": ["add_page", "wagtailcore", "page"]
+      "permission": ["add_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -753,7 +753,7 @@
     "fields": {
       "group": ["Event moderators"],
       "page": 3,
-      "permission": ["change_page", "wagtailcore", "page"]
+      "permission": ["change_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -762,7 +762,7 @@
     "fields": {
       "group": ["Event moderators"],
       "page": 3,
-      "permission": ["publish_page", "wagtailcore", "page"]
+      "permission": ["publish_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -771,7 +771,7 @@
     "fields": {
       "group": ["Site-wide editors"],
       "page": 2,
-      "permission": ["change_page", "wagtailcore", "page"]
+      "permission": ["change_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -780,7 +780,7 @@
     "fields": {
       "group": ["Event moderators"],
       "page": 3,
-      "permission": ["lock_page", "wagtailcore", "page"]
+      "permission": ["lock_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -789,7 +789,7 @@
     "fields": {
       "group": ["Corporate Editor"],
       "page": 7,
-      "permission": ["change_page", "wagtailcore", "page"]
+      "permission": ["change_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -798,7 +798,7 @@
     "fields": {
       "group": ["Corporate Editor"],
       "page": 15,
-      "permission": ["add_page", "wagtailcore", "page"]
+      "permission": ["add_basepage", "basepage", "basepage"]
     }
   },
   {
@@ -807,7 +807,7 @@
     "fields": {
       "group": ["Event moderators"],
       "page": 3,
-      "permission": ["unlock_page", "wagtailcore", "page"]
+      "permission": ["unlock_basepage", "basepage", "basepage"]
     }
   },
 

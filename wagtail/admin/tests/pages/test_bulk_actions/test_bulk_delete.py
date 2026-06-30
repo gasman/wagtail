@@ -59,8 +59,8 @@ class TestBulkDelete(WagtailTestUtils, TestCase):
             reverse(
                 "wagtail_bulk_action",
                 args=(
-                    "wagtailcore",
-                    "page",
+                    "basepage",
+                    "basepage",
                     "delete",
                 ),
             )
@@ -441,7 +441,7 @@ class TestBulkDelete(WagtailTestUtils, TestCase):
         url = (
             reverse(
                 "wagtail_bulk_action",
-                args=("wagtailcore", "page", "delete"),
+                args=("basepage", "basepage", "delete"),
             )
             + "?"
         )
@@ -476,7 +476,7 @@ class TestBulkDelete(WagtailTestUtils, TestCase):
         url = (
             reverse(
                 "wagtail_bulk_action",
-                args=("wagtailcore", "page", "delete"),
+                args=("basepage", "basepage", "delete"),
             )
             + "?"
         )
@@ -522,7 +522,7 @@ class TestBulkDelete(WagtailTestUtils, TestCase):
         url = (
             reverse(
                 "wagtail_bulk_action",
-                args=("wagtailcore", "page", "delete"),
+                args=("basepage", "basepage", "delete"),
             )
             + "?"
         )
@@ -574,7 +574,7 @@ class TestBulkDelete(WagtailTestUtils, TestCase):
         url = (
             reverse(
                 "wagtail_bulk_action",
-                args=("wagtailcore", "page", "delete"),
+                args=("basepage", "basepage", "delete"),
             )
             + "?"
         )
