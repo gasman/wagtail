@@ -97,7 +97,7 @@ EVENT_AUDIENCE_CHOICES = (
 )
 
 
-COMMON_PANELS = ("slug", "seo_title", "show_in_menus", "search_description")
+COMMON_PANELS = ("slug", "importance")
 
 CUSTOM_PREVIEW_SIZES = [
     {
@@ -121,7 +121,7 @@ CUSTOM_PREVIEW_SIZES = [
 class LinkFields(models.Model):
     link_external = models.URLField("External link", blank=True)
     link_page = models.ForeignKey(
-        "wagtailcore.Page",
+        "basepage.BasePage",
         null=True,
         blank=True,
         related_name="+",
@@ -715,7 +715,7 @@ class RedirectFormField(AbstractFormField):
 
 class FormPageWithRedirect(AbstractEmailForm):
     thank_you_redirect_page = models.ForeignKey(
-        "wagtailcore.Page",
+        "basepage.BasePage",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -1054,7 +1054,7 @@ class FormPageWithCustomFormBuilder(AbstractEmailForm):
 # Snippets
 class AdvertPlacement(models.Model):
     page = ParentalKey(
-        "wagtailcore.Page", related_name="advert_placements", on_delete=models.CASCADE
+        "basepage.BasePage", related_name="advert_placements", on_delete=models.CASCADE
     )
     advert = models.ForeignKey(
         "tests.Advert", related_name="+", on_delete=models.CASCADE
@@ -1464,7 +1464,7 @@ class VariousOnDeleteModel(models.Model):
         related_name="+",
     )
     protected_page = models.ForeignKey(
-        "wagtailcore.Page",
+        "basepage.BasePage",
         on_delete=models.PROTECT,
         null=True,
         blank=True,
@@ -1527,7 +1527,7 @@ class StandardIndex(Page):
     # we use this to test that the 'promote' tab is left out of the output when empty
     content_panels = [
         TitleFieldPanel("title", classname="title"),
-        FieldPanel("seo_title"),
+        FieldPanel("importance"),
         FieldPanel("slug"),
         InlinePanel("advert_placements", heading="Adverts", label="advert"),
     ]
@@ -1636,7 +1636,7 @@ class SingletonPageViaMaxCount(Page):
 
 class PageChooserModel(models.Model):
     page = models.ForeignKey(
-        "wagtailcore.Page", help_text="help text", on_delete=models.CASCADE
+        "basepage.BasePage", help_text="help text", on_delete=models.CASCADE
     )
 
 
@@ -1963,26 +1963,26 @@ class TestPermissionedSiteSetting(BaseSiteSetting):
 @register_setting
 class ImportantPagesSiteSetting(BaseSiteSetting):
     sign_up_page = models.ForeignKey(
-        "wagtailcore.Page", related_name="+", null=True, on_delete=models.SET_NULL
+        "basepage.BasePage", related_name="+", null=True, on_delete=models.SET_NULL
     )
     general_terms_page = models.ForeignKey(
-        "wagtailcore.Page", related_name="+", null=True, on_delete=models.SET_NULL
+        "basepage.BasePage", related_name="+", null=True, on_delete=models.SET_NULL
     )
     privacy_policy_page = models.ForeignKey(
-        "wagtailcore.Page", related_name="+", null=True, on_delete=models.SET_NULL
+        "basepage.BasePage", related_name="+", null=True, on_delete=models.SET_NULL
     )
 
 
 @register_setting(name="important-pages-generic-setting")
 class ImportantPagesGenericSetting(BaseGenericSetting):
     sign_up_page = models.ForeignKey(
-        "wagtailcore.Page", related_name="+", null=True, on_delete=models.SET_NULL
+        "basepage.BasePage", related_name="+", null=True, on_delete=models.SET_NULL
     )
     general_terms_page = models.ForeignKey(
-        "wagtailcore.Page", related_name="+", null=True, on_delete=models.SET_NULL
+        "basepage.BasePage", related_name="+", null=True, on_delete=models.SET_NULL
     )
     privacy_policy_page = models.ForeignKey(
-        "wagtailcore.Page", related_name="+", null=True, on_delete=models.SET_NULL
+        "basepage.BasePage", related_name="+", null=True, on_delete=models.SET_NULL
     )
 
     class Meta:
