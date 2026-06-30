@@ -20,6 +20,7 @@ WAGTAILADMIN_BASE_URL = "http://testserver"
 STATIC_ROOT = os.path.join(WAGTAIL_ROOT, "tests", "test-static")
 MEDIA_ROOT = os.path.join(WAGTAIL_ROOT, "tests", "test-media")
 MEDIA_URL = "/media/"
+WAGTAIL_PAGE_MODEL = "basepage.BasePage"
 
 TIME_ZONE = "Asia/Tokyo"
 
@@ -148,6 +149,7 @@ INSTALLED_APPS = [
     # There's nothing special about wagtailredirects, we just need to have one
     # app which uses AppConfigs to test that hooks load properly
     "wagtail.contrib.redirects.apps.WagtailRedirectsAppConfig",
+    "wagtail.test.basepage",
     "wagtail.test.testapp",
     "wagtail.test.demosite",
     "wagtail.test.snippets",
