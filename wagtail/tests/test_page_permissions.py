@@ -279,7 +279,8 @@ class TestPagePermission(TestCase):
 
         # Remove 'edit' permission from the event_moderator group
         GroupPagePermission.objects.filter(
-            group__name="Event moderators", permission__codename="change_page"
+            group__name="Event moderators",
+            permission__codename=Page.CHANGE_PERMISSION_CODENAME,
         ).delete()
 
         homepage = Page.objects.get(url_path="/home/")
@@ -815,7 +816,8 @@ class TestPagePermission(TestCase):
         christmas_page = EventPage.objects.get(url_path="/home/events/christmas/")
 
         GroupPagePermission.objects.filter(
-            group__name="Event moderators", permission__codename="unlock_page"
+            group__name="Event moderators",
+            permission__codename=Page.UNLOCK_PERMISSION_CODENAME,
         ).delete()
 
         perms = christmas_page.permissions_for_user(user)
@@ -834,7 +836,8 @@ class TestPagePermission(TestCase):
         christmas_page.save()
 
         GroupPagePermission.objects.filter(
-            group__name="Event moderators", permission__codename="unlock_page"
+            group__name="Event moderators",
+            permission__codename=Page.UNLOCK_PERMISSION_CODENAME,
         ).delete()
 
         perms = christmas_page.permissions_for_user(user)
@@ -1090,4 +1093,6 @@ class TestPagePermissionModel(TestCase):
         group_permission = GroupPagePermission.objects.create(
             group=user.groups.first(), page=page, permission_type="add"
         )
-        self.assertEqual(group_permission.permission.codename, "add_page")
+        self.assertEqual(
+            group_permission.permission.codename, Page.ADD_PERMISSION_CODENAME
+        )
